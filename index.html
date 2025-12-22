@@ -1047,8 +1047,9 @@
                             <div class="flex flex-col gap-4">
                                 <div class="flex flex-col gap-2">
                                     <label class="text-sm font-bold text-gray-900 dark:text-white">프로그램 제목</label>
-                                    <input type="text" id="program-title" list="program-list" placeholder="예: 추억의 노래 교실" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white h-10 px-3 focus:ring-2 focus:ring-primary" oninput="updatePatternIndicator(this.value)" autocomplete="off"/>
-                                    <datalist id="program-list"></datalist>
+                                    <select id="program-title" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white h-10 px-3 focus:ring-2 focus:ring-primary" onchange="updatePatternIndicator(this.value)">
+                                        <option value="">프로그램을 선택하세요 (258개)</option>
+                                    </select>
                                     <div id="pattern-indicator" class="hidden"></div>
                                 </div>
 

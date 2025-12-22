@@ -48,24 +48,17 @@ async function loadProgramPatterns() {
     }
 }
 
-// 프로그램 이름 자동완성 설정
+// 프로그램 이름 자동완성 설정 (select 방식)
 function setupProgramAutocomplete() {
-    const input = document.getElementById('program-title');
-    const datalist = document.getElementById('program-list');
+    const select = document.getElementById('program-title');
 
-    console.log('자동완성 설정 시작...', {
-        input: !!input,
-        datalist: !!datalist,
+    console.log('프로그램 select 설정 시작...', {
+        select: !!select,
         programNamesCount: programNames.length
     });
 
-    if (!input) {
-        console.error('❌ program-title 요소를 찾을 수 없습니다.');
-        return;
-    }
-
-    if (!datalist) {
-        console.error('❌ program-list datalist를 찾을 수 없습니다.');
+    if (!select) {
+        console.error('❌ program-title select 요소를 찾을 수 없습니다.');
         return;
     }
 
@@ -74,15 +67,27 @@ function setupProgramAutocomplete() {
         return;
     }
 
+    // 기존 옵션 유지하고 프로그램 목록 추가
+    const firstOption = select.querySelector('option[value=""]');
+    select.innerHTML = '';
+    if (firstOption) {
+        select.appendChild(firstOption);
+    } else {
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = `프로그램을 선택하세요 (${programNames.length}개)`;
+        select.appendChild(defaultOption);
+    }
+
     // 프로그램 목록 추가
-    datalist.innerHTML = '';
     programNames.forEach(name => {
         const option = document.createElement('option');
         option.value = name;
-        datalist.appendChild(option);
+        option.textContent = name;
+        select.appendChild(option);
     });
 
-    console.log(`✓ ${programNames.length}개 프로그램 자동완성 설정 완료`);
+    console.log(`✓ ${programNames.length}개 프로그램 목록 로드 완료`);
     console.log('처음 10개 프로그램:', programNames.slice(0, 10));
 }
 
