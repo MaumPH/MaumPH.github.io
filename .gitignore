@@ -4,6 +4,7 @@
 *.swp
 *.swo
 *~
+.claude/
 
 # OS 파일
 .DS_Store
@@ -12,6 +13,16 @@ desktop.ini
 
 # 백업 폴더
 백업/
+
+# 개발/테스트 파일
+code*.html
+screen*.png
+build_fixed.bat
+main*.py
+*.txt
+
+# 문서 파일
+*.pdf
 
 # 빌드 파일
 *.pyc
