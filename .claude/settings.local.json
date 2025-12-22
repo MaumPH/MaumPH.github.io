@@ -5,7 +5,10 @@
       "Bash(node -e:*)",
       "Bash(del:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git rm:*)",
+      "Bash(ls:*)",
+      "Bash(git reset:*)"
     ]
   }
 }

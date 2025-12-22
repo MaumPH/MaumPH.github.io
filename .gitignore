@@ -11,8 +11,10 @@
 Thumbs.db
 desktop.ini
 
-# 백업 폴더
+# 백업 폴더 및 파일
 백업/
+*.backup.html
+*_with_inline_script.html
 
 # 개발/테스트 파일
 code*.html
