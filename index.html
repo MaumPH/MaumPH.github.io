@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>프로그램관리자 업무수행일지 작성 시스템</title>
+    <title>주간보호센터 업무수행도우미</title>
+    <meta name="description" content="주간보호센터 프로그램 관리자를 위한 AI 기반 업무 문서 자동 작성 시스템">
+    <meta property="og:title" content="주간보호센터 업무수행도우미">
+    <meta property="og:description" content="업무수행일지, 프로그램 일지, 사례관리, 상담일지를 AI로 자동 생성">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://maumph.github.io/">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
@@ -1042,7 +1047,8 @@
                             <div class="flex flex-col gap-4">
                                 <div class="flex flex-col gap-2">
                                     <label class="text-sm font-bold text-gray-900 dark:text-white">프로그램 제목</label>
-                                    <input type="text" id="program-title" placeholder="예: 추억의 노래 교실" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white h-10 px-3 focus:ring-2 focus:ring-primary" oninput="updatePatternIndicator(this.value)"/>
+                                    <input type="text" id="program-title" list="program-list" placeholder="예: 추억의 노래 교실" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white h-10 px-3 focus:ring-2 focus:ring-primary" oninput="updatePatternIndicator(this.value)" autocomplete="off"/>
+                                    <datalist id="program-list"></datalist>
                                     <div id="pattern-indicator" class="hidden"></div>
                                 </div>
 

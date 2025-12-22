@@ -30,15 +30,12 @@ async function loadProgramPatterns() {
 
 // 프로그램 이름 자동완성 설정
 function setupProgramAutocomplete() {
-    const input = document.getElementById('program-name');
-    if (!input || !programNames.length) return;
+    const input = document.getElementById('program-title');
+    const datalist = document.getElementById('program-list');
 
-    // 데이터리스트 생성
-    let datalist = document.getElementById('program-list');
-    if (!datalist) {
-        datalist = document.createElement('datalist');
-        datalist.id = 'program-list';
-        input.parentNode.appendChild(datalist);
+    if (!input || !datalist || !programNames.length) {
+        console.warn('자동완성 설정 실패: 필수 요소를 찾을 수 없습니다.');
+        return;
     }
 
     // 프로그램 목록 추가
@@ -49,9 +46,7 @@ function setupProgramAutocomplete() {
         datalist.appendChild(option);
     });
 
-    // input에 datalist 연결
-    input.setAttribute('list', 'program-list');
-    input.setAttribute('autocomplete', 'off');
+    console.log(`✓ ${programNames.length}개 프로그램 자동완성 설정 완료`);
 }
 
 // 선택된 프로그램의 과거 반응 패턴 가져오기
