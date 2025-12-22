@@ -1,0 +1,32 @@
+# 개발 환경
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS 파일
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 백업 폴더
+백업/
+
+# 빌드 파일
+*.pyc
+__pycache__/
+
+# 로그 파일
+*.log
+
+# 임시 파일
+*.tmp
+*.temp
+
+# API 키 (만약 설정 파일로 분리할 경우)
+.env
+config.local.js
+
+# 대용량 데이터 파일 (25MB 초과)
+program_data.json
