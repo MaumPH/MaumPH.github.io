@@ -4,7 +4,7 @@
  */
 
 // 앱 초기화
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
     // PDF.js worker 설정
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -24,6 +24,15 @@ window.addEventListener('load', () => {
 
     // 서비스 체크박스 설정
     setupServiceCheckboxes();
+
+    // 프로그램 패턴 데이터 로드 (비동기)
+    if (typeof loadProgramPatterns === 'function') {
+        const loaded = await loadProgramPatterns();
+        if (loaded && typeof setupProgramAutocomplete === 'function') {
+            setupProgramAutocomplete();
+            console.log('✓ 프로그램 자동완성 설정 완료');
+        }
+    }
 
     // API 키 미설정 시 안내
     if (!apiKey) {

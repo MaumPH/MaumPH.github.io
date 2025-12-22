@@ -202,7 +202,7 @@ function completeJournal() {
     window.scrollTo(0, 0);
 }
 
-// 프로그램 반응 생성 (간소화 버전)
+// 프로그램 반응 생성 (과거 패턴 활용)
 async function generateProgramReactions() {
     const programTitle = document.getElementById('program-title').value.trim();
     const programDesc = document.getElementById('program-description').value.trim();
@@ -216,7 +216,7 @@ async function generateProgramReactions() {
     showLoadingOverlay(`${count}개의 어르신 반응을 생성하고 있습니다...`);
 
     try {
-        const prompt = `다음 프로그램에 참여한 어르신들의 반응을 ${count}개 생성해주세요.
+        let prompt = `다음 프로그램에 참여한 어르신들의 반응을 ${count}개 생성해주세요.
 
 프로그램: ${programTitle}
 ${programDesc ? `설명: ${programDesc}` : ''}
@@ -228,6 +228,11 @@ ${programDesc ? `설명: ${programDesc}` : ''}
 1. 첫 번째 반응
 2. 두 번째 반응
 ...`;
+
+        // 과거 패턴 데이터가 있으면 프롬프트 강화
+        if (typeof enhancePromptWithPatterns === 'function') {
+            prompt = enhancePromptWithPatterns(prompt, programTitle);
+        }
 
         const result = await callGeminiAPI(prompt);
 
