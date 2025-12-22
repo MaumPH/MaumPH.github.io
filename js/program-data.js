@@ -13,17 +13,37 @@ let programNames = [];
 // 프로그램 패턴 데이터 로드
 async function loadProgramPatterns() {
     try {
-        const response = await fetch('program_patterns.json');
-        if (!response.ok) {
-            console.warn('program_patterns.json 파일을 찾을 수 없습니다.');
+        // 여러 경로 시도
+        const paths = [
+            './program_patterns.json',
+            'program_patterns.json',
+            '/program_patterns.json'
+        ];
+
+        let loaded = false;
+        for (const path of paths) {
+            try {
+                const response = await fetch(path);
+                if (response.ok) {
+                    programPatterns = await response.json();
+                    programNames = Object.keys(programPatterns).sort();
+                    console.log(`✓ ${programNames.length}개 프로그램 패턴 로드 완료 (경로: ${path})`);
+                    loaded = true;
+                    break;
+                }
+            } catch (e) {
+                continue;
+            }
+        }
+
+        if (!loaded) {
+            console.warn('⚠️ program_patterns.json 파일을 찾을 수 없습니다. 자동완성 기능이 비활성화됩니다.');
             return false;
         }
-        programPatterns = await response.json();
-        programNames = Object.keys(programPatterns).sort();
-        console.log(`✓ ${programNames.length}개 프로그램 패턴 로드 완료`);
+
         return true;
     } catch (error) {
-        console.error('프로그램 패턴 로드 실패:', error);
+        console.error('❌ 프로그램 패턴 로드 실패:', error);
         return false;
     }
 }
@@ -33,8 +53,24 @@ function setupProgramAutocomplete() {
     const input = document.getElementById('program-title');
     const datalist = document.getElementById('program-list');
 
-    if (!input || !datalist || !programNames.length) {
-        console.warn('자동완성 설정 실패: 필수 요소를 찾을 수 없습니다.');
+    console.log('자동완성 설정 시작...', {
+        input: !!input,
+        datalist: !!datalist,
+        programNamesCount: programNames.length
+    });
+
+    if (!input) {
+        console.error('❌ program-title 요소를 찾을 수 없습니다.');
+        return;
+    }
+
+    if (!datalist) {
+        console.error('❌ program-list datalist를 찾을 수 없습니다.');
+        return;
+    }
+
+    if (!programNames.length) {
+        console.warn('⚠️ 프로그램 목록이 비어있습니다.');
         return;
     }
 
@@ -47,6 +83,7 @@ function setupProgramAutocomplete() {
     });
 
     console.log(`✓ ${programNames.length}개 프로그램 자동완성 설정 완료`);
+    console.log('처음 10개 프로그램:', programNames.slice(0, 10));
 }
 
 // 선택된 프로그램의 과거 반응 패턴 가져오기
