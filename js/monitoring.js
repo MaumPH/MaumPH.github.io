@@ -204,13 +204,35 @@ function completeJournal() {
 
 // 프로그램 반응 생성 (과거 패턴 활용)
 async function generateProgramReactions() {
-    const programTitle = document.getElementById('program-title').value.trim();
-    const programDesc = document.getElementById('program-description').value.trim();
     const count = parseInt(document.getElementById('reaction-count').value) || 30;
 
-    if (!programTitle) {
-        alert('프로그램 제목을 입력해주세요.');
-        return;
+    // Check program mode
+    const mode = document.querySelector('input[name="program-mode"]:checked').value;
+    const isExisting = mode === 'existing';
+    let programTitle = '';
+    let programDesc = '';
+
+    if (isExisting) {
+        const selectElement = document.getElementById('existing-program-select');
+        if (!selectElement.value) {
+            alert('프로그램을 선택해주세요.');
+            return;
+        }
+        programTitle = selectElement.value;
+        programDesc = ''; // Not needed for existing programs
+    } else {
+        programTitle = document.getElementById('new-program-title').value.trim();
+        programDesc = document.getElementById('new-program-desc').value.trim();
+
+        if (!programTitle) {
+            alert('프로그램 제목을 입력해주세요.');
+            return;
+        }
+
+        if (!programDesc) {
+            alert('프로그램 설명을 입력해주세요.');
+            return;
+        }
     }
 
     showLoadingOverlay(`${count}개의 어르신 반응을 생성하고 있습니다...`);

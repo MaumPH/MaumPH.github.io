@@ -49,9 +49,15 @@ function handleVehicleFile(input) {
             // 파일 업로드 성공 표시
             document.getElementById('vc-file-status').innerHTML = `
                 <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                    <p class="text-sm text-green-800 dark:text-green-200">
-                        ✓ 파일이 업로드되었습니다: <strong>${file.name}</strong> (${jsonData.length}개 행)
-                    </p>
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-green-800 dark:text-green-200">
+                            ✓ 파일이 업로드되었습니다: <strong>${file.name}</strong> (${jsonData.length}개 행)
+                        </p>
+                        <button onclick="removeVehicleFile()" class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm font-medium flex items-center gap-1">
+                            <span class="material-symbols-outlined text-lg">close</span>
+                            파일 제거
+                        </button>
+                    </div>
                 </div>
             `;
 
@@ -137,13 +143,16 @@ function findOverlaps(data, type) {
 /**
  * 차량 중복 검사 실행
  */
-function checkVehicleOverlap() {
+async function checkVehicleOverlap() {
     if (!vehicleExcelData) {
         alert('먼저 엑셀 파일을 선택해주세요.');
         return;
     }
 
-    showLoadingOverlay('차량 중복을 검사하고 있습니다...');
+    showLoadingOverlay('처리중입니다...');
+
+    // UI가 업데이트될 시간을 주기 위해 약간의 지연
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
         const admissionOverlaps = findOverlaps(vehicleExcelData, '입소');
@@ -221,6 +230,16 @@ function displayVehicleResults(admissionOverlaps, dischargeOverlaps) {
 
     document.getElementById('vc-result-content').textContent = report.join('\n');
     document.getElementById('vc-result-section').classList.remove('hidden');
+}
+
+/**
+ * 파일 제거
+ */
+function removeVehicleFile() {
+    vehicleExcelData = null;
+    document.getElementById('vc-file-input').value = '';
+    document.getElementById('vc-file-status').innerHTML = '';
+    document.getElementById('vc-result-section').classList.add('hidden');
 }
 
 /**
