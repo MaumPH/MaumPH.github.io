@@ -106,18 +106,18 @@ async function generateNewsletter() {
             document.getElementById('newsletter-desc-3').value.trim()
         ];
 
-        // Generate titles for each image
-        let newsletterTitles = [];
-        for (let i = 0; i < 3; i++) {
+        // Generate titles for each image (병렬 처리로 속도 개선)
+        const titlePromises = newsletterImages.map((image, i) => {
             const prompt = `이 이미지는 주간보호센터의 프로그램 활동 사진입니다.
 ${descriptions[i] ? `참고 정보: ${descriptions[i]}` : ''}
 
 이 활동의 제목을 10자 이내로 지어주세요.
 제목만 출력하세요. 설명이나 추가 문구는 필요 없습니다.`;
 
-            const title = await callGeminiAPIWithImage(prompt, newsletterImages[i]);
-            newsletterTitles.push(title.trim());
-        }
+            return callGeminiAPIWithImage(prompt, image);
+        });
+
+        const newsletterTitles = (await Promise.all(titlePromises)).map(title => title.trim());
 
         // Generate newsletter content
         const contentPrompt = `다음은 주간보호센터의 3가지 프로그램 활동 제목입니다:
