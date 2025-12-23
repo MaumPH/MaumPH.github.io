@@ -295,49 +295,80 @@ function toggleProgramMode() {
     if (mode === 'existing') {
         existingSection.classList.remove('hidden');
         newSection.classList.add('hidden');
+
+        // Populate program list if not already done
+        const selectElement = document.getElementById('existing-program-select');
+        if (selectElement.options.length === 0) {
+            populateProgramList();
+        }
     } else {
         existingSection.classList.add('hidden');
         newSection.classList.remove('hidden');
+        // Hide selected program display when switching to new program mode
+        document.getElementById('selected-program-display').classList.add('hidden');
     }
 }
 
-// 프로그램 목록 채우기 (필요시 구현)
+// 프로그램 목록 채우기
+let filteredPrograms = [];
+
 function populateProgramList() {
-    // 실제 구현은 프로그램 목록 데이터에 따라 달라짐
-}
+    const selectElement = document.getElementById('existing-program-select');
+    selectElement.innerHTML = '';
 
-// 프로그램 필터링
-function filterPrograms() {
-    const searchTerm = document.getElementById('program-search').value.toLowerCase();
-    const programItems = document.querySelectorAll('.program-item');
+    // programNames는 program-data.js에서 로드됨
+    if (typeof programNames !== 'undefined' && programNames.length > 0) {
+        filteredPrograms = [...programNames];
+    } else {
+        console.warn('프로그램 목록이 로드되지 않았습니다.');
+        filteredPrograms = [];
+    }
 
-    programItems.forEach(item => {
-        const title = item.textContent.toLowerCase();
-        if (title.includes(searchTerm)) {
-            item.classList.remove('hidden');
-        } else {
-            item.classList.add('hidden');
-        }
+    filteredPrograms.forEach(program => {
+        const option = document.createElement('option');
+        option.value = program;
+        option.textContent = program;
+        selectElement.appendChild(option);
     });
 
     updateProgramCount();
 }
 
+// 프로그램 필터링
+function filterPrograms() {
+    const searchText = document.getElementById('program-search').value.toLowerCase();
+
+    if (!searchText) {
+        filteredPrograms = typeof programNames !== 'undefined' ? [...programNames] : [];
+    } else {
+        const sourceList = typeof programNames !== 'undefined' ? programNames : [];
+        filteredPrograms = sourceList.filter(program =>
+            program.toLowerCase().includes(searchText)
+        );
+    }
+
+    populateProgramList();
+}
+
 // 프로그램 개수 업데이트
 function updateProgramCount() {
-    const visibleCount = document.querySelectorAll('.program-item:not(.hidden)').length;
-    const totalCount = document.querySelectorAll('.program-item').length;
-    const countElement = document.getElementById('program-count');
+    const countElement = document.getElementById('program-list-count');
     if (countElement) {
-        countElement.textContent = `${visibleCount}/${totalCount}개 프로그램`;
+        countElement.textContent = `${filteredPrograms.length}개 프로그램`;
     }
 }
 
 // 선택된 프로그램 표시 업데이트
 function updateSelectedProgramDisplay() {
-    const selectedRadio = document.querySelector('input[name="selected-program"]:checked');
-    if (selectedRadio) {
-        const programTitle = selectedRadio.value;
-        document.getElementById('program-title').value = programTitle;
+    const selectElement = document.getElementById('existing-program-select');
+    const displayBox = document.getElementById('selected-program-display');
+    const nameSpan = document.getElementById('selected-program-name');
+
+    if (selectElement.selectedIndex >= 0 && selectElement.value) {
+        const selectedProgram = selectElement.value;
+        nameSpan.textContent = selectedProgram;
+        displayBox.classList.remove('hidden');
+    } else {
+        displayBox.classList.add('hidden');
     }
 }
