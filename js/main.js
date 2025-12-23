@@ -19,9 +19,6 @@ window.addEventListener('load', async () => {
     // Drag and drop 설정
     setupDragAndDrop();
 
-    // 프로그램 모드 초기화
-    toggleProgramMode();
-
     // 서비스 체크박스 설정
     setupServiceCheckboxes();
 
@@ -33,6 +30,9 @@ window.addEventListener('load', async () => {
             console.log('✓ 프로그램 자동완성 설정 완료');
         }
     }
+
+    // 프로그램 모드 초기화 (프로그램 패턴 로드 후에 실행)
+    toggleProgramMode();
 
     // API 키 미설정 시 안내
     if (!apiKey) {
