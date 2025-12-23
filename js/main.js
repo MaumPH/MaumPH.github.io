@@ -198,8 +198,8 @@ ${descriptions[i] ? `참고 정보: ${descriptions[i]}` : ''}
         newsletterContent = await callGeminiAPI(contentPrompt);
 
         // Display result
-        document.getElementById('newsletter-result-content').textContent = newsletterContent;
-        document.getElementById('newsletter-result-section').classList.remove('hidden');
+        document.getElementById('nl-result-content').textContent = newsletterContent;
+        document.getElementById('nl-result-section').classList.remove('hidden');
 
         hideLoadingOverlay();
         alert('✓ 소식지가 생성되었습니다!');
@@ -211,7 +211,7 @@ ${descriptions[i] ? `참고 정보: ${descriptions[i]}` : ''}
 }
 
 function copyNewsletterResult() {
-    const content = document.getElementById('newsletter-result-content').textContent;
+    const content = document.getElementById('nl-result-content').textContent;
 
     if (!content || content.trim() === '') {
         alert('먼저 소식지를 생성해주세요.');
