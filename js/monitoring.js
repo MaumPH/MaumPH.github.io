@@ -202,9 +202,362 @@ function completeJournal() {
     window.scrollTo(0, 0);
 }
 
-// 프로그램 반응 생성 (과거 패턴 활용)
+// 감정 표현 형식 생성
+function formatEmotionExpressions(emotionDict, maxItemsPerCategory = 10) {
+    if (!emotionDict) return "";
+
+    const result = [];
+    for (const [category, expressions] of Object.entries(emotionDict)) {
+        if (Array.isArray(expressions) && expressions.length > 0) {
+            const items = expressions.slice(0, maxItemsPerCategory);
+            const itemsStr = items.map(item => `"${item}"`).join(', ');
+            result.push(`- ${category}: ${itemsStr}`);
+        }
+    }
+
+    return result.join('\n');
+}
+
+// 감정 분포 계산
+function calculateEmotionDistribution(count) {
+    const positive = parseInt(document.getElementById('positive-ratio').value);
+    const neutral = parseInt(document.getElementById('neutral-ratio').value);
+    const negative = parseInt(document.getElementById('negative-ratio').value);
+
+    const totalRatio = positive + neutral + negative;
+
+    if (totalRatio !== 100) {
+        // Use default ratios if sum is not 100
+        return {
+            positive: Math.round(count * 0.5),
+            neutral: Math.round(count * 0.3),
+            negative: Math.round(count * 0.2)
+        };
+    }
+
+    const positiveCount = Math.round(count * positive / 100);
+    const neutralCount = Math.round(count * neutral / 100);
+    const negativeCount = count - positiveCount - neutralCount;
+
+    return { positive: positiveCount, neutral: neutralCount, negative: negativeCount };
+}
+
+// 프로그램 예시 반응 가져오기
+function getExampleReactions(programTitle, maxCount = 30) {
+    // Get example reactions from program data
+    if (!PROGRAM_DATA || !PROGRAM_DATA[programTitle]) {
+        return [];
+    }
+
+    const reactions = [];
+    for (const row of PROGRAM_DATA[programTitle]) {
+        if (row['참여'] === 'O') {
+            const reaction = row['반응 및 특이사항(미참여사유)'];
+            if (reaction && reaction.trim()) {
+                reactions.push(reaction.trim());
+                if (reactions.length >= maxCount) break;
+            }
+        }
+    }
+
+    return reactions;
+}
+
+// 고급 프롬프트 생성
+function buildAdvancedPrompt(programTitle, programDesc, count, isExisting = false) {
+    const distribution = calculateEmotionDistribution(count);
+
+    // Get example reactions if this is an existing program
+    let examplesSection = '';
+    if (isExisting) {
+        const examples = getExampleReactions(programTitle);
+        if (examples.length > 0) {
+            const examplesText = examples.map((ex, i) => `${i+1}. ${ex}`).join('\n');
+            examplesSection = `\n# 실제 참여자 반응 예시\n${examplesText}\n\n위 예시들의 스타일을 참고하여 비슷한 톤과 구체성으로 작성하세요.\n`;
+        }
+    }
+
+    let positiveEmotionsText = "";
+    let neutralEmotionsText = "";
+    let negativeEmotionsText = "";
+    let cognitiveText = "";
+    let physicalText = "";
+    let socialText = "";
+    let programBehaviorsText = "";
+    let timeFlowText = "";
+
+    // Extract expressions from emotion guide
+    if (typeof EMOTION_GUIDE !== 'undefined' && EMOTION_GUIDE) {
+        if (EMOTION_GUIDE.긍정적_감정) {
+            positiveEmotionsText = formatEmotionExpressions(EMOTION_GUIDE.긍정적_감정, 4);
+        }
+
+        if (EMOTION_GUIDE.중립적_감정) {
+            neutralEmotionsText = formatEmotionExpressions(EMOTION_GUIDE.중립적_감정, 4);
+        }
+
+        if (EMOTION_GUIDE.소극적_피로_감정) {
+            negativeEmotionsText = formatEmotionExpressions(EMOTION_GUIDE.소극적_피로_감정, 4);
+        }
+
+        if (EMOTION_GUIDE.인지_수준별_표현) {
+            const cognitiveData = EMOTION_GUIDE.인지_수준별_표현;
+            const cognitiveParts = [];
+            for (const [level, data] of Object.entries(cognitiveData)) {
+                if (data && data.표현) {
+                    const ratio = data.비율 ? ` (${Math.round(data.비율 * 100)}%)` : "";
+                    const items = data.표현.slice(0, 3).map(item => `"${item}"`).join(', ');
+                    cognitiveParts.push(`- ${level}${ratio}: ${items}`);
+                }
+            }
+            cognitiveText = cognitiveParts.join('\n');
+        }
+
+        if (EMOTION_GUIDE.신체_능력별_표현) {
+            const physicalData = EMOTION_GUIDE.신체_능력별_표현;
+            const physicalParts = [];
+            for (const [level, data] of Object.entries(physicalData)) {
+                if (data && data.표현) {
+                    const ratio = data.비율 ? ` (${Math.round(data.비율 * 100)}%)` : "";
+                    const items = data.표현.slice(0, 3).map(item => `"${item}"`).join(', ');
+                    physicalParts.push(`- ${level}${ratio}: ${items}`);
+                }
+            }
+            physicalText = physicalParts.join('\n');
+        }
+
+        if (EMOTION_GUIDE.사회성_표현) {
+            const socialData = EMOTION_GUIDE.사회성_표현;
+            const socialParts = [];
+            for (const [level, data] of Object.entries(socialData)) {
+                if (data && data.표현) {
+                    const ratio = data.비율 ? ` (${Math.round(data.비율 * 100)}%)` : "";
+                    const items = data.표현.slice(0, 3).map(item => `"${item}"`).join(', ');
+                    socialParts.push(`- ${level}${ratio}: ${items}`);
+                }
+            }
+            socialText = socialParts.join('\n');
+        }
+
+        if (EMOTION_GUIDE.프로그램_특성별_행동) {
+            programBehaviorsText = formatEmotionExpressions(EMOTION_GUIDE.프로그램_특성별_행동, 3);
+        }
+
+        if (EMOTION_GUIDE.시간_흐름_표현) {
+            timeFlowText = EMOTION_GUIDE.시간_흐름_표현.slice(0, 4).map(expr => `- "${expr}"`).join('\n');
+        }
+    }
+
+    // Fallbacks if emotion guide is not available
+    if (!positiveEmotionsText) {
+        positiveEmotionsText = `- 즐거움: "즐거워하심", "웃으시며", "기쁜 표정으로", "밝은 미소 지으심", "환하게 웃으심"
+- 만족감: "만족스러워하심", "뿌듯해하심", "흡족한 표정으로", "성취감을 느끼심"
+- 흥미/호기심: "흥미롭게 보심", "호기심 가지심", "신기해하심", "관심 보이심"
+- 열정: "적극적으로", "열심히", "집중하여", "몰입하심"`;
+    }
+
+    if (!neutralEmotionsText) {
+        neutralEmotionsText = `- 집중: "조용히 집중하심", "묵묵히 임하심", "차분하게 참여하심", "꾸준히 하심"
+- 관찰: "지켜보시며", "주의 깊게 살피심", "관심 있게 보심"
+- 적응: "점차 익숙해지심", "천천히 따라하심", "자신의 속도로 하심"`;
+    }
+
+    if (!negativeEmotionsText) {
+        negativeEmotionsText = `- 조심스러움: "망설이시다가", "처음엔 주저하셨으나", "소극적이시다가"
+- 피로: "다소 피곤해하심", "중간에 휴식 취하심", "짧게 참여하심"
+- 제한적 참여: "일부만 참여하심", "관람만 하심", "보조 받아 참여하심"`;
+    }
+
+    if (!cognitiveText) {
+        cognitiveText = `- 높음 (30%): "정확히 이해하시고 능숙하게 하심", "스스로 방법을 찾아 진행하심", "이전 활동을 기억하시며 참여하심"
+- 보통 (50%): "설명 듣고 잘 따라하심", "도움받아 완성하심", "요양쌤과 함께 진행하심"
+- 낮음 (20%): "간단한 활동만 참여하심", "지켜보시며 즐거워하심", "부분적으로 참여하심"`;
+    }
+
+    if (!physicalText) {
+        physicalText = `- 활동적 (40%): "적극적으로 움직이심", "빠르게 완성하심", "활발히 참여하심"
+- 보통 (40%): "천천히 조심스럽게 하심", "자신의 페이스로 진행하심", "안정적으로 참여하심"
+- 제한적 (20%): "손동작만 참여하심", "앉아서 할 수 있는 부분만 하심", "보조 도구 사용하여 참여하심"`;
+    }
+
+    if (!socialText) {
+        socialText = `- 사교적 (40%): "다른 어르신들과 즐겁게 대화하시며 참여하심", "옆 어르신을 도우시며 함께하심"
+- 보통 (40%): "가끔 옆 어르신과 이야기 나누심", "조용히 개별적으로 참여하심"
+- 내향적 (20%): "혼자 조용히 집중하심", "묵묵히 자신의 활동에만 몰두하심"`;
+    }
+
+    if (!programBehaviorsText) {
+        programBehaviorsText = `- 신체_활동: "스트레칭하시며", "박수 치심", "율동 따라하심", "걸으시며"
+- 인지_활동: "문제 풀어보시며", "기억하시며", "답 맞히시고 기뻐하심", "생각하는 표정"
+- 미술_만들기: "색칠하시며", "오리시며", "붙이시며", "완성작 보시고 만족하심"
+- 음악: "노래 부르심", "박자 맞추심", "따라 부르심", "손뼉 치시며"
+- 게임: "승부욕 보이심", "이기시고 즐거워하심", "열심히 도전하심"`;
+    }
+
+    if (!timeFlowText) {
+        timeFlowText = `- "초반엔 망설이시다가 점차 자신감 있게 참여하심"
+- "처음엔 어려워하셨으나 익숙해지시며 즐거워하심"
+- "중반부터 피곤해하시며 속도 늦추심"
+- "끝까지 집중력 유지하며 완성하심"
+- "마지막에 다소 지치셨으나 만족스러워하심"`;
+    }
+
+    return `당신은 요양원 프로그램 운영 기록 작성 전문가입니다.
+
+# ${isExisting ? '기존' : '신규'} 프로그램 정보
+프로그램명: "${programTitle}"
+
+${isExisting ? '' : `프로그램 설명:\n${programDesc}\n`}${examplesSection}
+# 생성 목표
+위 프로그램의 특성을 깊이 이해하고, 어르신들의 현실적이고 다양한 반응을 생성하세요.${isExisting && examplesSection ? '\n실제 참여자 반응 예시들의 스타일, 톤, 구체성을 참고하되, 중복되지 않게 새로운 표현으로 작성하세요.' : ''}
+
+# 감정 분포 (고정)
+반응은 총 ${count}개 생성하되, 아래 개수를 반드시 정확히 지키세요.
+- 긍정: ${distribution.positive}개
+- 중립: ${distribution.neutral}개
+- 소극/피로: ${distribution.negative}개
+
+# 감정 표현 가이드
+
+**긍정적 감정:**
+${positiveEmotionsText}
+
+**중립적 감정:**
+${neutralEmotionsText}
+
+**소극적/피로 표현:**
+${negativeEmotionsText}
+
+# 개인별 특성 반영 패턴
+어르신의 다양한 특성을 자연스럽게 반영하세요:
+
+**인지 수준별:**
+${cognitiveText}
+
+**신체 능력별:**
+${physicalText}
+
+**사회성별:**
+${socialText}
+
+# 프로그램 특성별 구체적 행동 표현
+${programBehaviorsText}
+
+# 시간 흐름 및 변화 표현
+프로그램 진행에 따른 자연스러운 변화:
+${timeFlowText}
+
+# 실제 관찰 느낌의 표현
+추상적 표현보다 구체적 관찰:
+- ❌ "좋아하심" → ✅ "박수 치시며 '좋다'고 말씀하심"
+- ❌ "열심히 함" → ✅ "땀 흘리시며 끝까지 집중하심"
+- ❌ "즐거워함" → ✅ "환하게 웃으시며 다른 어르신과 이야기 나누심"
+- ❌ "어려워함" → ✅ "고개 갸우뚱하시며 요양쌤에게 도움 요청하심"
+
+# 출력 형식 (필수)
+아래 3개 섹션으로 나누어 출력하세요. 각 섹션에는 해당 개수만큼만 숫자 리스트로 작성하세요.
+
+[긍정]
+1. ...
+2. ...
+(총 ${distribution.positive}개)
+
+[중립]
+1. ...
+2. ...
+(총 ${distribution.neutral}개)
+
+[소극/피로]
+1. ...
+2. ...
+(총 ${distribution.negative}개)
+
+# 작성 규칙
+1. 존댓말 "~하심" 형태로 작성
+2. **각 반응은 30자 이상 작성 (구체적 상황, 세부 동작, 표정 변화, 말씀 등 포함)**
+3. 자연스럽고 실제 관찰한 듯한 표현 - 생동감과 현장감 최대화
+4. 다양한 인지수준, 신체능력, 사회성이 골고루 분포
+5. 프로그램 특성이 반영된 구체적 행동 (도구 사용, 재료 다루기, 신체 움직임 등)
+6. 중복 표현 최소화 - 각 반응이 독특하고 차별화되게
+7. **풍부한 디테일**: 어르신의 구체적 말씀, 표정 변화, 손동작, 다른 어르신과의 대화/상호작용
+8. **감정 표현 다양화**: 같은 긍정이라도 "기쁨/흥미/만족/자랑스러움" 등 세분화
+9. 섹션 제목([긍정], [중립], [소극/피로])은 반드시 포함
+10. 섹션별 개수 불일치 시, 스스로 수정해서 맞춘 뒤 최종 출력
+11. 다른 설명/서문 금지`;
+}
+
+// 감정 섹션 파싱
+function parseEmotionSections(generatedText) {
+    let positive = "";
+    let neutral = "";
+    let negative = "";
+
+    try {
+        const lines = generatedText.trim().split('\n');
+        let currentSection = null;
+
+        for (const line of lines) {
+            const trimmedLine = line.trim();
+            if (!trimmedLine) continue;
+
+            // Detect section headers
+            if (trimmedLine.includes('[긍정]') || (trimmedLine.includes('긍정') && trimmedLine.startsWith('['))) {
+                currentSection = 'positive';
+                continue;
+            } else if (trimmedLine.includes('[중립]') || (trimmedLine.includes('중립') && trimmedLine.startsWith('['))) {
+                currentSection = 'neutral';
+                continue;
+            } else if (trimmedLine.includes('[소극/피로]') || trimmedLine.includes('[소극') || (trimmedLine.includes('소극') && trimmedLine.startsWith('['))) {
+                currentSection = 'negative';
+                continue;
+            }
+
+            // Add content to current section
+            if (currentSection === 'positive') {
+                positive += trimmedLine + '\n';
+            } else if (currentSection === 'neutral') {
+                neutral += trimmedLine + '\n';
+            } else if (currentSection === 'negative') {
+                negative += trimmedLine + '\n';
+            }
+        }
+    } catch (error) {
+        // If parsing fails, put all text in positive
+        positive = generatedText;
+    }
+
+    return {
+        positive: positive.trim(),
+        neutral: neutral.trim(),
+        negative: negative.trim()
+    };
+}
+
+// 프로그램 반응 생성
 async function generateProgramReactions() {
-    const count = parseInt(document.getElementById('reaction-count').value) || 30;
+    // Validate inputs
+    if (!apiKey) {
+        alert('API 키가 설정되지 않았습니다. 설정 페이지에서 API 키를 먼저 입력해주세요.');
+        showPage('settings');
+        return;
+    }
+
+    const count = parseInt(document.getElementById('reaction-count').value);
+    if (count < 1 || count > 50) {
+        alert('생성 개수는 1~50 사이로 입력해주세요.');
+        return;
+    }
+
+    // Check ratio sum
+    const positive = parseInt(document.getElementById('positive-ratio').value);
+    const neutral = parseInt(document.getElementById('neutral-ratio').value);
+    const negative = parseInt(document.getElementById('negative-ratio').value);
+    const sum = positive + neutral + negative;
+
+    if (sum !== 100) {
+        alert('감정 비율의 합계가 100%가 되어야 합니다. 현재 합계: ' + sum + '%');
+        return;
+    }
 
     // Check program mode
     const mode = document.querySelector('input[name="program-mode"]:checked').value;
@@ -235,114 +588,56 @@ async function generateProgramReactions() {
         }
     }
 
-    // Get ratios
-    const positiveRatio = parseInt(document.getElementById('positive-ratio').value) || 50;
-    const neutralRatio = parseInt(document.getElementById('neutral-ratio').value) || 30;
-    const negativeRatio = parseInt(document.getElementById('negative-ratio').value) || 20;
+    // Build prompt
+    const prompt = buildAdvancedPrompt(programTitle, programDesc, count, isExisting);
 
-    // Check ratio sum
-    const sum = positiveRatio + neutralRatio + negativeRatio;
-    if (sum !== 100) {
-        alert(`감정 비율의 합계가 100%가 되어야 합니다. 현재 합계: ${sum}%`);
-        return;
-    }
-
-    // Calculate counts for each emotion
-    const positiveCount = Math.round(count * positiveRatio / 100);
-    const neutralCount = Math.round(count * neutralRatio / 100);
-    const negativeCount = count - positiveCount - neutralCount;
-
-    showLoadingOverlay(`${count}개의 어르신 반응을 생성하고 있습니다...`);
+    // Show loading
+    showLoadingOverlay('AI가 프로그램 반응을 생성하고 있습니다...');
 
     try {
-        // Generate positive reactions
-        let positivePrompt = `다음 프로그램에 참여한 어르신들의 긍정적 반응을 ${positiveCount}개 생성해주세요.
+        const result = await callGeminiAPI(prompt);
 
-프로그램: ${programTitle}
-${programDesc ? `설명: ${programDesc}` : ''}
+        // Parse sections
+        const sections = parseEmotionSections(result);
 
-각 반응은 50-150자 분량으로, 프로그램에 적극적으로 참여하고 즐거워하는 모습을 구체적으로 표현하세요.
-
-출력 형식:
-1. 첫 번째 반응
-2. 두 번째 반응
-...`;
-
-        if (typeof enhancePromptWithPatterns === 'function') {
-            positivePrompt = enhancePromptWithPatterns(positivePrompt, programTitle);
-        }
-
-        const positiveResult = await callGeminiAPI(positivePrompt);
-        document.getElementById('positive-reactions').value = positiveResult.trim();
-
-        // Generate neutral reactions
-        const neutralPrompt = `다음 프로그램에 참여한 어르신들의 중립적 반응을 ${neutralCount}개 생성해주세요.
-
-프로그램: ${programTitle}
-${programDesc ? `설명: ${programDesc}` : ''}
-
-각 반응은 50-150자 분량으로, 프로그램에 참여는 하지만 특별한 감정 표현 없이 조용히 참여하는 모습을 표현하세요.
-
-출력 형식:
-1. 첫 번째 반응
-2. 두 번째 반응
-...`;
-
-        const neutralResult = await callGeminiAPI(neutralPrompt);
-        document.getElementById('neutral-reactions').value = neutralResult.trim();
-
-        // Generate negative reactions
-        const negativePrompt = `다음 프로그램에 참여한 어르신들의 소극적/피로한 반응을 ${negativeCount}개 생성해주세요.
-
-프로그램: ${programTitle}
-${programDesc ? `설명: ${programDesc}` : ''}
-
-각 반응은 50-150자 분량으로, 프로그램 참여에 소극적이거나 피로감을 느끼는 모습을 표현하세요.
-
-출력 형식:
-1. 첫 번째 반응
-2. 두 번째 반응
-...`;
-
-        const negativeResult = await callGeminiAPI(negativePrompt);
-        document.getElementById('negative-reactions').value = negativeResult.trim();
-
-        hideLoadingOverlay();
-        alert(`✓ ${count}개의 반응이 생성되었습니다!\n긍정: ${positiveCount}개, 중립: ${neutralCount}개, 소극: ${negativeCount}개`);
+        // Display results
+        document.getElementById('positive-reactions').value = sections.positive;
+        document.getElementById('neutral-reactions').value = sections.neutral;
+        document.getElementById('negative-reactions').value = sections.negative;
 
     } catch (error) {
-        hideLoadingOverlay();
         alert('생성 중 오류가 발생했습니다: ' + error.message);
+    } finally {
+        hideLoadingOverlay();
     }
 }
 
 // 모든 반응 복사
 function copyAllReactions() {
-    const positive = document.getElementById('positive-reactions').value;
-    const neutral = document.getElementById('neutral-reactions').value;
-    const negative = document.getElementById('negative-reactions').value;
+    const positive = document.getElementById('positive-reactions').value.trim();
+    const neutral = document.getElementById('neutral-reactions').value.trim();
+    const negative = document.getElementById('negative-reactions').value.trim();
 
-    if (!positive && !neutral && !negative) {
-        alert('먼저 반응을 생성해주세요.');
-        return;
-    }
-
-    let output = '';
+    let fullText = "";
     if (positive) {
-        output += '😊 긍정적 반응\n\n' + positive + '\n\n';
+        fullText += "[긍정]\n" + positive + "\n\n";
     }
     if (neutral) {
-        output += '😐 중립적 반응\n\n' + neutral + '\n\n';
+        fullText += "[중립]\n" + neutral + "\n\n";
     }
     if (negative) {
-        output += '😔 소극적/피로 반응\n\n' + negative;
+        fullText += "[소극/피로]\n" + negative;
     }
 
-    navigator.clipboard.writeText(output.trim()).then(() => {
-        alert('✓ 모든 반응이 클립보드에 복사되었습니다.');
-    }).catch(err => {
-        alert('복사 중 오류가 발생했습니다: ' + err);
-    });
+    if (fullText.trim()) {
+        navigator.clipboard.writeText(fullText.trim()).then(() => {
+            alert('전체 내용이 클립보드에 복사되었습니다!');
+        }).catch(() => {
+            alert('복사 중 오류가 발생했습니다.');
+        });
+    } else {
+        alert('복사할 내용이 없습니다.');
+    }
 }
 
 // 프로그램 모드 토글 (기존 프로그램 / 신규 프로그램)
@@ -376,14 +671,21 @@ function populateProgramList() {
     const selectElement = document.getElementById('existing-program-select');
     selectElement.innerHTML = '';
 
-    // programNames는 program-data.js에서 로드됨
-    if (typeof programNames !== 'undefined' && programNames.length > 0) {
-        PROGRAM_LIST = [...programNames];
+    // PROGRAM_LIST가 아직 초기화되지 않았으면 초기화
+    if (PROGRAM_LIST.length === 0) {
+        // PROGRAM_DATA가 있으면 거기서 키 추출
+        if (typeof PROGRAM_DATA !== 'undefined' && PROGRAM_DATA) {
+            PROGRAM_LIST = Object.keys(PROGRAM_DATA).sort();
+        }
+        // 없으면 programNames 사용
+        else if (typeof programNames !== 'undefined' && programNames.length > 0) {
+            PROGRAM_LIST = [...programNames];
+        } else {
+            console.warn('프로그램 목록이 로드되지 않았습니다.');
+            PROGRAM_LIST = [];
+        }
+
         filteredPrograms = [...PROGRAM_LIST];
-    } else {
-        console.warn('프로그램 목록이 로드되지 않았습니다.');
-        PROGRAM_LIST = [];
-        filteredPrograms = [];
     }
 
     filteredPrograms.forEach(program => {
