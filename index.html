@@ -807,13 +807,17 @@
                             활동 이미지 업로드 (3개)
                         </h3>
 
-                        <div class="mb-4">
-                            <button onclick="document.getElementById('nl-image-input').click()" class="w-full bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                                <span class="material-symbols-outlined">add_photo_alternate</span>
-                                이미지 3개 선택하기
-                            </button>
+                        <!-- 드래그 앤 드롭 영역 -->
+                        <div id="nl-drop-zone" class="mb-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center bg-gray-50 dark:bg-gray-800 hover:border-primary hover:bg-gray-100 dark:hover:bg-gray-700 transition-all cursor-pointer">
+                            <div class="flex flex-col items-center gap-3">
+                                <span class="material-symbols-outlined text-5xl text-gray-400">cloud_upload</span>
+                                <p class="text-gray-700 dark:text-gray-300 font-medium">이미지를 여기에 드래그하거나 클릭하세요</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">정확히 3개의 이미지를 선택해주세요 (JPG, PNG)</p>
+                            </div>
                             <input type="file" id="nl-image-input" accept="image/*" multiple style="display: none;" onchange="handleNewsletterImages(this)">
                         </div>
+
+                        <div id="newsletter-image-status" class="mb-4"></div>
 
                         <div id="nl-images-preview" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <!-- Image 1 -->

@@ -34,6 +34,9 @@ window.addEventListener('load', async () => {
     // 프로그램 모드 초기화 (프로그램 패턴 로드 후에 실행)
     toggleProgramMode();
 
+    // 소식지 드래그 앤 드롭 설정
+    setupNewsletterDragDrop();
+
     // API 키 미설정 시 안내
     if (!apiKey) {
         setTimeout(() => {
@@ -64,10 +67,12 @@ async function handleNewsletterImages(input) {
             newsletterImageFiles[i] = file;
 
             // Show preview
-            const preview = document.getElementById(`newsletter-preview-${i + 1}`);
-            if (preview) {
+            const preview = document.getElementById(`nl-preview-${i + 1}`);
+            const placeholder = document.getElementById(`nl-placeholder-${i + 1}`);
+            if (preview && placeholder) {
                 preview.src = e.target.result;
                 preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
             }
         };
 
@@ -76,10 +81,65 @@ async function handleNewsletterImages(input) {
 
     // Show status
     document.getElementById('newsletter-image-status').innerHTML = `
-        <p class="text-sm text-green-800 dark:text-green-200">
-            ✓ 3개의 이미지가 업로드되었습니다.
-        </p>
+        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <p class="text-sm text-green-800 dark:text-green-200 flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg">check_circle</span>
+                3개의 이미지가 업로드되었습니다.
+            </p>
+        </div>
     `;
+}
+
+// 소식지 드래그 앤 드롭 설정
+function setupNewsletterDragDrop() {
+    const dropZone = document.getElementById('nl-drop-zone');
+    const fileInput = document.getElementById('nl-image-input');
+
+    if (!dropZone || !fileInput) return;
+
+    // 클릭 시 파일 선택
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // 드래그 오버
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add('border-primary', 'bg-primary-light');
+    });
+
+    // 드래그 나갈 때
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove('border-primary', 'bg-primary-light');
+    });
+
+    // 드롭
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove('border-primary', 'bg-primary-light');
+
+        const files = Array.from(e.dataTransfer.files);
+
+        // 이미지 파일만 필터링
+        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+
+        if (imageFiles.length !== 3) {
+            alert(`정확히 3개의 이미지를 선택해주세요.\\n현재 선택: ${imageFiles.length}개`);
+            return;
+        }
+
+        // FileList를 시뮬레이션
+        const dataTransfer = new DataTransfer();
+        imageFiles.forEach(file => dataTransfer.items.add(file));
+        fileInput.files = dataTransfer.files;
+
+        // 핸들러 호출
+        handleNewsletterImages(fileInput);
+    });
 }
 
 async function generateNewsletter() {
