@@ -245,12 +245,13 @@ function calculateEmotionDistribution(count) {
 // 프로그램 예시 반응 가져오기
 function getExampleReactions(programTitle, maxCount = 30) {
     // Get example reactions from program data
-    if (!PROGRAM_DATA || !PROGRAM_DATA[programTitle]) {
+    // programPatterns는 program-data.js에서 로드됨
+    if (typeof programPatterns === 'undefined' || !programPatterns || !programPatterns[programTitle]) {
         return [];
     }
 
     const reactions = [];
-    for (const row of PROGRAM_DATA[programTitle]) {
+    for (const row of programPatterns[programTitle]) {
         if (row['참여'] === 'O') {
             const reaction = row['반응 및 특이사항(미참여사유)'];
             if (reaction && reaction.trim()) {
@@ -673,9 +674,9 @@ function populateProgramList() {
 
     // PROGRAM_LIST가 아직 초기화되지 않았으면 초기화
     if (PROGRAM_LIST.length === 0) {
-        // PROGRAM_DATA가 있으면 거기서 키 추출
-        if (typeof PROGRAM_DATA !== 'undefined' && PROGRAM_DATA) {
-            PROGRAM_LIST = Object.keys(PROGRAM_DATA).sort();
+        // programPatterns가 있으면 거기서 키 추출
+        if (typeof programPatterns !== 'undefined' && programPatterns) {
+            PROGRAM_LIST = Object.keys(programPatterns).sort();
         }
         // 없으면 programNames 사용
         else if (typeof programNames !== 'undefined' && programNames.length > 0) {
