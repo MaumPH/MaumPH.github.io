@@ -235,34 +235,80 @@ async function generateProgramReactions() {
         }
     }
 
+    // Get ratios
+    const positiveRatio = parseInt(document.getElementById('positive-ratio').value) || 50;
+    const neutralRatio = parseInt(document.getElementById('neutral-ratio').value) || 30;
+    const negativeRatio = parseInt(document.getElementById('negative-ratio').value) || 20;
+
+    // Check ratio sum
+    const sum = positiveRatio + neutralRatio + negativeRatio;
+    if (sum !== 100) {
+        alert(`감정 비율의 합계가 100%가 되어야 합니다. 현재 합계: ${sum}%`);
+        return;
+    }
+
+    // Calculate counts for each emotion
+    const positiveCount = Math.round(count * positiveRatio / 100);
+    const neutralCount = Math.round(count * neutralRatio / 100);
+    const negativeCount = count - positiveCount - neutralCount;
+
     showLoadingOverlay(`${count}개의 어르신 반응을 생성하고 있습니다...`);
 
     try {
-        let prompt = `다음 프로그램에 참여한 어르신들의 반응을 ${count}개 생성해주세요.
+        // Generate positive reactions
+        let positivePrompt = `다음 프로그램에 참여한 어르신들의 긍정적 반응을 ${positiveCount}개 생성해주세요.
 
 프로그램: ${programTitle}
 ${programDesc ? `설명: ${programDesc}` : ''}
 
-각 반응은 50-150자 분량으로, 긍정적 반응, 중립적 반응, 소극적 반응이 적절히 섞이도록 작성하세요.
-구체적이고 다양한 표현을 사용하세요.
+각 반응은 50-150자 분량으로, 프로그램에 적극적으로 참여하고 즐거워하는 모습을 구체적으로 표현하세요.
 
 출력 형식:
 1. 첫 번째 반응
 2. 두 번째 반응
 ...`;
 
-        // 과거 패턴 데이터가 있으면 프롬프트 강화
         if (typeof enhancePromptWithPatterns === 'function') {
-            prompt = enhancePromptWithPatterns(prompt, programTitle);
+            positivePrompt = enhancePromptWithPatterns(positivePrompt, programTitle);
         }
 
-        const result = await callGeminiAPI(prompt);
+        const positiveResult = await callGeminiAPI(positivePrompt);
+        document.getElementById('positive-reactions').value = positiveResult.trim();
 
-        document.getElementById('reactions-output').value = result.trim();
-        document.getElementById('reactions-result').classList.remove('hidden');
+        // Generate neutral reactions
+        const neutralPrompt = `다음 프로그램에 참여한 어르신들의 중립적 반응을 ${neutralCount}개 생성해주세요.
+
+프로그램: ${programTitle}
+${programDesc ? `설명: ${programDesc}` : ''}
+
+각 반응은 50-150자 분량으로, 프로그램에 참여는 하지만 특별한 감정 표현 없이 조용히 참여하는 모습을 표현하세요.
+
+출력 형식:
+1. 첫 번째 반응
+2. 두 번째 반응
+...`;
+
+        const neutralResult = await callGeminiAPI(neutralPrompt);
+        document.getElementById('neutral-reactions').value = neutralResult.trim();
+
+        // Generate negative reactions
+        const negativePrompt = `다음 프로그램에 참여한 어르신들의 소극적/피로한 반응을 ${negativeCount}개 생성해주세요.
+
+프로그램: ${programTitle}
+${programDesc ? `설명: ${programDesc}` : ''}
+
+각 반응은 50-150자 분량으로, 프로그램 참여에 소극적이거나 피로감을 느끼는 모습을 표현하세요.
+
+출력 형식:
+1. 첫 번째 반응
+2. 두 번째 반응
+...`;
+
+        const negativeResult = await callGeminiAPI(negativePrompt);
+        document.getElementById('negative-reactions').value = negativeResult.trim();
 
         hideLoadingOverlay();
-        alert(`✓ ${count}개의 반응이 생성되었습니다!`);
+        alert(`✓ ${count}개의 반응이 생성되었습니다!\n긍정: ${positiveCount}개, 중립: ${neutralCount}개, 소극: ${negativeCount}개`);
 
     } catch (error) {
         hideLoadingOverlay();
@@ -272,14 +318,27 @@ ${programDesc ? `설명: ${programDesc}` : ''}
 
 // 모든 반응 복사
 function copyAllReactions() {
-    const output = document.getElementById('reactions-output').value;
+    const positive = document.getElementById('positive-reactions').value;
+    const neutral = document.getElementById('neutral-reactions').value;
+    const negative = document.getElementById('negative-reactions').value;
 
-    if (!output || output.trim() === '') {
+    if (!positive && !neutral && !negative) {
         alert('먼저 반응을 생성해주세요.');
         return;
     }
 
-    navigator.clipboard.writeText(output).then(() => {
+    let output = '';
+    if (positive) {
+        output += '😊 긍정적 반응\n\n' + positive + '\n\n';
+    }
+    if (neutral) {
+        output += '😐 중립적 반응\n\n' + neutral + '\n\n';
+    }
+    if (negative) {
+        output += '😔 소극적/피로 반응\n\n' + negative;
+    }
+
+    navigator.clipboard.writeText(output.trim()).then(() => {
         alert('✓ 모든 반응이 클립보드에 복사되었습니다.');
     }).catch(err => {
         alert('복사 중 오류가 발생했습니다: ' + err);
