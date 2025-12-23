@@ -368,7 +368,8 @@ function toggleProgramMode() {
     }
 }
 
-// 프로그램 목록 채우기
+// 프로그램 목록 변수
+let PROGRAM_LIST = [];
 let filteredPrograms = [];
 
 function populateProgramList() {
@@ -377,9 +378,11 @@ function populateProgramList() {
 
     // programNames는 program-data.js에서 로드됨
     if (typeof programNames !== 'undefined' && programNames.length > 0) {
-        filteredPrograms = [...programNames];
+        PROGRAM_LIST = [...programNames];
+        filteredPrograms = [...PROGRAM_LIST];
     } else {
         console.warn('프로그램 목록이 로드되지 않았습니다.');
+        PROGRAM_LIST = [];
         filteredPrograms = [];
     }
 
@@ -398,10 +401,9 @@ function filterPrograms() {
     const searchText = document.getElementById('program-search').value.toLowerCase();
 
     if (!searchText) {
-        filteredPrograms = typeof programNames !== 'undefined' ? [...programNames] : [];
+        filteredPrograms = [...PROGRAM_LIST];
     } else {
-        const sourceList = typeof programNames !== 'undefined' ? programNames : [];
-        filteredPrograms = sourceList.filter(program =>
+        filteredPrograms = PROGRAM_LIST.filter(program =>
             program.toLowerCase().includes(searchText)
         );
     }
