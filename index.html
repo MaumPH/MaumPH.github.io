@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -147,6 +148,10 @@
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group" href="#" id="nav-newsletter" onclick="showPage('newsletter'); return false;">
                     <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">newspaper</span>
                     <p class="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-sm font-medium">소식지 만들기</p>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group" href="#" id="nav-vehicle-checker" onclick="showPage('vehicle-checker'); return false;">
+                    <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">directions_car</span>
+                    <p class="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-sm font-medium">차량중복확인</p>
                 </a>
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group" href="#" id="nav-settings" onclick="showPage('settings'); return false;">
                     <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">settings</span>
@@ -872,6 +877,69 @@
                     </div>
                 </div>
 
+                <!-- Vehicle Checker Page -->
+                <div id="page-vehicle-checker" class="page-hidden">
+                    <div class="flex flex-col gap-2 mb-6">
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">차량중복확인</h1>
+                        <p class="text-gray-500 dark:text-gray-400 mt-1">엑셀 파일을 업로드하여 입소/퇴소 차량 시간 중복을 자동으로 확인합니다.</p>
+                    </div>
+
+                    <!-- 파일 업로드 -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
+                        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">upload_file</span>
+                            엑셀 파일 업로드
+                        </h3>
+
+                        <div class="mb-4">
+                            <button onclick="document.getElementById('vc-file-input').click()" class="w-full bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">description</span>
+                                엑셀 파일 선택하기
+                            </button>
+                            <input type="file" id="vc-file-input" accept=".xlsx,.xls" style="display: none;" onchange="handleVehicleFile(this)">
+                        </div>
+
+                        <div id="vc-file-status" class="mb-4"></div>
+
+                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                            <h4 class="text-sm font-bold text-blue-900 dark:text-blue-200 mb-2">📋 필수 엑셀 형식</h4>
+                            <ul class="text-sm text-blue-800 dark:text-blue-300 space-y-1">
+                                <li>• 시트 이름: <code class="bg-blue-100 dark:bg-blue-900 px-1 rounded">Sheet1</code></li>
+                                <li>• 필수 컬럼: 일자, 입퇴소구분, 성명, 생년월일, 차량(입소), 입소시간, 차량(퇴소), 퇴소시간</li>
+                                <li>• 입퇴소구분 값: <code class="bg-blue-100 dark:bg-blue-900 px-1 rounded">입퇴소</code></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 검사 실행 버튼 -->
+                    <div class="flex justify-center mb-6">
+                        <button onclick="checkVehicleOverlap()" class="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-lg font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                            <span class="material-symbols-outlined">search</span>
+                            중복 검사 실행
+                        </button>
+                    </div>
+
+                    <!-- 결과 출력 -->
+                    <div id="vc-result-section" class="hidden">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">assignment</span>
+                                    검사 결과
+                                </h3>
+                                <button onclick="copyVehicleResult()" class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium flex items-center gap-2 transition-colors">
+                                    <span class="material-symbols-outlined text-lg">content_copy</span>
+                                    결과 복사
+                                </button>
+                            </div>
+
+                            <div id="vc-result-content" class="whitespace-pre-wrap text-sm text-gray-900 dark:text-white leading-relaxed bg-gray-50 dark:bg-gray-900 p-6 rounded-lg min-h-[400px] font-mono">
+                                <!-- 결과가 여기에 표시됩니다 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Settings Page -->
                 <div id="page-settings" class="page-hidden">
                     <div class="flex flex-col gap-2 mb-8">
@@ -1127,6 +1195,7 @@
     <script src="js/counseling.js"></script>
     <script src="js/case-management.js"></script>
     <script src="js/monitoring.js"></script>
+    <script src="js/vehicle-checker.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
