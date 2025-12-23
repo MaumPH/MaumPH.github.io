@@ -161,9 +161,9 @@ async function generateNewsletter() {
     try {
         // Get descriptions
         const descriptions = [
-            document.getElementById('newsletter-desc-1').value.trim(),
-            document.getElementById('newsletter-desc-2').value.trim(),
-            document.getElementById('newsletter-desc-3').value.trim()
+            document.getElementById('nl-desc-1').value.trim(),
+            document.getElementById('nl-desc-2').value.trim(),
+            document.getElementById('nl-desc-3').value.trim()
         ];
 
         // Generate titles for each image (병렬 처리로 속도 개선)
