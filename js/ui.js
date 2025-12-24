@@ -37,7 +37,7 @@ function showPage(pageName) {
     });
 
     // Reset all top-level menu items
-    const menuItems = ['nav-program-log', 'nav-case-management', 'nav-counseling-log', 'nav-newsletter', 'nav-settings'];
+    const menuItems = ['nav-case-management', 'nav-counseling-log', 'nav-grievance', 'nav-newsletter', 'nav-settings'];
     menuItems.forEach(id => {
         const nav = document.getElementById(id);
         if (nav) {
@@ -62,6 +62,12 @@ function showPage(pageName) {
     const billingBtn = document.getElementById('billing-menu-toggle');
     if (billingBtn) {
         billingBtn.classList.remove('bg-primary/10', 'dark:bg-primary/20');
+    }
+
+    // Reset program menu toggle button
+    const programBtn = document.getElementById('program-menu-toggle');
+    if (programBtn) {
+        programBtn.classList.remove('bg-primary/10', 'dark:bg-primary/20');
     }
 
     // Highlight active menu item
@@ -102,16 +108,22 @@ function showPage(pageName) {
             billingBtn.classList.add('bg-primary/10', 'dark:bg-primary/20');
         }
     } else if (pageName === 'program-log') {
-        const navProgramLog = document.getElementById('nav-program-log');
-        if (navProgramLog) {
-            navProgramLog.classList.add('bg-primary/10', 'dark:bg-primary/20');
-            const icon = navProgramLog.querySelector('.material-symbols-outlined');
-            if (icon) icon.style.fontVariationSettings = "'FILL' 1";
-            const text = navProgramLog.querySelector('p');
-            if (text) {
-                text.classList.remove('text-gray-500', 'dark:text-gray-400');
-                text.classList.add('text-primary', 'font-bold');
+        // Highlight submenu item
+        const activeNav = document.getElementById('nav-program-log');
+        if (activeNav) {
+            activeNav.classList.remove('text-gray-600', 'dark:text-gray-400');
+            activeNav.classList.add('text-primary', 'font-semibold', 'bg-primary/5', 'dark:bg-primary/10');
+            const dot = activeNav.querySelector('.submenu-dot');
+            if (dot) {
+                dot.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+                dot.classList.add('bg-primary');
             }
+        }
+
+        // Highlight program menu button
+        const programBtn = document.getElementById('program-menu-toggle');
+        if (programBtn) {
+            programBtn.classList.add('bg-primary/10', 'dark:bg-primary/20');
         }
     } else if (pageName === 'case-management') {
         const navCaseManagement = document.getElementById('nav-case-management');
@@ -215,6 +227,20 @@ function toggleJournalMenu() {
 function toggleBillingMenu() {
     const submenu = document.getElementById('billing-submenu');
     const icon = document.getElementById('billing-menu-icon');
+
+    if (submenu.style.display === 'none') {
+        submenu.style.display = 'flex';
+        icon.textContent = 'expand_less';
+    } else {
+        submenu.style.display = 'none';
+        icon.textContent = 'expand_more';
+    }
+}
+
+// 프로그램 메뉴 토글
+function toggleProgramMenu() {
+    const submenu = document.getElementById('program-submenu');
+    const icon = document.getElementById('program-menu-icon');
 
     if (submenu.style.display === 'none') {
         submenu.style.display = 'flex';
