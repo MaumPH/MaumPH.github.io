@@ -159,6 +159,28 @@
                     </button>
                 </div>
             </div>
+
+            <!-- 영구 설정 (코드에 넣기) -->
+            <div id="permanent-config" class="mt-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg hidden">
+                <div class="flex items-start gap-3 mb-3">
+                    <span class="material-symbols-outlined text-purple-600 text-2xl">code</span>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-bold text-purple-900 mb-1">모든 PC에서 자동으로 사용하기 (권장)</h3>
+                        <p class="text-xs text-purple-700 mb-3">아래 코드를 <code class="bg-white px-1 rounded">js/firebase-config.js</code> 파일의 9-16번째 줄에 복사하면 모든 PC와 브라우저에서 자동으로 작동합니다.</p>
+                    </div>
+                </div>
+                <div class="relative">
+                    <pre id="code-display" class="text-xs font-mono text-gray-800 bg-white p-3 rounded border border-gray-300 overflow-x-auto"></pre>
+                    <button onclick="copyCode()" class="absolute top-2 right-2 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded text-xs font-medium flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">content_copy</span>
+                        복사
+                    </button>
+                </div>
+                <div class="mt-3 flex items-start gap-2 text-xs text-purple-800">
+                    <span class="material-symbols-outlined text-sm">info</span>
+                    <p>이 설정은 GitHub에 배포되므로 모든 기기에서 자동으로 적용됩니다. Firebase API Key는 공개되어도 안전합니다.</p>
+                </div>
+            </div>
         </div>
 
         <!-- 도움말 -->
@@ -191,10 +213,42 @@
                     document.getElementById('storageBucket').value = parsedConfig.storageBucket || '';
                     document.getElementById('messagingSenderId').value = parsedConfig.messagingSenderId || '';
                     document.getElementById('appId').value = parsedConfig.appId || '';
+
+                    // 코드 생성 영역 표시
+                    generateCode(parsedConfig);
                 } catch (e) {
                     console.error('설정 로드 실패:', e);
                 }
             }
+        }
+
+        // JavaScript 코드 생성
+        function generateCode(config) {
+            const code = `const DEFAULT_FIREBASE_CONFIG = {
+    apiKey: "${config.apiKey}",
+    authDomain: "${config.authDomain}",
+    projectId: "${config.projectId}",
+    storageBucket: "${config.storageBucket}",
+    messagingSenderId: "${config.messagingSenderId}",
+    appId: "${config.appId}"
+};`;
+            document.getElementById('code-display').textContent = code;
+            document.getElementById('permanent-config').classList.remove('hidden');
+        }
+
+        // 코드 복사
+        function copyCode() {
+            const codeText = document.getElementById('code-display').textContent;
+            navigator.clipboard.writeText(codeText).then(() => {
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<span class="material-symbols-outlined text-sm">check</span>복사됨!';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                }, 2000);
+            }).catch(err => {
+                alert('복사 실패: ' + err);
+            });
         }
 
         // 폼 제출 처리
@@ -225,6 +279,7 @@
             if (confirm('저장된 Firebase 설정을 삭제하시겠습니까?')) {
                 localStorage.removeItem('firebaseConfig');
                 document.getElementById('current-config').classList.add('hidden');
+                document.getElementById('permanent-config').classList.add('hidden');
                 document.getElementById('firebase-setup-form').reset();
                 alert('설정이 초기화되었습니다.');
             }
