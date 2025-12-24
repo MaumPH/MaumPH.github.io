@@ -31,35 +31,20 @@
 
 ## 4. Firestore 보안 규칙 설정
 
-데이터베이스 생성 후, 보안 규칙을 다음과 같이 변경합니다:
+⚠️ **중요**: 테스트 모드는 30일 후 자동으로 만료됩니다!
 
+**자세한 보안 규칙 설정 방법은 [FIRESTORE_SECURITY_RULES.md](FIRESTORE_SECURITY_RULES.md) 파일을 참고하세요.**
+
+간단 요약:
 1. Firestore Database 페이지에서 "규칙" 탭을 선택합니다.
-2. 다음 규칙을 복사하여 붙여넣습니다:
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // users 컬렉션
-    match /users/{userId} {
-      // 로그인한 사용자는 자신의 문서를 읽을 수 있음
-      allow read: if request.auth != null && request.auth.uid == userId;
-
-      // 회원가입 시 자신의 문서 생성 가능 (approved = false로 고정)
-      allow create: if request.auth != null
-                    && request.auth.uid == userId
-                    && request.resource.data.approved == false;
-
-      // 관리자만 모든 사용자 문서 읽기/수정 가능
-      allow read, update: if request.auth != null
-                          && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-                          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-  }
-}
-```
-
+2. `FIRESTORE_SECURITY_RULES.md` 파일의 보안 규칙 코드를 복사하여 붙여넣습니다.
 3. "게시" 버튼을 클릭합니다.
+
+보안 규칙은 다음을 보장합니다:
+- ✅ 회원가입 시 자동 승인 방지 (`approved=false` 강제)
+- ✅ 권한 상승 방지 (`role=admin` 불가)
+- ✅ 개인정보 보호 (본인 정보만 조회 가능)
+- ✅ 관리자 권한 검증 (Firestore에서 실시간 확인)
 
 ## 5. 웹 앱 추가 및 설정 정보 가져오기
 
