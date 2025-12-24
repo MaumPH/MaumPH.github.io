@@ -144,10 +144,10 @@ ${userInput}
         // Parse results
         const sections = result.split(/\[(\d+)\]/);
 
-        if (sections[2]) document.getElementById('needs-content').value = sections[2].trim();
-        if (sections[4]) document.getElementById('method-content').value = sections[4].trim();
-        if (sections[6]) document.getElementById('reaction-content').value = sections[6].trim();
-        if (sections[8]) document.getElementById('monitoring-content').value = sections[8].trim();
+        if (sections[2]) document.getElementById('program-need').value = sections[2].trim();
+        if (sections[4]) document.getElementById('program-method').value = sections[4].trim();
+        if (sections[6]) document.getElementById('program-reaction').value = sections[6].trim();
+        if (sections[8]) document.getElementById('program-monitoring').value = sections[8].trim();
 
         hideLoadingOverlay();
         alert('✓ 프로그램 내용이 생성되었습니다!');
