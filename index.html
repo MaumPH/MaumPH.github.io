@@ -153,14 +153,30 @@
                     <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">newspaper</span>
                     <p class="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-sm font-medium">소식지 만들기</p>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group" href="#" id="nav-vehicle-checker" onclick="showPage('vehicle-checker'); return false;">
-                    <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">directions_car</span>
-                    <p class="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-sm font-medium">차량중복확인</p>
-                </a>
-                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group" href="#" id="nav-elder-time-checker" onclick="showPage('elder-time-checker'); return false;">
-                    <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">schedule</span>
-                    <p class="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-sm font-medium">어르신 시간확인</p>
-                </a>
+
+                <!-- 청구 준비 메뉴 (확장형) -->
+                <div class="flex flex-col">
+                    <button id="billing-menu-toggle" class="flex items-center justify-between w-full px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 font-medium text-sm transition-colors" onclick="toggleBillingMenu()">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-500">receipt_long</span>
+                            <span>청구 준비</span>
+                        </div>
+                        <span id="billing-menu-icon" class="material-symbols-outlined text-lg">expand_less</span>
+                    </button>
+                    <div id="billing-submenu" class="flex flex-col gap-0.5 mt-1 pl-3">
+                        <a href="#" id="nav-vehicle-checker" onclick="showPage('vehicle-checker'); return false;" class="submenu-link relative pl-8 pr-3 py-2.5 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:text-primary transition-colors flex items-center gap-2">
+                            <div class="absolute left-3.5 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-600"></div>
+                            <div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 submenu-dot"></div>
+                            차량중복확인
+                        </a>
+                        <a href="#" id="nav-elder-time-checker" onclick="showPage('elder-time-checker'); return false;" class="submenu-link relative pl-8 pr-3 py-2.5 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:text-primary transition-colors flex items-center gap-2">
+                            <div class="absolute left-3.5 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-600"></div>
+                            <div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 submenu-dot"></div>
+                            어르신 시간확인
+                        </a>
+                    </div>
+                </div>
+
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group" href="#" id="nav-settings" onclick="showPage('settings'); return false;">
                     <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">settings</span>
                     <p class="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-sm font-medium">설정</p>
