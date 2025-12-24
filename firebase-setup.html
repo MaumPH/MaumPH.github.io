@@ -53,6 +53,26 @@
                             <li>Firebase SDK 구성 정보를 아래 양식에 입력</li>
                             <li>"설정 저장" 버튼 클릭</li>
                         </ol>
+                        <p class="text-blue-800 mt-3 font-medium">💡 여러 기기에서 사용하시나요?</p>
+                        <p class="text-blue-700">설정을 파일로 저장하여 다른 PC나 브라우저에서 간편하게 가져올 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 설정 가져오기 -->
+            <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-gray-600">upload_file</span>
+                        <span class="text-sm font-medium text-gray-700">이미 설정 파일이 있으신가요?</span>
+                    </div>
+                    <div>
+                        <input type="file" id="configFileInput" accept=".json" class="hidden">
+                        <button type="button" onclick="document.getElementById('configFileInput').click()"
+                            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">file_upload</span>
+                            설정 가져오기
+                        </button>
                     </div>
                 </div>
             </div>
@@ -130,6 +150,10 @@
                     <a href="login.html" class="flex-1 text-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium">
                         로그인 페이지로 이동
                     </a>
+                    <button onclick="exportConfig()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center gap-1">
+                        <span class="material-symbols-outlined text-lg">download</span>
+                        내보내기
+                    </button>
                     <button onclick="clearConfig()" class="px-4 py-2 border border-gray-300 hover:bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">
                         설정 초기화
                     </button>
@@ -205,6 +229,82 @@
                 alert('설정이 초기화되었습니다.');
             }
         }
+
+        // 설정 내보내기 (JSON 파일 다운로드)
+        function exportConfig() {
+            const config = localStorage.getItem('firebaseConfig');
+            if (!config) {
+                alert('저장된 설정이 없습니다.');
+                return;
+            }
+
+            try {
+                // JSON 파일 생성
+                const blob = new Blob([config], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+
+                // 다운로드 링크 생성 및 클릭
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'firebase-config.json';
+                document.body.appendChild(a);
+                a.click();
+
+                // 정리
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                alert('✓ 설정 파일이 다운로드되었습니다!\n\n다른 PC나 브라우저에서 "설정 가져오기" 버튼을 사용하여 이 파일을 불러오세요.');
+            } catch (e) {
+                console.error('설정 내보내기 실패:', e);
+                alert('설정 내보내기에 실패했습니다.');
+            }
+        }
+
+        // 설정 가져오기 (JSON 파일 업로드)
+        document.getElementById('configFileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // JSON 파일인지 확인
+            if (!file.name.endsWith('.json')) {
+                alert('JSON 파일만 업로드할 수 있습니다.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    // JSON 파싱 및 검증
+                    const config = JSON.parse(event.target.result);
+
+                    // 필수 필드 확인
+                    const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
+                    const missingFields = requiredFields.filter(field => !config[field]);
+
+                    if (missingFields.length > 0) {
+                        alert('유효하지 않은 설정 파일입니다.\n누락된 필드: ' + missingFields.join(', '));
+                        return;
+                    }
+
+                    // localStorage에 저장
+                    localStorage.setItem('firebaseConfig', JSON.stringify(config));
+
+                    // 폼 및 화면 업데이트
+                    loadCurrentConfig();
+
+                    alert('✓ 설정을 성공적으로 가져왔습니다!\n\n이제 로그인 페이지로 이동하여 사용할 수 있습니다.');
+                } catch (e) {
+                    console.error('설정 가져오기 실패:', e);
+                    alert('설정 파일을 읽는데 실패했습니다.\n올바른 JSON 파일인지 확인하세요.');
+                }
+            };
+
+            reader.readAsText(file);
+
+            // 파일 입력 초기화 (같은 파일을 다시 선택할 수 있도록)
+            e.target.value = '';
+        });
     </script>
 </body>
 </html>
