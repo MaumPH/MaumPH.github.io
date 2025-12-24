@@ -137,17 +137,15 @@ async function analyzeElderTime() {
     await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
-        const results = {
-            lessThan3: [],      // 3시간 미만
-            between3And6: [],   // 3시간 이상 6시간 미만
-            between6And8: []    // 6시간 이상 8시간 미만
-        };
+        // 1단계: 이름, 생년월일, 날짜가 같은 데이터를 그룹화
+        const grouped = {};
 
         elderTimeExcelData.forEach(row => {
             const name = row.A;           // 성명
             const birth = row.B;          // 생년월일
             const date = row.C;           // 일자
             const status = row.E;         // 입퇴소구분
+            const timeSeq = row.F;        // 시간일련번호
             const startTime = row.G;      // 입소시간
             const endTime = row.H;        // 퇴소시간
 
@@ -161,9 +159,52 @@ async function analyzeElderTime() {
                 return;
             }
 
-            // 시간 차이 계산 (분 단위)
-            const diffMinutes = calculateTimeDifference(startTime, endTime);
-            const diffHours = diffMinutes / 60;
+            // 그룹 키 생성: 이름_생년월일_날짜
+            const key = `${name}_${birth}_${date}`;
+
+            if (!grouped[key]) {
+                grouped[key] = {
+                    name: name || '',
+                    birth: birth || '',
+                    date: date || '',
+                    timeSlots: []
+                };
+            }
+
+            grouped[key].timeSlots.push({
+                seq: timeSeq || 1,
+                startTime: startTime,
+                endTime: endTime
+            });
+        });
+
+        // 2단계: 각 그룹별로 시간 합산
+        const results = {
+            lessThan3: [],      // 3시간 미만
+            between3And6: [],   // 3시간 이상 6시간 미만
+            between6And8: []    // 6시간 이상 8시간 미만
+        };
+
+        Object.values(grouped).forEach(group => {
+            // 시간일련번호 순으로 정렬
+            group.timeSlots.sort((a, b) => a.seq - b.seq);
+
+            // 각 시간 구간의 분을 합산
+            let totalMinutes = 0;
+            let firstStartTime = null;
+            let lastEndTime = null;
+
+            group.timeSlots.forEach(slot => {
+                const diffMinutes = calculateTimeDifference(slot.startTime, slot.endTime);
+                totalMinutes += diffMinutes;
+
+                if (firstStartTime === null) {
+                    firstStartTime = slot.startTime;
+                }
+                lastEndTime = slot.endTime;
+            });
+
+            const diffHours = totalMinutes / 60;
 
             // 8시간 이상이면 제외
             if (diffHours >= 8) {
@@ -171,12 +212,12 @@ async function analyzeElderTime() {
             }
 
             const record = {
-                name: name || '',
-                birth: birth || '',
-                date: date || '',
-                startTime: startTime || '',
-                endTime: endTime || '',
-                diffMinutes: diffMinutes,
+                name: group.name,
+                birth: group.birth,
+                date: group.date,
+                startTime: firstStartTime,
+                endTime: lastEndTime,
+                diffMinutes: totalMinutes,
                 diffHours: diffHours
             };
 
