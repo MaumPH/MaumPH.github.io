@@ -157,6 +157,10 @@
                     <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">directions_car</span>
                     <p class="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-sm font-medium">차량중복확인</p>
                 </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group" href="#" id="nav-elder-time-checker" onclick="showPage('elder-time-checker'); return false;">
+                    <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">schedule</span>
+                    <p class="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-sm font-medium">어르신 시간확인</p>
+                </a>
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group" href="#" id="nav-settings" onclick="showPage('settings'); return false;">
                     <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">settings</span>
                     <p class="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-sm font-medium">설정</p>
@@ -1061,6 +1065,73 @@
                     </div>
                 </div>
 
+                <!-- Elder Time Checker Page -->
+                <div id="page-elder-time-checker" class="page-hidden">
+                    <div class="flex flex-col gap-2 mb-6">
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">어르신 시간확인</h1>
+                        <p class="text-gray-500 dark:text-gray-400 mt-1">엑셀 파일을 업로드하여 어르신별 이용 시간을 분석합니다.</p>
+                    </div>
+
+                    <!-- 파일 업로드 -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
+                        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">upload_file</span>
+                            엑셀 파일 업로드
+                        </h3>
+
+                        <div class="mb-4">
+                            <button onclick="document.getElementById('etc-file-input').click()" class="w-full bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">description</span>
+                                엑셀 파일 선택하기
+                            </button>
+                            <input type="file" id="etc-file-input" accept=".xlsx,.xls" style="display: none;" onchange="handleElderTimeFile(this)">
+                        </div>
+
+                        <div id="etc-file-status" class="mb-4"></div>
+
+                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                            <h4 class="text-sm font-bold text-blue-900 dark:text-blue-200 mb-2">📋 필수 엑셀 형식</h4>
+                            <ul class="text-sm text-blue-800 dark:text-blue-300 space-y-1">
+                                <li>• 시트 이름: <code class="bg-blue-100 dark:bg-blue-900 px-1 rounded">Sheet1</code></li>
+                                <li>• A열: 성명</li>
+                                <li>• B열: 생년월일 (yymmdd, 텍스트)</li>
+                                <li>• C열: 일자 (yyyymmdd, 텍스트)</li>
+                                <li>• E열: 입퇴소구분 (입퇴소/미입소)</li>
+                                <li>• G열: 입소시간 (hhmm, 텍스트)</li>
+                                <li>• H열: 퇴소시간 (hhmm, 텍스트)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 분석 실행 버튼 -->
+                    <div class="flex justify-center mb-6">
+                        <button onclick="analyzeElderTime()" class="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-lg font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                            <span class="material-symbols-outlined">schedule</span>
+                            시간 분석 실행
+                        </button>
+                    </div>
+
+                    <!-- 결과 출력 -->
+                    <div id="etc-result-section" class="hidden">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">assignment</span>
+                                    분석 결과
+                                </h3>
+                                <button onclick="copyElderTimeResult()" class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium flex items-center gap-2 transition-colors">
+                                    <span class="material-symbols-outlined text-lg">content_copy</span>
+                                    결과 복사
+                                </button>
+                            </div>
+
+                            <div id="etc-result-content" class="whitespace-pre-wrap text-sm text-gray-900 dark:text-white leading-relaxed bg-gray-50 dark:bg-gray-900 p-6 rounded-lg min-h-[400px] font-mono">
+                                <!-- 결과가 여기에 표시됩니다 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Settings Page -->
                 <div id="page-settings" class="page-hidden">
                     <div class="flex flex-col gap-2 mb-8">
@@ -1367,6 +1438,7 @@
     <script src="js/case-management.js"></script>
     <script src="js/monitoring.js"></script>
     <script src="js/vehicle-checker.js"></script>
+    <script src="js/elder-time-checker.js"></script>
     <script src="js/main.js"></script>
 
     <!-- 인증 체크 -->
