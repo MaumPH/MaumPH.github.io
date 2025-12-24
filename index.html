@@ -100,17 +100,17 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-white dark:bg-surface-dark border-r border-gray-200 dark:border-gray-700 flex flex-col shrink-0 h-screen fixed left-0 top-0 z-20">
         <div class="flex flex-col gap-6 p-6 flex-1">
-            <div class="flex flex-col gap-1">
-                <h1 class="text-gray-900 dark:text-white text-xl font-bold tracking-tight">업무수행도우미</h1>
-                <p class="text-gray-500 dark:text-gray-400 text-xs font-normal">주간보호센터</p>
+            <div class="bg-primary dark:bg-primary-dark rounded-lg p-4 shadow-md">
+                <h1 class="text-white text-xl font-bold tracking-tight">업무수행도우미</h1>
+                <p class="text-white/90 text-xs font-normal">주간보호센터</p>
             </div>
             <nav class="flex flex-col gap-1">
-                <!-- 일지 관리 메뉴 (확장형) -->
+                <!-- 업무수행일지 메뉴 (확장형) -->
                 <div class="flex flex-col">
                     <button id="journal-menu-toggle" class="flex items-center justify-between w-full px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 font-medium text-sm transition-colors" onclick="toggleJournalMenu()">
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-gray-500">description</span>
-                            <span>일지 관리</span>
+                            <span>업무수행일지</span>
                         </div>
                         <span id="journal-menu-icon" class="material-symbols-outlined text-lg">expand_less</span>
                     </button>
@@ -133,10 +133,24 @@
                     </div>
                 </div>
 
-                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group" href="#" id="nav-program-log" onclick="showPage('program-log'); return false;">
-                    <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">calendar_today</span>
-                    <p class="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-sm font-medium">프로그램 제공일지</p>
-                </a>
+                <!-- 프로그램 메뉴 (확장형) -->
+                <div class="flex flex-col">
+                    <button id="program-menu-toggle" class="flex items-center justify-between w-full px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 font-medium text-sm transition-colors" onclick="toggleProgramMenu()">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-500">event_note</span>
+                            <span>프로그램</span>
+                        </div>
+                        <span id="program-menu-icon" class="material-symbols-outlined text-lg">expand_less</span>
+                    </button>
+                    <div id="program-submenu" class="flex flex-col gap-0.5 mt-1 pl-3">
+                        <a href="#" id="nav-program-log" onclick="showPage('program-log'); return false;" class="submenu-link relative pl-8 pr-3 py-2.5 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:text-primary transition-colors flex items-center gap-2">
+                            <div class="absolute left-3.5 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-600"></div>
+                            <div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 submenu-dot"></div>
+                            프로그램 제공일지
+                        </a>
+                    </div>
+                </div>
+
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group" href="#" id="nav-case-management" onclick="showPage('case-management'); return false;">
                     <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">assignment</span>
                     <p class="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-sm font-medium">사례관리 작성</p>
