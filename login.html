@@ -156,6 +156,9 @@
         // Firebase 초기화
         document.addEventListener('DOMContentLoaded', () => {
             if (initializeFirebase()) {
+                // 저장된 이메일 불러오기
+                loadRememberedCredentials();
+
                 // 인증 상태 확인
                 onAuthStateChanged(async (user) => {
                     if (user) {
@@ -174,6 +177,15 @@
                 alert('Firebase 설정이 필요합니다. firebase-config.js 파일을 확인해주세요.');
             }
         });
+
+        // 저장된 로그인 정보 불러오기
+        function loadRememberedCredentials() {
+            const rememberedEmail = localStorage.getItem('rememberedEmail');
+
+            if (rememberedEmail) {
+                document.getElementById('login-email').value = rememberedEmail;
+            }
+        }
 
         // 탭 전환
         function showLoginForm() {
