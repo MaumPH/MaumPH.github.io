@@ -58,6 +58,12 @@ function showPage(pageName) {
         journalBtn.classList.remove('bg-primary/10', 'dark:bg-primary/20');
     }
 
+    // Reset billing menu toggle button
+    const billingBtn = document.getElementById('billing-menu-toggle');
+    if (billingBtn) {
+        billingBtn.classList.remove('bg-primary/10', 'dark:bg-primary/20');
+    }
+
     // Highlight active menu item
     if (pageName === 'step1' || pageName === 'step2' || pageName === 'step3') {
         // Highlight submenu item
@@ -76,6 +82,24 @@ function showPage(pageName) {
         const journalBtn = document.getElementById('journal-menu-toggle');
         if (journalBtn) {
             journalBtn.classList.add('bg-primary/10', 'dark:bg-primary/20');
+        }
+    } else if (pageName === 'vehicle-checker' || pageName === 'elder-time-checker') {
+        // Highlight submenu item
+        const activeNav = document.getElementById(`nav-${pageName}`);
+        if (activeNav) {
+            activeNav.classList.remove('text-gray-600', 'dark:text-gray-400');
+            activeNav.classList.add('text-primary', 'font-semibold', 'bg-primary/5', 'dark:bg-primary/10');
+            const dot = activeNav.querySelector('.submenu-dot');
+            if (dot) {
+                dot.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+                dot.classList.add('bg-primary');
+            }
+        }
+
+        // Highlight billing menu button
+        const billingBtn = document.getElementById('billing-menu-toggle');
+        if (billingBtn) {
+            billingBtn.classList.add('bg-primary/10', 'dark:bg-primary/20');
         }
     } else if (pageName === 'program-log') {
         const navProgramLog = document.getElementById('nav-program-log');
@@ -177,6 +201,20 @@ function updateProgress() {
 function toggleJournalMenu() {
     const submenu = document.getElementById('journal-submenu');
     const icon = document.getElementById('journal-menu-icon');
+
+    if (submenu.style.display === 'none') {
+        submenu.style.display = 'flex';
+        icon.textContent = 'expand_less';
+    } else {
+        submenu.style.display = 'none';
+        icon.textContent = 'expand_more';
+    }
+}
+
+// 청구 준비 메뉴 토글
+function toggleBillingMenu() {
+    const submenu = document.getElementById('billing-submenu');
+    const icon = document.getElementById('billing-menu-icon');
 
     if (submenu.style.display === 'none') {
         submenu.style.display = 'flex';
