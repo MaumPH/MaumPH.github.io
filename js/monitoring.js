@@ -160,8 +160,8 @@ ${userInput}
 
 // 향후 계획 생성
 async function generateFuturePlan() {
-    const needsContent = document.getElementById('needs-content').value.trim();
-    const methodContent = document.getElementById('method-content').value.trim();
+    const needsContent = document.getElementById('program-need').value.trim();
+    const methodContent = document.getElementById('program-method').value.trim();
 
     if (!needsContent || !methodContent) {
         alert('먼저 필요내용과 제공방법을 작성해주세요.');
@@ -185,7 +185,7 @@ ${methodContent}
 구체적이고 실행 가능한 계획을 포함하세요.`;
 
         const result = await callGeminiAPI(prompt);
-        document.getElementById('future-plan-content').value = result.trim();
+        document.getElementById('future-plan').value = result.trim();
 
         hideLoadingOverlay();
         alert('✓ 향후 계획이 생성되었습니다!');
