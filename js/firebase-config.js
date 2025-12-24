@@ -3,34 +3,44 @@
  * Firebase 설정 및 초기화
  */
 
-// Firebase 설정 (localStorage에서 읽기 또는 기본값)
+// Firebase 설정 (코드에 직접 입력하세요)
+// 아래 값을 Firebase Console에서 받은 실제 값으로 변경하면 모든 PC/브라우저에서 자동으로 작동합니다.
+// firebase-setup.html 페이지에서 "코드 생성" 기능을 사용하면 쉽게 복사할 수 있습니다.
+const DEFAULT_FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDyQSHAkkdgBhw9QVw1NENWA9g4DXZkWuY",
+    authDomain: "work-assistant-4e162.firebaseapp.com",
+    projectId: "work-assistant-4e162",
+    storageBucket: "work-assistant-4e162.firebasestorage.app",
+    messagingSenderId: "692148378218",
+    appId: "1:692148378218:web:691cdcc3d92f2c7cef4813"
+};
+
 let firebaseConfig = null;
 
-// localStorage에서 설정 불러오기
+// Firebase 설정 불러오기
 function loadFirebaseConfig() {
-    const savedConfig = localStorage.getItem('firebaseConfig');
+    // 1. 코드에 하드코딩된 설정 확인 (권장 방식)
+    if (DEFAULT_FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY") {
+        firebaseConfig = DEFAULT_FIREBASE_CONFIG;
+        console.log('✓ Firebase 설정을 코드에서 불러왔습니다.');
+        return true;
+    }
 
+    // 2. localStorage에서 설정 확인 (임시 방식)
+    const savedConfig = localStorage.getItem('firebaseConfig');
     if (savedConfig) {
         try {
             firebaseConfig = JSON.parse(savedConfig);
             console.log('✓ Firebase 설정을 localStorage에서 불러왔습니다.');
+            console.warn('💡 Tip: firebase-config.js에 설정을 직접 넣으면 모든 PC에서 자동으로 작동합니다.');
             return true;
         } catch (e) {
             console.error('Firebase 설정 파싱 실패:', e);
-            return false;
         }
     }
 
-    // localStorage에 설정이 없으면 기본값 사용 (개발용)
-    firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT_ID.appspot.com",
-        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-        appId: "YOUR_APP_ID"
-    };
-
+    // 3. 설정이 없음
+    firebaseConfig = DEFAULT_FIREBASE_CONFIG;
     console.warn('⚠️ Firebase 설정이 없습니다. firebase-setup.html에서 설정을 완료하세요.');
     return false;
 }
