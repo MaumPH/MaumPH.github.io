@@ -206,73 +206,56 @@ async function analyzeElderTime() {
 }
 
 /**
+ * 날짜를 간략 형식으로 변환 (20251201 -> 12/01)
+ */
+function formatDateShort(dateStr) {
+    if (!dateStr) return '';
+    const str = String(dateStr);
+    return `${str.substring(4, 6)}/${str.substring(6, 8)}`;
+}
+
+/**
+ * 표 행 생성
+ */
+function createTableRow(index, record) {
+    return `
+        <tr class="border-t border-gray-200 dark:border-gray-600">
+            <td class="px-2 py-2">${index}</td>
+            <td class="px-2 py-2">${record.name}</td>
+            <td class="px-2 py-2">${formatDateShort(record.date)}</td>
+            <td class="px-2 py-2 text-xs">${formatTime(record.startTime)}~${formatTime(record.endTime)}<br><span class="text-gray-500">(${minutesToTimeString(record.diffMinutes)})</span></td>
+        </tr>
+    `;
+}
+
+/**
  * 결과 표시
  */
 function displayElderTimeResults(results) {
-    const report = [];
-    report.push('=== 어르신 시간확인 결과 ===');
-    report.push('');
-
     // 3시간 미만
-    report.push('========================================');
-    report.push('[ 3시간 미만 ]');
-    report.push('========================================');
-
+    const less3Body = document.getElementById('etc-result-less3');
     if (results.lessThan3.length === 0) {
-        report.push('해당 없음');
+        less3Body.innerHTML = '<tr><td colspan="4" class="px-2 py-4 text-center text-gray-500">데이터 없음</td></tr>';
     } else {
-        results.lessThan3.forEach(record => {
-            report.push('');
-            report.push(`성명: ${record.name}`);
-            report.push(`날짜: ${formatDate(record.date)}`);
-            report.push(`시간: ${formatTime(record.startTime)} ~ ${formatTime(record.endTime)} (${minutesToTimeString(record.diffMinutes)})`);
-        });
+        less3Body.innerHTML = results.lessThan3.map((record, idx) => createTableRow(idx + 1, record)).join('');
     }
-
-    report.push('');
-    report.push('');
 
     // 3시간 이상 6시간 미만
-    report.push('========================================');
-    report.push('[ 3시간 이상 6시간 미만 ]');
-    report.push('========================================');
-
+    const between3to6Body = document.getElementById('etc-result-3to6');
     if (results.between3And6.length === 0) {
-        report.push('해당 없음');
+        between3to6Body.innerHTML = '<tr><td colspan="4" class="px-2 py-4 text-center text-gray-500">데이터 없음</td></tr>';
     } else {
-        results.between3And6.forEach(record => {
-            report.push('');
-            report.push(`성명: ${record.name}`);
-            report.push(`날짜: ${formatDate(record.date)}`);
-            report.push(`시간: ${formatTime(record.startTime)} ~ ${formatTime(record.endTime)} (${minutesToTimeString(record.diffMinutes)})`);
-        });
+        between3to6Body.innerHTML = results.between3And6.map((record, idx) => createTableRow(idx + 1, record)).join('');
     }
-
-    report.push('');
-    report.push('');
 
     // 6시간 이상 8시간 미만
-    report.push('========================================');
-    report.push('[ 6시간 이상 8시간 미만 ]');
-    report.push('========================================');
-
+    const between6to8Body = document.getElementById('etc-result-6to8');
     if (results.between6And8.length === 0) {
-        report.push('해당 없음');
+        between6to8Body.innerHTML = '<tr><td colspan="4" class="px-2 py-4 text-center text-gray-500">데이터 없음</td></tr>';
     } else {
-        results.between6And8.forEach(record => {
-            report.push('');
-            report.push(`성명: ${record.name}`);
-            report.push(`날짜: ${formatDate(record.date)}`);
-            report.push(`시간: ${formatTime(record.startTime)} ~ ${formatTime(record.endTime)} (${minutesToTimeString(record.diffMinutes)})`);
-        });
+        between6to8Body.innerHTML = results.between6And8.map((record, idx) => createTableRow(idx + 1, record)).join('');
     }
 
-    report.push('');
-    report.push('');
-    report.push('========================================');
-    report.push(`전체: ${results.lessThan3.length + results.between3And6.length + results.between6And8.length}명`);
-
-    document.getElementById('etc-result-content').textContent = report.join('\n');
     document.getElementById('etc-result-section').classList.remove('hidden');
 }
 
@@ -284,22 +267,4 @@ function removeElderTimeFile() {
     document.getElementById('etc-file-input').value = '';
     document.getElementById('etc-file-status').innerHTML = '';
     document.getElementById('etc-result-section').classList.add('hidden');
-}
-
-/**
- * 결과 복사
- */
-function copyElderTimeResult() {
-    const content = document.getElementById('etc-result-content').textContent;
-
-    if (!content || content.trim() === '') {
-        alert('먼저 시간 분석을 실행해주세요.');
-        return;
-    }
-
-    navigator.clipboard.writeText(content).then(() => {
-        alert('✓ 분석 결과가 클립보드에 복사되었습니다.');
-    }).catch(err => {
-        alert('복사 중 오류가 발생했습니다: ' + err);
-    });
 }

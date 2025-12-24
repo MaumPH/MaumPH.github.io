@@ -1119,14 +1119,80 @@
                                     <span class="material-symbols-outlined text-primary">assignment</span>
                                     분석 결과
                                 </h3>
-                                <button onclick="copyElderTimeResult()" class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium flex items-center gap-2 transition-colors">
-                                    <span class="material-symbols-outlined text-lg">content_copy</span>
-                                    결과 복사
-                                </button>
                             </div>
 
-                            <div id="etc-result-content" class="whitespace-pre-wrap text-sm text-gray-900 dark:text-white leading-relaxed bg-gray-50 dark:bg-gray-900 p-6 rounded-lg min-h-[400px] font-mono">
-                                <!-- 결과가 여기에 표시됩니다 -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <!-- 3시간 미만 -->
+                                <div class="flex flex-col">
+                                    <div class="bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-t-lg border-b border-blue-200 dark:border-blue-800">
+                                        <h4 class="text-sm font-bold text-blue-800 dark:text-blue-300">⏱️ 3시간 미만</h4>
+                                    </div>
+                                    <div class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-b-lg overflow-hidden">
+                                        <table class="w-full text-sm">
+                                            <thead class="bg-gray-100 dark:bg-gray-800">
+                                                <tr>
+                                                    <th class="px-2 py-2 text-left text-gray-700 dark:text-gray-300 font-semibold">No</th>
+                                                    <th class="px-2 py-2 text-left text-gray-700 dark:text-gray-300 font-semibold">성명</th>
+                                                    <th class="px-2 py-2 text-left text-gray-700 dark:text-gray-300 font-semibold">날짜</th>
+                                                    <th class="px-2 py-2 text-left text-gray-700 dark:text-gray-300 font-semibold">시간</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="etc-result-less3" class="text-gray-900 dark:text-white">
+                                                <tr>
+                                                    <td colspan="4" class="px-2 py-4 text-center text-gray-500">데이터 없음</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- 3시간 이상 6시간 미만 -->
+                                <div class="flex flex-col">
+                                    <div class="bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-t-lg border-b border-green-200 dark:border-green-800">
+                                        <h4 class="text-sm font-bold text-green-800 dark:text-green-300">⏱️ 3시간 이상 6시간 미만</h4>
+                                    </div>
+                                    <div class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-b-lg overflow-hidden">
+                                        <table class="w-full text-sm">
+                                            <thead class="bg-gray-100 dark:bg-gray-800">
+                                                <tr>
+                                                    <th class="px-2 py-2 text-left text-gray-700 dark:text-gray-300 font-semibold">No</th>
+                                                    <th class="px-2 py-2 text-left text-gray-700 dark:text-gray-300 font-semibold">성명</th>
+                                                    <th class="px-2 py-2 text-left text-gray-700 dark:text-gray-300 font-semibold">날짜</th>
+                                                    <th class="px-2 py-2 text-left text-gray-700 dark:text-gray-300 font-semibold">시간</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="etc-result-3to6" class="text-gray-900 dark:text-white">
+                                                <tr>
+                                                    <td colspan="4" class="px-2 py-4 text-center text-gray-500">데이터 없음</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- 6시간 이상 8시간 미만 -->
+                                <div class="flex flex-col">
+                                    <div class="bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-t-lg border-b border-amber-200 dark:border-amber-800">
+                                        <h4 class="text-sm font-bold text-amber-800 dark:text-amber-300">⏱️ 6시간 이상 8시간 미만</h4>
+                                    </div>
+                                    <div class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-b-lg overflow-hidden">
+                                        <table class="w-full text-sm">
+                                            <thead class="bg-gray-100 dark:bg-gray-800">
+                                                <tr>
+                                                    <th class="px-2 py-2 text-left text-gray-700 dark:text-gray-300 font-semibold">No</th>
+                                                    <th class="px-2 py-2 text-left text-gray-700 dark:text-gray-300 font-semibold">성명</th>
+                                                    <th class="px-2 py-2 text-left text-gray-700 dark:text-gray-300 font-semibold">날짜</th>
+                                                    <th class="px-2 py-2 text-left text-gray-700 dark:text-gray-300 font-semibold">시간</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="etc-result-6to8" class="text-gray-900 dark:text-white">
+                                                <tr>
+                                                    <td colspan="4" class="px-2 py-4 text-center text-gray-500">데이터 없음</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
