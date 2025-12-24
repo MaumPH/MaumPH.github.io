@@ -70,6 +70,13 @@
                         class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
                         placeholder="비밀번호 입력">
                 </div>
+                <div class="flex items-center">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="remember-email-checkbox"
+                            class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">이메일 저장</span>
+                    </label>
+                </div>
                 <button type="submit"
                     class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-lg transition-all flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined">login</span>
@@ -184,6 +191,7 @@
 
             if (rememberedEmail) {
                 document.getElementById('login-email').value = rememberedEmail;
+                document.getElementById('remember-email-checkbox').checked = true;
             }
         }
 
@@ -222,10 +230,18 @@
 
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
+            const rememberEmail = document.getElementById('remember-email-checkbox').checked;
 
             const result = await signIn(email, password);
 
             if (result.success) {
+                // 이메일 저장 처리
+                if (rememberEmail) {
+                    localStorage.setItem('rememberedEmail', email);
+                } else {
+                    localStorage.removeItem('rememberedEmail');
+                }
+
                 if (result.approved) {
                     alert('로그인 성공! 메인 페이지로 이동합니다.');
                     window.location.href = 'index.html';
