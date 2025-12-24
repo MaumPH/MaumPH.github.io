@@ -7,12 +7,12 @@
 // 아래 값을 Firebase Console에서 받은 실제 값으로 변경하면 모든 PC/브라우저에서 자동으로 작동합니다.
 // firebase-setup.html 페이지에서 "코드 생성" 기능을 사용하면 쉽게 복사할 수 있습니다.
 const DEFAULT_FIREBASE_CONFIG = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyDyQSHAkkdgBhw9QVw1NENWA9g4DXZkWuY",
+    authDomain: "work-assistant-4e162.firebaseapp.com",
+    projectId: "work-assistant-4e162",
+    storageBucket: "work-assistant-4e162.firebasestorage.app",
+    messagingSenderId: "692148378218",
+    appId: "1:692148378218:web:691cdcc3d92f2c7cef4813"
 };
 
 let firebaseConfig = null;
