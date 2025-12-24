@@ -6,7 +6,7 @@
     <title>주간보호센터 업무수행도우미</title>
     <meta name="description" content="주간보호센터 프로그램 관리자를 위한 AI 기반 업무 문서 자동 작성 시스템">
     <meta property="og:title" content="주간보호센터 업무수행도우미">
-    <meta property="og:description" content="업무수행일지, 프로그램 일지, 사례관리, 상담일지를 AI로 자동 생성">
+    <meta property="og:description" content="업무수행일지, 프로그램 일지, 사례관리, 상담일지, 고충처리 대장을 AI로 자동 생성">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://maumph.github.io/">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -144,6 +144,10 @@
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group" href="#" id="nav-counseling-log" onclick="showPage('counseling-log'); return false;">
                     <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">chat</span>
                     <p class="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-sm font-medium">상담일지 작성</p>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group" href="#" id="nav-grievance" onclick="showPage('grievance'); return false;">
+                    <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">support_agent</span>
+                    <p class="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-sm font-medium">고충처리 대장</p>
                 </a>
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group" href="#" id="nav-newsletter" onclick="showPage('newsletter'); return false;">
                     <span class="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">newspaper</span>
@@ -792,6 +796,119 @@
                     </div>
                 </div>
 
+                <!-- Grievance Management Page -->
+                <div id="page-grievance" class="page-hidden">
+                    <div class="flex flex-col gap-2 mb-6">
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">고충처리 대장</h1>
+                        <p class="text-gray-500 dark:text-gray-400 mt-1">직원 고충 내용을 입력하면 AI가 자동으로 고충처리 기록서를 작성합니다.</p>
+                    </div>
+
+                    <!-- 기본 정보 입력 -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
+                        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">person</span>
+                            기본 정보
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">고충 제기 직원 <span class="text-red-500">*</span></label>
+                                <input type="text" id="gr-employee" placeholder="예: A직원" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary">
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">직무 (선택)</label>
+                                <input type="text" id="gr-position" placeholder="예: 사회복지사, 요양보호사" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 고충 내용 입력 -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
+                        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">assignment_late</span>
+                            고충 내용
+                        </h3>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">고충 제기 배경 (선택)</label>
+                                <textarea id="gr-background" rows="2" placeholder="예: 최근 업무량 증가로 인한 부담..." class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></textarea>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">고충 발생 상황 (선택)</label>
+                                <textarea id="gr-situation" rows="2" placeholder="예: 특정 시간대 업무 집중..." class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></textarea>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">제기된 고충 내용 <span class="text-red-500">*</span></label>
+                                <textarea id="gr-content" rows="3" placeholder="예: 점심 이후 위생·정리 업무가 반복적으로 단독 배정되어 업무 균형이 무너진 상황..." class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></textarea>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">관련 직원 또는 관련 부서 (선택)</label>
+                                <input type="text" id="gr-related-party" placeholder="예: 동료 직원, 관리팀" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 기관 확인 사항 -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
+                        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">fact_check</span>
+                            기관 확인 사항
+                        </h3>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">기관에서 확인한 사실 <span class="text-red-500">*</span></label>
+                                <textarea id="gr-confirmed-facts" rows="3" placeholder="예: 근무표 확인 결과, 최근 신입 직원의 적응 기간으로 인해 특정 업무가 A직원에게 과도하게 배정되는 날이 있었음..." class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></textarea>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">기존 조치 이력 (선택)</label>
+                                <textarea id="gr-action-history" rows="2" placeholder="예: 이전에 유사 사례에 대한 조치 내용..." class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></textarea>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">기관의 조치 가능 범위 <span class="text-red-500">*</span></label>
+                                <textarea id="gr-action-scope" rows="2" placeholder="예: 근무표 조정, 업무 재배치, 직원 교육 등..." class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></textarea>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">통보 방식</label>
+                                <select id="gr-notification-method" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary">
+                                    <option value="대면" selected>대면</option>
+                                    <option value="전화">전화</option>
+                                    <option value="문서">문서</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 생성 버튼 -->
+                    <div class="flex justify-center mb-6">
+                        <button onclick="generateGrievanceReport()" class="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-lg font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                            <span class="material-symbols-outlined">auto_awesome</span>
+                            AI로 고충처리 기록서 생성하기
+                        </button>
+                    </div>
+
+                    <!-- 결과 출력 -->
+                    <div id="gr-result-section" class="hidden">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">description</span>
+                                    생성된 고충처리 기록서
+                                </h3>
+                                <button onclick="copyGrievanceResult()" class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium flex items-center gap-2 transition-colors">
+                                    <span class="material-symbols-outlined text-lg">content_copy</span>
+                                    전체 복사
+                                </button>
+                            </div>
+
+                            <div id="gr-result-content" class="space-y-4 text-sm text-gray-900 dark:text-white leading-relaxed bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
+                                <!-- 결과가 여기에 표시됩니다 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
 
                 <!-- Newsletter Page -->
                 <div id="page-newsletter" class="page-hidden">
@@ -1246,6 +1363,7 @@
     <script src="js/ui.js"></script>
     <script src="js/program-data.js"></script>
     <script src="js/counseling.js"></script>
+    <script src="js/grievance.js"></script>
     <script src="js/case-management.js"></script>
     <script src="js/monitoring.js"></script>
     <script src="js/vehicle-checker.js"></script>
