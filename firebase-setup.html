@@ -41,6 +41,25 @@
                 </p>
             </div>
 
+            <!-- 보안 경고 -->
+            <div class="bg-red-50 border-2 border-red-300 rounded-lg p-4 mb-4">
+                <div class="flex gap-3">
+                    <span class="material-symbols-outlined text-red-600 text-2xl">warning</span>
+                    <div class="flex-1 text-sm">
+                        <p class="text-red-900 font-bold mb-2">⚠️ 중요: Firestore Security Rules 설정 필수!</p>
+                        <p class="text-red-800 mb-2">Firebase를 "테스트 모드"로 설정했다면, <strong>누구나 데이터베이스에 접근 가능</strong>합니다.</p>
+                        <div class="bg-white border border-red-200 rounded p-3 mt-2">
+                            <p class="text-red-900 font-semibold mb-1">지금 바로 설정하세요:</p>
+                            <ol class="text-red-800 space-y-1 list-decimal list-inside text-xs">
+                                <li><a href="https://console.firebase.google.com/" target="_blank" class="underline hover:text-red-600 font-semibold">Firebase Console</a> → Firestore Database → 규칙(Rules)</li>
+                                <li><a href="FIRESTORE_SECURITY_RULES.md" target="_blank" class="underline hover:text-red-600 font-semibold">보안 규칙 가이드</a>의 코드를 복사하여 붙여넣기</li>
+                                <li>"게시(Publish)" 버튼 클릭</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 안내 메시지 -->
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <div class="flex gap-3">
