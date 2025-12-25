@@ -36,6 +36,9 @@ async function signUp(email, password, displayName) {
 // 로그인
 async function signIn(email, password) {
     try {
+        // 브라우저 종료 시 자동 로그아웃되도록 세션 설정
+        await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
