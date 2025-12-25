@@ -1,138 +1,237 @@
 # 주간보호센터 업무수행도우미
 
-주간보호센터의 프로그램 관리자를 위한 AI 기반 업무 문서 작성 시스템입니다.
+주간보호센터의 프로그램 관리자를 위한 AI 기반 업무 문서 자동 작성 시스템입니다.
 
-## 프로젝트 구조 (모듈화 완료)
+## 주요 기능
+
+### 📋 업무수행일지
+**3단계 자동 작성 프로세스**
+- **STEP 1**: 욕구사정 PDF 업로드 및 심신상태 자동 분석
+  - 10개 항목 자동 작성 (식사/영양상태, 보행, 신체기능 등)
+- **STEP 2**: 프로그램 제공계획 및 내용 AI 생성
+- **STEP 3**: 향후 계획 및 기타사항 작성
+
+### 📅 프로그램 관리
+**프로그램 제공일지**
+- 기존/신규 프로그램 선택
+- 어르신 반응 자동 생성 (최대 30개)
+- 긍정/중립/소극·피로 3단계 분류 및 통계
+
+**프로그램 추가/수정**
+- 프로그램 유형별 계획안 자동 작성 (신체기능/인지기능/가족지지/사회적응)
+- 4파트 구조 출력: 준비물 → 프로그램 목표 → 진행과정 → 기대효과
+- 신규 작성 및 기존 계획안 보완 지원
+- 행정기록체 문체 자동 적용
+
+### 📝 문서 작성
+**사례관리 작성**
+- 평가 기준(지표 28) 완전 준수
+- 대화체 회의 내용 생성
+- 급여 반영 내용 포함
+
+**상담일지 작성**
+- 대화체/보고체/혼합 스타일 선택
+- 보호자 상담 내용 자동 작성
+
+**고충처리 대장**
+- 직원 고충 내용 입력 → AI 자동 기록서 생성
+- 행정기록체 문체 적용 (~임/~음/~됨/~함/~하였음)
+- 고충 배경, 상황, 내용, 기관 확인사항 구조화
+
+**소식지 만들기**
+- 3개 활동 이미지 업로드
+- AI 기반 소식지 내용 자동 생성
+
+### 💰 청구 준비
+**차량중복확인**
+- 엑셀 파일 업로드
+- 입소/퇴소 차량 시간 중복 자동 검사
+- 중복 건수 및 상세 내역 표시
+
+**어르신 시간확인**
+- 엑셀 파일 기반 어르신별 이용시간 자동 계산
+- 시간일련번호(F열) 기반 시간 합산
+- 3시간 미만 / 3~6시간 / 6~8시간 3단계 분류
+- 이용시간 순 자동 정렬
+
+### ⚙️ 설정
+- Google Gemini API 키 관리
+- 다크모드 지원
+- 사용 횟수 추적
+
+## 기술 스택
+
+- **Frontend**: HTML5, Tailwind CSS, Vanilla JavaScript (모듈화)
+- **AI**: Google Gemini API (gemini-2.0-flash-exp)
+- **인증**: Firebase Authentication (SESSION persistence)
+- **데이터베이스**: Cloud Firestore
+- **파일 처리**: PDF.js, SheetJS (XLSX)
+- **스토리지**: LocalStorage (API 키, 사용 횟수)
+
+## 프로젝트 구조
 
 ```
-프로그램관리자 업무수행일지/
-├── index.html                          # 메인 HTML (모듈화됨, 93KB)
-├── index.backup.html                   # 원본 백업 (19MB)
-├── index_with_inline_script.html       # 인라인 스크립트 버전 백업
+MaumPH.github.io/
+├── index.html                          # 메인 HTML
 │
 ├── css/
 │   └── styles.css                      # 스타일시트
 │
 └── js/                                 # JavaScript 모듈 (기능별 분리)
-    ├── config.js                       # 전역 설정 및 상태 관리 (3.8KB)
-    ├── api.js                          # Gemini API 호출 로직 (2.8KB)
-    ├── ui.js                           # UI 공통 함수 및 네비게이션 (11KB)
-    ├── counseling.js                   # 상담일지 생성 (7.6KB)
-    ├── case-management.js              # 사례관리 회의록 생성 (9.2KB)
-    ├── monitoring.js                   # 프로그램 일지 및 모니터링 (11KB)
-    └── main.js                         # 앱 초기화 및 이벤트 (5.2KB)
+    ├── firebase-config.js              # Firebase 초기화
+    ├── auth.js                         # 사용자 인증 및 권한 관리
+    ├── config.js                       # 전역 설정 및 상태 관리
+    ├── api.js                          # Gemini API 호출 로직
+    ├── ui.js                           # UI 공통 함수 및 네비게이션
+    ├── program-data.js                 # 프로그램 데이터 관리
+    ├── counseling.js                   # 상담일지 생성
+    ├── grievance.js                    # 고충처리 대장 생성
+    ├── program-editor.js               # 프로그램 계획안 생성
+    ├── case-management.js              # 사례관리 회의록 생성
+    ├── monitoring.js                   # 프로그램 일지 및 모니터링
+    ├── vehicle-checker.js              # 차량중복확인
+    ├── elder-time-checker.js           # 어르신 시간확인
+    └── main.js                         # 앱 초기화 및 이벤트
 ```
 
 ## 모듈 설명
 
-### 1. config.js
-- 전역 상태 변수 관리
-- API 키 및 localStorage 설정
-- SYSTEM_PROMPT 템플릿
-- API 키 저장/표시 함수
+### 인증 및 보안
+- **firebase-config.js**: Firebase 초기화 및 설정
+- **auth.js**: 회원가입, 로그인, 로그아웃, 사용자 승인 관리
+  - SESSION persistence로 브라우저 종료 시 자동 로그아웃
+  - 관리자 승인 시스템
 
-### 2. api.js
-- callGeminiAPI(): 텍스트 기반 API 호출
-- callGeminiAPIWithImage(): 이미지 포함 API 호출
-- 사용 횟수 추적
+### 핵심 기능
+- **config.js**: 전역 상태 변수, API 키 관리, SYSTEM_PROMPT
+- **api.js**: Gemini API 호출 (텍스트/이미지), 사용 횟수 추적
+- **ui.js**: 페이지 전환, 네비게이션, 로딩 표시, PDF 업로드
 
-### 3. ui.js
-- showPage(): 페이지 전환 및 네비게이션
-- updateProgress(): 프로그레스 바 관리
-- showLoadingOverlay() / hideLoadingOverlay(): 로딩 표시
-- handlePDFUpload(): PDF 파일 업로드 처리
-- setupDragAndDrop(): 드래그 앤 드롭 기능
+### 문서 생성
+- **monitoring.js**: 업무수행일지, 프로그램 제공일지
+- **counseling.js**: 상담일지 생성
+- **grievance.js**: 고충처리 대장 생성 (행정기록체)
+- **program-editor.js**: 프로그램 계획안 작성/보완
+- **case-management.js**: 사례관리 회의록 생성
 
-### 4. counseling.js
-- generateCounselingLog(): 상담일지 생성
-- buildCounselingLogPrompt(): 프롬프트 생성
-- displayCounselingLogResult(): 결과 표시
-- copyCounselingLogResult(): 클립보드 복사
+### 데이터 처리
+- **vehicle-checker.js**: 엑셀 기반 차량 중복 검사
+- **elder-time-checker.js**: 엑셀 기반 시간 합산 및 분류
+- **program-data.js**: 프로그램 데이터 관리
 
-### 5. case-management.js
-- setupServiceCheckboxes(): 서비스 유형 체크박스 설정
-- generateCaseManagement(): 사례관리 회의록 생성
-- buildCaseManagementPrompt(): 프롬프트 생성
-- displayCaseManagementResult(): 결과 표시
-- copyCaseManagementResult(): 클립보드 복사
+## 보안 기능
 
-### 6. monitoring.js
-- analyzePDF(): PDF 분석 및 필드 자동 작성
-- generateProgramContent(): 프로그램 내용 생성
-- generateFuturePlan(): 향후 계획 생성
-- generateProgramReactions(): 프로그램 반응 생성
-- toggleProgramMode(): 프로그램 모드 전환
+### 인증 시스템
+- Firebase Authentication 기반 사용자 관리
+- 관리자 승인 후 사용 가능
+- 역할 기반 접근 제어 (admin/user)
 
-### 7. main.js
-- 앱 초기화 (window.onload)
-- Newsletter 이미지 처리
-- generateNewsletter(): 소식지 생성
-- copyNewsletterResult(): 결과 복사
-
-## 주요 기능
-
-1. **업무수행일지 작성** (3단계)
-   - STEP 1: PDF 업로드 및 10개 항목 자동 분석
-   - STEP 2: 프로그램 제공계획 및 내용 생성
-   - STEP 3: 향후 계획 작성 및 완료
-
-2. **프로그램 일지**
-   - 기존/신규 프로그램 선택
-   - 어르신 반응 자동 생성 (최대 30개)
-
-3. **사례관리 회의록**
-   - 평가 기준(지표 28) 완전 준수
-   - 대화체 회의 내용 생성
-   - 급여 반영 내용 포함
-
-4. **상담일지**
-   - 대화체/보고체/혼합 스타일 선택
-   - 보호자 상담 내용 자동 작성
-
-5. **소식지 생성**
-   - 3개 이미지 업로드 및 분석
-   - AI 기반 소식지 내용 자동 생성
-
-## 기술 스택
-
-- **Frontend**: HTML5, Tailwind CSS, Vanilla JavaScript (모듈화)
-- **AI**: Google Gemini API (gemini-3-flash-preview)
-- **PDF 처리**: PDF.js
-- **스토리지**: LocalStorage (API 키, 사용 횟수)
-
-## 개선 사항
-
-### 모듈화 전 (index.backup.html)
-- 파일 크기: 19MB
-- 모든 JavaScript 코드가 하나의 script 태그에 포함
-- 유지보수 어려움
-- 코드 재사용 불가
-
-### 모듈화 후 (현재)
-- HTML 파일: 93KB (99.5% 감소)
-- JavaScript 7개 모듈로 분리
-- 기능별 명확한 역할 분리
-- 코드 가독성 및 유지보수성 향상
-- 필요한 모듈만 수정 가능
+### 세션 보안
+- **SESSION Persistence**: 브라우저 탭/창 종료 시 자동 로그아웃
+- 공용 컴퓨터 환경에서 안전한 사용
+- 세션 하이재킹 방지
 
 ## 사용 방법
 
-1. **API 키 설정**
-   - 설정 페이지에서 Gemini API 키 입력 및 저장
+### 1. 초기 설정
+1. 회원가입 후 관리자 승인 대기
+2. 승인 후 로그인
+3. 설정 페이지에서 Gemini API 키 입력 및 저장
 
-2. **업무수행일지 작성**
-   - PDF 업로드 → 자동 분석 → 내용 수정 → 프로그램 내용 생성
+### 2. 업무수행일지 작성
+1. 업무수행일지 메뉴 진입
+2. STEP 1: 욕구사정 PDF 업로드 → 자동 분석
+3. STEP 2: 프로그램 제공계획 생성
+4. STEP 3: 향후 계획 작성 및 완료
 
-3. **기타 문서 작성**
-   - 각 메뉴에서 필요한 정보 입력
-   - AI 생성 버튼 클릭
-   - 결과 확인 및 복사
+### 3. 프로그램 관리
+**프로그램 제공일지**
+- 기존 프로그램 선택 또는 신규 입력
+- 어르신 반응 자동 생성
+- 긍정/중립/소극 분류 확인
 
-## 백업 파일
+**프로그램 추가/수정**
+- 프로그램 이름, 유형, 내용 입력
+- AI로 계획안 생성
+- 준비물, 목표, 진행과정, 기대효과 자동 작성
 
-- index.backup.html: 최초 원본 백업
-- index_with_inline_script.html: 모듈화 직전 버전
+### 4. 청구 준비
+**차량중복확인**
+- 엑셀 파일 업로드
+- 중복 검사 실행
+- 결과 확인 및 복사
+
+**어르신 시간확인**
+- 엑셀 파일 업로드
+- 시간 분석 실행
+- 3단계 분류 결과 확인
+
+### 5. 기타 문서
+- 각 메뉴에서 필요한 정보 입력
+- AI 생성 버튼 클릭
+- 결과 확인 및 복사
+
+## 메뉴 구조
+
+```
+📂 업무수행일지
+   ├── 어르신의 심신상태
+   ├── 프로그램 제공계획
+   └── 향후계획 및 기타사항
+
+📂 프로그램
+   ├── 프로그램 제공일지
+   └── 프로그램 추가/수정
+
+📄 사례관리 작성
+📄 상담일지 작성
+📄 고충처리 대장
+📄 소식지 만들기
+
+📂 청구 준비
+   ├── 차량중복확인
+   └── 어르신 시간확인
+
+⚙️ 설정
+```
+
+## 주요 특징
+
+### AI 기반 자동화
+- Google Gemini API 활용
+- 컨텍스트 인식 문서 생성
+- 행정기록체/대화체 등 문체 자동 적용
+
+### 사용자 친화적 UI
+- 다크모드 지원
+- 드래그 앤 드롭 파일 업로드
+- 실시간 진행상황 표시
+- 원클릭 복사 기능
+
+### 데이터 처리
+- PDF 자동 분석 (PDF.js)
+- 엑셀 파일 처리 (SheetJS)
+- 시간 자동 합산 및 분류
+- 통계 자동 계산
+
+## 개발 히스토리
+
+### 주요 업데이트
+- ✅ Firebase 인증 시스템 추가
+- ✅ 고충처리 대장 기능 구현
+- ✅ 프로그램 추가/수정 기능 구현
+- ✅ 청구 준비 카테고리 추가 (차량중복확인, 어르신 시간확인)
+- ✅ 메뉴 구조 개편 (업무수행일지, 프로그램, 청구 준비)
+- ✅ 헤더 스타일링 및 UI 개선
+- ✅ SESSION persistence로 보안 강화
+- ✅ 시간일련번호 기반 시간 합산 기능
+- ✅ 3분할 표 형식 UI 적용
 
 ## 라이선스
 
 주간보호센터 내부 사용 목적
+
+---
+
+**개발**: AI 기반 업무 자동화 시스템
+**업데이트**: 2025년 12월
