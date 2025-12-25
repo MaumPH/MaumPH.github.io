@@ -107,9 +107,9 @@ function showPage(pageName) {
         if (billingBtn) {
             billingBtn.classList.add('bg-primary/10', 'dark:bg-primary/20');
         }
-    } else if (pageName === 'program-log') {
+    } else if (pageName === 'program-log' || pageName === 'program-editor') {
         // Highlight submenu item
-        const activeNav = document.getElementById('nav-program-log');
+        const activeNav = document.getElementById(`nav-${pageName}`);
         if (activeNav) {
             activeNav.classList.remove('text-gray-600', 'dark:text-gray-400');
             activeNav.classList.add('text-primary', 'font-semibold', 'bg-primary/5', 'dark:bg-primary/10');
