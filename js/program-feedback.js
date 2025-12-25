@@ -1,5 +1,12 @@
 // 프로그램 의견수렴 생성
 async function generateProgramFeedback() {
+    // API 키 확인
+    if (!apiKey) {
+        alert('API 키를 먼저 설정해주세요.');
+        showPage('settings');
+        return;
+    }
+
     const beneficiary = document.getElementById('pf-beneficiary').value.trim();
     const programName = document.getElementById('pf-program-name').value.trim();
     const programDate = document.getElementById('pf-program-date').value;
@@ -23,26 +30,43 @@ async function generateProgramFeedback() {
         return;
     }
 
-    // API 키 확인
-    const apiKey = await getApiKey();
-    if (!apiKey) {
-        alert('API 키가 설정되지 않았습니다. 설정 페이지에서 API 키를 입력해주세요.');
-        return;
-    }
+    // 프롬프트 생성
+    const prompt = buildProgramFeedbackPrompt(beneficiary, programName, programDate, feedback);
 
     // 로딩 시작
     showLoadingOverlay('AI가 평가 및 차후 반영사항을 생성하고 있습니다...');
 
     try {
-        const prompt = buildProgramFeedbackPrompt(beneficiary, programName, programDate, feedback);
-        const result = await callGeminiAPI(apiKey, prompt);
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: prompt }]
+                }]
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || 'API 호출 실패');
+        }
+
+        const data = await response.json();
+        const result = data.candidates[0].content.parts[0].text;
+
+        // 사용 횟수 증가
+        usageCount++;
+        localStorage.setItem('usage_count', usageCount.toString());
 
         displayProgramFeedbackResult(result);
         hideLoadingOverlay();
     } catch (error) {
         console.error('Error generating program feedback:', error);
         hideLoadingOverlay();
-        alert('평가 및 차후 반영사항 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
+        alert('평가 및 차후 반영사항 생성 중 오류가 발생했습니다: ' + error.message);
     }
 }
 
