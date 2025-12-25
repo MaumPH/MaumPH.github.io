@@ -107,7 +107,7 @@ function showPage(pageName) {
         if (billingBtn) {
             billingBtn.classList.add('bg-primary/10', 'dark:bg-primary/20');
         }
-    } else if (pageName === 'program-log' || pageName === 'program-editor') {
+    } else if (pageName === 'program-log' || pageName === 'program-editor' || pageName === 'program-feedback') {
         // Highlight submenu item
         const activeNav = document.getElementById(`nav-${pageName}`);
         if (activeNav) {
