@@ -10,7 +10,9 @@
 let currentPage = 'step1';
 let currentStep = 1;
 let pdfText = '';
-let apiKey = localStorage.getItem('gemini_api_key') || '';
+let apiKeys = JSON.parse(localStorage.getItem('gemini_api_keys') || '[]');
+let activeApiKeyIndex = parseInt(localStorage.getItem('active_api_key_index') || '0');
+let apiKey = apiKeys[activeApiKeyIndex] || '';
 let selectedModel = 'gemini-3-flash-preview';
 let usageCount = parseInt(localStorage.getItem('usage_count') || '0');
 
@@ -71,28 +73,121 @@ const SYSTEM_PROMPT = `# 📘 프로그램관리자 업무수행일지 작성 �
 * 구체적 행동 묘사 (추상적 표현 지양)
 * 중립적 어조 유지`;
 
-// API 키 저장 함수
-function saveAPIKey() {
-    const key = document.getElementById('api-key-input').value.trim();
-    if (key) {
-        apiKey = key;
-        localStorage.setItem('gemini_api_key', key);
-        alert('API 키가 저장되었습니다.');
-    } else {
-        alert('API 키를 입력해주세요.');
+// API 키 리스트 렌더링
+function renderAPIKeysList() {
+    const container = document.getElementById('api-keys-list');
+    if (!container) return;
+
+    if (apiKeys.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
+                저장된 API 키가 없습니다.<br>새 API 키를 추가해주세요.
+            </div>
+        `;
+        return;
     }
+
+    container.innerHTML = apiKeys.map((key, index) => {
+        const maskedKey = key.substring(0, 8) + '...' + key.substring(key.length - 4);
+        const isActive = index === activeApiKeyIndex;
+
+        return `
+            <div class="flex items-center gap-3 p-3 bg-white dark:bg-surface-dark border ${isActive ? 'border-primary' : 'border-gray-300 dark:border-gray-600'} rounded-lg">
+                <input type="radio" name="active-api-key" ${isActive ? 'checked' : ''}
+                    onchange="selectAPIKey(${index})"
+                    class="w-4 h-4 text-primary focus:ring-primary cursor-pointer"/>
+                <div class="flex-1 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-gray-500 text-lg">key</span>
+                    <span class="font-mono text-sm text-gray-900 dark:text-white">${maskedKey}</span>
+                    ${isActive ? '<span class="px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded">사용 중</span>' : ''}
+                </div>
+                <button onclick="deleteAPIKey(${index})"
+                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                    title="삭제">
+                    <span class="material-symbols-outlined text-lg">delete</span>
+                </button>
+            </div>
+        `;
+    }).join('');
 }
 
-// API 키 표시/숨김 토글
-function toggleAPIKeyVisibility() {
-    const input = document.getElementById('api-key-input');
-    const icon = document.getElementById('visibility-icon');
+// API 키 추가
+function addAPIKey() {
+    const input = document.getElementById('new-api-key-input');
+    const newKey = input.value.trim();
+
+    if (!newKey) {
+        alert('API 키를 입력해주세요.');
+        return;
+    }
+
+    if (apiKeys.length >= 5) {
+        alert('최대 5개까지만 저장할 수 있습니다.');
+        return;
+    }
+
+    if (apiKeys.includes(newKey)) {
+        alert('이미 저장된 API 키입니다.');
+        return;
+    }
+
+    apiKeys.push(newKey);
+    localStorage.setItem('gemini_api_keys', JSON.stringify(apiKeys));
+
+    // 첫 번째 키인 경우 자동으로 활성화
+    if (apiKeys.length === 1) {
+        activeApiKeyIndex = 0;
+        apiKey = apiKeys[0];
+        localStorage.setItem('active_api_key_index', '0');
+    }
+
+    input.value = '';
+    renderAPIKeysList();
+    alert('API 키가 추가되었습니다.');
+}
+
+// API 키 선택
+function selectAPIKey(index) {
+    activeApiKeyIndex = index;
+    apiKey = apiKeys[index];
+    localStorage.setItem('active_api_key_index', index.toString());
+    renderAPIKeysList();
+}
+
+// API 키 삭제
+function deleteAPIKey(index) {
+    if (!confirm('이 API 키를 삭제하시겠습니까?')) {
+        return;
+    }
+
+    apiKeys.splice(index, 1);
+    localStorage.setItem('gemini_api_keys', JSON.stringify(apiKeys));
+
+    // 활성화된 키가 삭제된 경우
+    if (index === activeApiKeyIndex) {
+        activeApiKeyIndex = 0;
+        apiKey = apiKeys[0] || '';
+        localStorage.setItem('active_api_key_index', '0');
+    } else if (index < activeApiKeyIndex) {
+        // 활성화된 키보다 앞의 키가 삭제된 경우 인덱스 조정
+        activeApiKeyIndex--;
+        localStorage.setItem('active_api_key_index', activeApiKeyIndex.toString());
+    }
+
+    renderAPIKeysList();
+    alert('API 키가 삭제되었습니다.');
+}
+
+// 새 API 키 입력창 표시/숨김 토글
+function toggleNewAPIKeyVisibility() {
+    const input = document.getElementById('new-api-key-input');
+    const icon = document.getElementById('new-visibility-icon');
 
     if (input.type === 'password') {
         input.type = 'text';
-        icon.textContent = 'visibility_off';
+        icon.textContent = 'visibility';
     } else {
         input.type = 'password';
-        icon.textContent = 'visibility';
+        icon.textContent = 'visibility_off';
     }
 }
