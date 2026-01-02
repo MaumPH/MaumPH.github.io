@@ -121,8 +121,8 @@ ${userInput}
 ## 작성 항목:
 1. 필요내용 (50자 이상)
 2. 제공방법 (50자 이상)
-3. 수급자 반응 및 특이사항 (200자 이상)
-4. 요양쌤 모니터링 (200자 이상)
+3. 수급자 반응 및 특이사항 (100자 이내)
+4. 요양쌤 모니터링 (100자 이내)
 
 ## 출력 형식:
 [1]
@@ -149,6 +149,9 @@ ${userInput}
         if (sections[6]) document.getElementById('program-reaction').value = sections[6].trim();
         if (sections[8]) document.getElementById('program-monitoring').value = sections[8].trim();
 
+        // 다음 단계 버튼 활성화
+        document.getElementById('step2-next').disabled = false;
+
         hideLoadingOverlay();
         alert('✓ 프로그램 내용이 생성되었습니다!');
 
@@ -162,33 +165,69 @@ ${userInput}
 async function generateFuturePlan() {
     const needsContent = document.getElementById('program-need').value.trim();
     const methodContent = document.getElementById('program-method').value.trim();
+    const reactionContent = document.getElementById('program-reaction').value.trim();
+    const monitoringContent = document.getElementById('program-monitoring').value.trim();
+
+    // Step 1의 심신상태 필드들 가져오기
+    let mentalStateContent = '';
+    for (let i = 1; i <= 10; i++) {
+        const field = document.getElementById(`field-${i}`);
+        if (field && field.value.trim()) {
+            mentalStateContent += field.value.trim() + ' ';
+        }
+    }
 
     if (!needsContent || !methodContent) {
         alert('먼저 필요내용과 제공방법을 작성해주세요.');
         return;
     }
 
-    showLoadingOverlay('향후 계획을 생성하고 있습니다...');
+    showLoadingOverlay('향후 계획 및 기타사항을 생성하고 있습니다...');
 
     try {
         const prompt = `${SYSTEM_PROMPT}
 
-# 작성 요청: 향후 계획
+# 작성 요청: 향후 계획 및 기타사항
 
-필요내용:
-${needsContent}
+## 심신상태 정보:
+${mentalStateContent}
 
-제공방법:
-${methodContent}
+## 프로그램 제공 정보:
+필요내용: ${needsContent}
+제공방법: ${methodContent}
+어르신 반응 및 특이사항: ${reactionContent}
+요양쌤 모니터링: ${monitoringContent}
 
-위 내용을 바탕으로 향후 계획을 100자 내외로 작성해주세요.
-구체적이고 실행 가능한 계획을 포함하세요.`;
+위 내용을 바탕으로 아래 3개 항목을 작성해주세요.
+
+## 작성 항목:
+1. 종합 (150자 내외) - 심신상태 변화와 프로그램 참여도를 바탕으로 금일 수급자의 전반적인 상태를 종합적으로 요약
+2. 급여제공 관련 유의사항 (150자 내외) - 낙상 위험, 식사 시 연하 곤란 등 수급자의 안전과 건강을 위해 급여 제공 시 특별히 유의해야 할 사항
+3. 급여제공 관련 세부계획 (100자 내외) - 확인된 욕구 및 유의사항을 반영하여 차주 또는 향후 제공할 구체적인 서비스 계획
+
+## 출력 형식:
+[1]
+종합 내용
+
+[2]
+급여제공 관련 유의사항 내용
+
+[3]
+급여제공 관련 세부계획 내용
+
+위 형식으로 작성해주세요.`;
 
         const result = await callGeminiAPI(prompt);
-        document.getElementById('future-plan').value = result.trim();
+
+        // Parse results
+        const sections = result.split(/\[(\d+)\]/);
+
+        if (sections[2]) document.getElementById('future-summary').value = sections[2].trim();
+        if (sections[4]) document.getElementById('future-caution').value = sections[4].trim();
+        if (sections[6]) document.getElementById('future-plan').value = sections[6].trim();
 
         hideLoadingOverlay();
-        alert('✓ 향후 계획이 생성되었습니다!');
+        alert('✓ 향후 계획 및 기타사항이 생성되었습니다!');
 
     } catch (error) {
         hideLoadingOverlay();
