@@ -1466,22 +1466,39 @@
 
                             <hr class="border-t border-gray-200 dark:border-gray-700 my-2"/>
 
-                            <div class="flex flex-col gap-2">
-                                <label class="text-gray-900 dark:text-white text-sm font-medium">Gemini API Key</label>
-                                <div class="relative flex items-center group/input">
-                                    <span class="absolute left-4 text-gray-500 material-symbols-outlined text-[20px]">key</span>
-                                    <input id="api-key-input" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-dark text-gray-900 dark:text-white h-12 pl-12 pr-12 focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-gray-400" placeholder="AIza..." type="password"/>
-                                    <button class="absolute right-0 top-0 bottom-0 px-3 flex items-center justify-center text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors focus:outline-none" type="button" onclick="toggleAPIKeyVisibility()">
-                                        <span id="visibility-icon" class="material-symbols-outlined text-[20px]">visibility_off</span>
-                                    </button>
-                                </div>
-                                <div class="flex justify-between items-start mt-1">
-                                    <p class="text-xs text-gray-500">API 키는 브라우저 내부에 안전하게 저장되며 서버로 전송되지 않습니다.</p>
+                            <div class="flex flex-col gap-3">
+                                <div class="flex justify-between items-center">
+                                    <label class="text-gray-900 dark:text-white text-sm font-medium">Gemini API Key 관리</label>
                                     <a class="text-xs text-primary hover:text-primary-dark font-medium flex items-center gap-1 group/link" href="https://aistudio.google.com/app/apikey" target="_blank">
                                         API 키 발급 방법
                                         <span class="material-symbols-outlined text-[14px] group-hover/link:translate-x-0.5 transition-transform">open_in_new</span>
                                     </a>
                                 </div>
+
+                                <!-- API 키 리스트 -->
+                                <div id="api-keys-list" class="flex flex-col gap-2">
+                                    <!-- JavaScript로 동적 생성 -->
+                                </div>
+
+                                <!-- API 키 추가 입력 -->
+                                <div class="flex flex-col gap-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">새 API 키 추가 (최대 5개)</label>
+                                    <div class="flex gap-2">
+                                        <div class="relative flex-1 flex items-center group/input">
+                                            <span class="absolute left-4 text-gray-500 material-symbols-outlined text-[20px]">key</span>
+                                            <input id="new-api-key-input" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-dark text-gray-900 dark:text-white h-12 pl-12 pr-12 focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-gray-400" placeholder="AIza..." type="password"/>
+                                            <button class="absolute right-0 top-0 bottom-0 px-3 flex items-center justify-center text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors focus:outline-none" type="button" onclick="toggleNewAPIKeyVisibility()">
+                                                <span id="new-visibility-icon" class="material-symbols-outlined text-[20px]">visibility_off</span>
+                                            </button>
+                                        </div>
+                                        <button onclick="addAPIKey()" class="px-6 h-12 bg-primary hover:bg-primary-dark text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-lg">add</span>
+                                            추가
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-500">체크된 API 키가 사용됩니다. 무료 사용량 제한이 있을 때 다른 API 키로 변경하여 사용할 수 있습니다.</p>
                             </div>
                         </div>
                     </div>
@@ -1502,14 +1519,10 @@
                         </div>
                     </div>
 
-                    <div class="flex justify-between items-center pt-4">
+                    <div class="flex justify-end items-center pt-4">
                         <button onclick="handleLogout()" class="border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-base font-medium h-12 px-8 rounded-lg transition-all flex items-center gap-2">
                             <span class="material-symbols-outlined">logout</span>
                             로그아웃
-                        </button>
-                        <button onclick="saveAPIKey()" class="bg-primary hover:bg-primary-dark text-white text-base font-medium h-12 px-8 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2">
-                            <span class="material-symbols-outlined">save</span>
-                            설정 저장
                         </button>
                     </div>
                 </div>
@@ -1762,6 +1775,26 @@
             if (rememberCheckbox && rememberedEmail === userEmail) {
                 rememberCheckbox.checked = true;
             }
+
+            // 구형 API 키 마이그레이션 (한 번만 실행)
+            const oldApiKey = localStorage.getItem('gemini_api_key');
+            if (oldApiKey && !localStorage.getItem('api_migration_done')) {
+                const existingKeys = JSON.parse(localStorage.getItem('gemini_api_keys') || '[]');
+                if (!existingKeys.includes(oldApiKey)) {
+                    existingKeys.push(oldApiKey);
+                    localStorage.setItem('gemini_api_keys', JSON.stringify(existingKeys));
+                    localStorage.setItem('active_api_key_index', '0');
+                }
+                localStorage.setItem('api_migration_done', 'true');
+                localStorage.removeItem('gemini_api_key');
+                // 전역 변수 업데이트
+                apiKeys = JSON.parse(localStorage.getItem('gemini_api_keys') || '[]');
+                activeApiKeyIndex = parseInt(localStorage.getItem('active_api_key_index') || '0');
+                apiKey = apiKeys[activeApiKeyIndex] || '';
+            }
+
+            // API 키 리스트 렌더링
+            renderAPIKeysList();
 
             // 관리자인 경우 관리자 메뉴 표시
             if (userData.role === 'admin') {
