@@ -739,17 +739,26 @@ function populateProgramList() {
 
     // PROGRAM_LIST가 아직 초기화되지 않았으면 초기화
     if (PROGRAM_LIST.length === 0) {
-        // programPatterns가 있으면 거기서 키 추출
-        if (typeof programPatterns !== 'undefined' && programPatterns) {
+        // 1순위: PROGRAM_NAMES_LIST (program_names.js에서 로드)
+        if (typeof PROGRAM_NAMES_LIST !== 'undefined' && PROGRAM_NAMES_LIST && PROGRAM_NAMES_LIST.length > 0) {
+            PROGRAM_LIST = [...PROGRAM_NAMES_LIST];
+            console.log(`✓ PROGRAM_NAMES_LIST에서 ${PROGRAM_LIST.length}개 프로그램 로드`);
+        }
+        // 2순위: programPatterns (program_patterns.js에서 로드)
+        else if (typeof programPatterns !== 'undefined' && programPatterns) {
             PROGRAM_LIST = Object.keys(programPatterns).sort();
             console.log(`✓ programPatterns에서 ${PROGRAM_LIST.length}개 프로그램 로드`);
         }
-        // 없으면 programNames 사용
+        // 3순위: programNames (program-data.js에서 추출)
         else if (typeof programNames !== 'undefined' && programNames.length > 0) {
             PROGRAM_LIST = [...programNames];
             console.log(`✓ programNames에서 ${PROGRAM_LIST.length}개 프로그램 로드`);
         } else {
-            console.warn('⚠️ 프로그램 목록이 로드되지 않았습니다. program_patterns.json 파일이 로드되었는지 확인하세요.');
+            console.warn('⚠️ 프로그램 목록이 로드되지 않았습니다.');
+            console.warn('다음 중 하나의 파일이 필요합니다:');
+            console.warn('  - js/program_names.js (PROGRAM_NAMES_LIST)');
+            console.warn('  - js/program_patterns.js (programPatterns)');
+            console.warn('  - program_patterns.json 로드 후 programNames');
             PROGRAM_LIST = [];
         }
 
