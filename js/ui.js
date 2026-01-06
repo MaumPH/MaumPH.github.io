@@ -192,14 +192,29 @@ function showPage(pageName) {
 
     // 프로그램 일지 페이지로 이동 시 자동완성 설정 및 프로그램 리스트 채우기
     if (pageName === 'program-log') {
-        // 약간의 딜레이 후 설정 (DOM이 완전히 렌더링된 후)
+        console.log('=== 프로그램 제공일지 페이지 로드 시작 ===');
+
+        // DOM이 완전히 렌더링된 후 실행
         setTimeout(() => {
             if (typeof setupProgramAutocomplete === 'function') {
                 setupProgramAutocomplete();
             }
+
             // 프로그램 제공일지의 프로그램 선택 드롭다운 채우기
             if (typeof toggleProgramMode === 'function') {
+                console.log('toggleProgramMode() 호출');
                 toggleProgramMode();
+            } else {
+                console.error('toggleProgramMode 함수를 찾을 수 없습니다.');
+            }
+
+            // 데이터 로드 상태 확인
+            if (typeof programPatterns !== 'undefined' && programPatterns) {
+                console.log(`✓ programPatterns 로드됨: ${Object.keys(programPatterns).length}개 프로그램`);
+            } else if (typeof programNames !== 'undefined' && programNames) {
+                console.log(`✓ programNames 로드됨: ${programNames.length}개 프로그램`);
+            } else {
+                console.warn('⚠️ 프로그램 데이터가 아직 로드되지 않았습니다.');
             }
         }, 100);
     }
