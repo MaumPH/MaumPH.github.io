@@ -7,13 +7,23 @@
  */
 
 // 전역 변수
-let programPatterns = null;
+// programPatterns는 program_patterns.js에서 로드됨
+if (typeof programPatterns === 'undefined') {
+    var programPatterns = null;
+}
 let programNames = [];
 
 // 프로그램 패턴 데이터 로드
 async function loadProgramPatterns() {
     try {
-        // 여러 경로 시도
+        // program_patterns.js가 로드되어 있으면 그대로 사용
+        if (typeof programPatterns !== 'undefined' && programPatterns !== null) {
+            programNames = Object.keys(programPatterns).sort();
+            console.log(`✓ ${programNames.length}개 프로그램 패턴 로드 완료 (program_patterns.js)`);
+            return true;
+        }
+
+        // 그렇지 않으면 fetch 시도 (웹 서버에서 실행 시)
         const paths = [
             './program_patterns.json',
             'program_patterns.json',
