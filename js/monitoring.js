@@ -716,11 +716,8 @@ function toggleProgramMode() {
         existingSection.classList.remove('hidden');
         newSection.classList.add('hidden');
 
-        // Populate program list if not already done
-        const selectElement = document.getElementById('existing-program-select');
-        if (selectElement.options.length === 0) {
-            populateProgramList();
-        }
+        // 항상 프로그램 리스트를 채웁니다 (데이터가 로드된 경우)
+        populateProgramList();
     } else {
         existingSection.classList.add('hidden');
         newSection.classList.remove('hidden');
@@ -735,25 +732,43 @@ let filteredPrograms = [];
 
 function populateProgramList() {
     const selectElement = document.getElementById('existing-program-select');
-    selectElement.innerHTML = '';
+    if (!selectElement) {
+        console.error('existing-program-select 요소를 찾을 수 없습니다.');
+        return;
+    }
 
     // PROGRAM_LIST가 아직 초기화되지 않았으면 초기화
     if (PROGRAM_LIST.length === 0) {
         // programPatterns가 있으면 거기서 키 추출
         if (typeof programPatterns !== 'undefined' && programPatterns) {
             PROGRAM_LIST = Object.keys(programPatterns).sort();
+            console.log(`✓ programPatterns에서 ${PROGRAM_LIST.length}개 프로그램 로드`);
         }
         // 없으면 programNames 사용
         else if (typeof programNames !== 'undefined' && programNames.length > 0) {
             PROGRAM_LIST = [...programNames];
+            console.log(`✓ programNames에서 ${PROGRAM_LIST.length}개 프로그램 로드`);
         } else {
-            console.warn('프로그램 목록이 로드되지 않았습니다.');
+            console.warn('⚠️ 프로그램 목록이 로드되지 않았습니다. program_patterns.json 파일이 로드되었는지 확인하세요.');
             PROGRAM_LIST = [];
         }
 
         filteredPrograms = [...PROGRAM_LIST];
     }
 
+    // select 요소 초기화
+    selectElement.innerHTML = '';
+
+    if (filteredPrograms.length === 0) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = '프로그램 목록을 불러오는 중...';
+        selectElement.appendChild(option);
+        console.warn('⚠️ filteredPrograms가 비어있습니다.');
+        return;
+    }
+
+    // 프로그램 목록 추가
     filteredPrograms.forEach(program => {
         const option = document.createElement('option');
         option.value = program;
@@ -761,12 +776,19 @@ function populateProgramList() {
         selectElement.appendChild(option);
     });
 
+    console.log(`✓ ${filteredPrograms.length}개 프로그램을 select에 추가했습니다.`);
     updateProgramCount();
 }
 
 // 프로그램 필터링
 function filterPrograms() {
-    const searchText = document.getElementById('program-search').value.toLowerCase();
+    const searchInput = document.getElementById('program-search');
+    if (!searchInput) {
+        console.error('program-search 요소를 찾을 수 없습니다.');
+        return;
+    }
+
+    const searchText = searchInput.value.toLowerCase();
 
     if (!searchText) {
         filteredPrograms = [...PROGRAM_LIST];
@@ -776,7 +798,29 @@ function filterPrograms() {
         );
     }
 
-    populateProgramList();
+    console.log(`검색어: "${searchText}", 필터링된 프로그램: ${filteredPrograms.length}개`);
+
+    // select 요소만 업데이트 (PROGRAM_LIST 재초기화 방지)
+    const selectElement = document.getElementById('existing-program-select');
+    if (!selectElement) return;
+
+    selectElement.innerHTML = '';
+
+    if (filteredPrograms.length === 0) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = '검색 결과가 없습니다';
+        selectElement.appendChild(option);
+    } else {
+        filteredPrograms.forEach(program => {
+            const option = document.createElement('option');
+            option.value = program;
+            option.textContent = program;
+            selectElement.appendChild(option);
+        });
+    }
+
+    updateProgramCount();
 }
 
 // 프로그램 개수 업데이트

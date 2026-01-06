@@ -25,14 +25,19 @@ window.addEventListener('load', async () => {
     // 프로그램 패턴 데이터 로드 (비동기)
     if (typeof loadProgramPatterns === 'function') {
         const loaded = await loadProgramPatterns();
-        if (loaded && typeof setupProgramAutocomplete === 'function') {
-            setupProgramAutocomplete();
-            console.log('✓ 프로그램 자동완성 설정 완료');
+        if (loaded) {
+            console.log('✓ 프로그램 패턴 데이터 로드 완료');
+            if (typeof setupProgramAutocomplete === 'function') {
+                setupProgramAutocomplete();
+                console.log('✓ 프로그램 자동완성 설정 완료');
+            }
+        } else {
+            console.warn('⚠️ 프로그램 패턴 데이터 로드 실패');
         }
     }
 
-    // 프로그램 모드 초기화 (프로그램 패턴 로드 후에 실행)
-    toggleProgramMode();
+    // 프로그램 모드 초기화는 페이지 전환 시에만 실행 (showPage에서 처리)
+    // 초기 로딩 시에는 불필요
 
     // 소식지 드래그 앤 드롭 설정
     setupNewsletterDragDrop();
