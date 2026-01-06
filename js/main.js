@@ -9,12 +9,16 @@ window.addEventListener('load', async () => {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
     // API 키 복원
-    if (apiKey) {
-        document.getElementById('api-key-input').value = apiKey;
+    const apiKeyInput = document.getElementById('api-key-input');
+    if (apiKey && apiKeyInput) {
+        apiKeyInput.value = apiKey;
     }
 
     // 사용 횟수 표시
-    document.getElementById('usage-count').textContent = usageCount;
+    const usageCountElement = document.getElementById('usage-count');
+    if (usageCountElement) {
+        usageCountElement.textContent = usageCount;
+    }
 
     // Drag and drop 설정
     setupDragAndDrop();
