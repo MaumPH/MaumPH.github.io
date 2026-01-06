@@ -190,11 +190,17 @@ function showPage(pageName) {
         progressSection.style.display = 'none';
     }
 
-    // 프로그램 일지 페이지로 이동 시 자동완성 설정
-    if (pageName === 'program-log' && typeof setupProgramAutocomplete === 'function') {
+    // 프로그램 일지 페이지로 이동 시 자동완성 설정 및 프로그램 리스트 채우기
+    if (pageName === 'program-log') {
         // 약간의 딜레이 후 설정 (DOM이 완전히 렌더링된 후)
         setTimeout(() => {
-            setupProgramAutocomplete();
+            if (typeof setupProgramAutocomplete === 'function') {
+                setupProgramAutocomplete();
+            }
+            // 프로그램 제공일지의 프로그램 선택 드롭다운 채우기
+            if (typeof toggleProgramMode === 'function') {
+                toggleProgramMode();
+            }
         }, 100);
     }
 
