@@ -7,11 +7,31 @@
  */
 
 // Gemini API 호출 함수
-async function callGeminiAPI(prompt) {
+async function callGeminiAPI(prompt, options = {}) {
     if (!apiKey) {
         alert('API 키를 먼저 설정해주세요.');
         showPage('settings');
         return null;
+    }
+
+    // 기본 temperature는 1.0, 옵션으로 조정 가능 (다양성 증가를 위해)
+    const temperature = options.temperature !== undefined ? options.temperature : 1.0;
+
+    const requestBody = {
+        contents: [{
+            parts: [{
+                text: prompt
+            }]
+        }]
+    };
+
+    // temperature 설정 추가 (다양성 증가)
+    if (temperature !== 1.0) {
+        requestBody.generationConfig = {
+            temperature: temperature,
+            topK: 40,
+            topP: 0.95
+        };
     }
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`, {
@@ -19,13 +39,7 @@ async function callGeminiAPI(prompt) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            contents: [{
-                parts: [{
-                    text: prompt
-                }]
-            }]
-        })
+        body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
