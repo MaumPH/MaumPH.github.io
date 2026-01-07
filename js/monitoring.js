@@ -330,8 +330,27 @@ function getExampleReactions(programTitle, maxCount = 30) {
 }
 
 // 고급 프롬프트 생성
-function buildAdvancedPrompt(programTitle, programDesc, count, isExisting = false) {
+function buildAdvancedPrompt(programTitle, programDesc, count, isExisting = false, previousReactions = null) {
     const distribution = calculateEmotionDistribution(count);
+
+    // 다양성을 위한 랜덤 시드 생성 (타임스탬프 기반)
+    const randomSeed = Date.now() % 10000;
+
+    // 이전 생성 결과 분석 및 금지 표현 추출
+    let avoidSection = '';
+    if (previousReactions) {
+        avoidSection = `\n## 🚫 중복 방지 - 이전 생성 결과 (절대 사용 금지)
+이전에 생성된 표현들입니다. **아래 표현과 유사한 문장 구조, 단어, 패턴은 절대 사용하지 마세요:**
+
+${previousReactions}
+
+**중요:**
+- 위 예시에 나온 단어, 표현, 문장 구조를 절대 반복하지 말 것
+- 완전히 다른 어휘, 다른 상황, 다른 시간대, 다른 행동으로 작성할 것
+- 예를 들어 이전에 "웃으시며"를 사용했다면 이번엔 "미소 지으시며", "함박웃음 지으시며", "밝은 표정으로" 등 다른 표현 사용
+- 이전에 "열심히 참여하심"을 사용했다면 이번엔 "몰입하여 활동하심", "집중하여 진행하심" 등 전혀 다른 구조 사용
+\n`;
+    }
 
     // Get example reactions if this is an existing program
     let examplesSection = '';
@@ -339,7 +358,7 @@ function buildAdvancedPrompt(programTitle, programDesc, count, isExisting = fals
         const examples = getExampleReactions(programTitle);
         if (examples.length > 0) {
             const examplesText = examples.map((ex, i) => `${i+1}. ${ex}`).join('\n');
-            examplesSection = `\n# 실제 참여자 반응 예시\n${examplesText}\n\n위 예시들의 스타일을 참고하여 비슷한 톤과 구체성으로 작성하세요.\n`;
+            examplesSection = `\n# 실제 참여자 반응 예시\n${examplesText}\n\n위 예시들의 스타일과 구체성을 참고하되, **절대 중복하지 말고 매번 새로운 표현과 상황으로 작성하세요.**\n`;
         }
     }
 
@@ -472,10 +491,26 @@ function buildAdvancedPrompt(programTitle, programDesc, count, isExisting = fals
 
 # ${isExisting ? '기존' : '신규'} 프로그램 정보
 프로그램명: "${programTitle}"
+다양성 시드: ${randomSeed}
 
-${isExisting ? '' : `프로그램 설명:\n${programDesc}\n`}${examplesSection}
+${isExisting ? '' : `프로그램 설명:\n${programDesc}\n`}${avoidSection}${examplesSection}
 # 생성 목표
-위 프로그램의 특성을 깊이 이해하고, 어르신들의 현실적이고 다양한 반응을 생성하세요.${isExisting && examplesSection ? '\n실제 참여자 반응 예시들의 스타일, 톤, 구체성을 참고하되, 중복되지 않게 새로운 표현으로 작성하세요.' : ''}
+위 프로그램의 특성을 깊이 이해하고, 어르신들의 현실적이고 **매번 완전히 다른** 반응을 생성하세요.${isExisting && examplesSection ? '\n실제 참여자 반응 예시들의 스타일, 톤, 구체성을 참고하되, 중복되지 않게 새로운 표현으로 작성하세요.' : ''}${previousReactions ? '\n\n**⚠️ 경고: 이전 생성 결과와 유사한 표현을 사용하면 실패입니다. 완전히 새로운 방식으로 작성하세요.**' : ''}
+
+## ⭐ 표현 다양성 원칙 (매우 중요)
+**같은 프로그램이라도 매번 완전히 다른 반응을 생성해야 합니다:**
+1. **어휘 다양화**: 같은 의미라도 다른 단어 사용 (예: "좋아하심" → "흡족해하심", "만족해하심", "뿌듯해하심")
+2. **문장 구조 변경**: 문장 시작과 끝 패턴을 매번 다르게
+3. **상황 세부화**: 구체적인 상황, 시간, 대화, 행동을 다양하게 조합
+4. **감정 표현 세분화**: 긍정도 "기쁨/만족/자랑스러움/흥미" 등 세밀하게 구분
+5. **시간 흐름 변화**: 프로그램 초반/중반/후반의 변화를 다양하게 묘사
+6. **상호작용 다각화**: 혼자/다른 어르신과/직원과의 상호작용을 다양하게
+7. **구체적 디테일**: 어르신의 말씀, 표정, 손동작, 자세 등을 풍부하게
+
+**금지 사항:**
+- 이전에 생성한 것과 유사한 표현 사용 금지
+- 기계적으로 반복되는 패턴 금지
+- 추상적 표현보다는 생생한 구체적 관찰 우선
 
 # 감정 분포 (고정)
 반응은 총 ${count}개 생성하되, 아래 개수를 반드시 정확히 지키세요.
@@ -544,12 +579,14 @@ ${timeFlowText}
 3. 자연스럽고 실제 관찰한 듯한 표현 - 생동감과 현장감 최대화
 4. 다양한 인지수준, 신체능력, 사회성이 골고루 분포
 5. 프로그램 특성이 반영된 구체적 행동 (도구 사용, 재료 다루기, 신체 움직임 등)
-6. 중복 표현 최소화 - 각 반응이 독특하고 차별화되게
+6. **⭐ 중복 표현 완전 금지 - 각 반응이 독특하고 차별화되게 (같은 단어, 같은 구조 반복 금지)**
 7. **풍부한 디테일**: 어르신의 구체적 말씀, 표정 변화, 손동작, 다른 어르신과의 대화/상호작용
-8. **감정 표현 다양화**: 같은 긍정이라도 "기쁨/흥미/만족/자랑스러움" 등 세분화
-9. 섹션 제목([긍정], [중립], [소극/피로])은 반드시 포함
-10. 섹션별 개수 불일치 시, 스스로 수정해서 맞춘 뒤 최종 출력
-11. 다른 설명/서문 금지`;
+8. **감정 표현 다양화**: 같은 긍정이라도 "기쁨/흥미/만족/자랑스러움/뿌듯함/안도감" 등 세분화
+9. **⭐ 매번 새로운 조합**: 어휘·문장구조·상황·시간대·상호작용 방식을 매번 다르게 조합
+10. **창의적 변주**: 같은 감정도 다양한 맥락과 표현으로 (예: 기쁨 → 웃음/박수/대화/표정/몸짓 등)
+11. 섹션 제목([긍정], [중립], [소극/피로])은 반드시 포함
+12. 섹션별 개수 불일치 시, 스스로 수정해서 맞춘 뒤 최종 출력
+13. 다른 설명/서문 금지`;
 }
 
 // 감정 섹션 파싱
@@ -654,14 +691,19 @@ async function generateProgramReactions() {
         }
     }
 
+    // 이전 생성 결과 확인 (연속 생성 시 다양성 확보)
+    const storageKey = `prev_reactions_${programTitle}`;
+    const previousReactions = sessionStorage.getItem(storageKey);
+
     // Build prompt
-    const prompt = buildAdvancedPrompt(programTitle, programDesc, count, isExisting);
+    const prompt = buildAdvancedPrompt(programTitle, programDesc, count, isExisting, previousReactions);
 
     // Show loading
     showLoadingOverlay('AI가 프로그램 반응을 생성하고 있습니다...');
 
     try {
-        const result = await callGeminiAPI(prompt);
+        // Temperature를 1.5로 높여서 더 창의적이고 다양한 결과 생성
+        const result = await callGeminiAPI(prompt, { temperature: 1.5 });
 
         // Parse sections
         const sections = parseEmotionSections(result);
@@ -670,6 +712,14 @@ async function generateProgramReactions() {
         document.getElementById('positive-reactions').value = sections.positive;
         document.getElementById('neutral-reactions').value = sections.neutral;
         document.getElementById('negative-reactions').value = sections.negative;
+
+        // 생성 결과를 sessionStorage에 저장 (다음 생성 시 참조)
+        const currentReactions = [
+            sections.positive.split('\n').slice(0, 3).join('\n'),  // 처음 3개만 저장
+            sections.neutral.split('\n').slice(0, 2).join('\n'),
+            sections.negative.split('\n').slice(0, 2).join('\n')
+        ].join('\n');
+        sessionStorage.setItem(storageKey, currentReactions);
 
     } catch (error) {
         alert('생성 중 오류가 발생했습니다: ' + error.message);
