@@ -572,16 +572,16 @@ ${timeFlowText}
 간결하고 다양한 문장 구조 예시:
 
 **다양한 문장 패턴 활용:**
-- "박수 치며 웃으심" (10자)
-- "집중하여 끝까지 완성하심" (13자)
-- "밝은 표정으로 고개 끄덕이심" (15자)
-- "손을 멈추고 고개 갸우뚱하심" (15자)
-- "완성작 보며 미소 지으심" (13자)
-- "중간에 쉬시며 어깨 두드림" (14자)
-- "적극적으로 참여하심" (10자)
-- "조용히 지켜보심" (8자)
-- "천천히 따라하심" (8자)
-- "재료 만지며 호기심 보이심" (14자)
+- "박수 치며 웃으심"
+- "집중하여 끝까지 완성하심"
+- "밝은 표정으로 고개 끄덕이심"
+- "손을 멈추고 고개 갸우뚱하심"
+- "완성작 보며 미소 지으심"
+- "중간에 쉬시며 어깨 두드림"
+- "적극적으로 참여하심"
+- "조용히 지켜보심"
+- "천천히 따라하심"
+- "재료 만지며 호기심 보이심"
 
 **금지 패턴:**
 - ❌ "~하시곤 ~하심" (너무 문학적)
@@ -654,13 +654,15 @@ function parseEmotionSections(generatedText) {
                 continue;
             }
 
-            // Add content to current section
+            // Add content to current section (글자수 표시 제거)
+            // "(숫자자)" 형태의 글자수 표시를 제거
+            const cleanedLine = trimmedLine.replace(/\s*\(\d+자\)\s*$/g, '').trim();
             if (currentSection === 'positive') {
-                positive += trimmedLine + '\n';
+                positive += cleanedLine + '\n';
             } else if (currentSection === 'neutral') {
-                neutral += trimmedLine + '\n';
+                neutral += cleanedLine + '\n';
             } else if (currentSection === 'negative') {
-                negative += trimmedLine + '\n';
+                negative += cleanedLine + '\n';
             }
         }
     } catch (error) {

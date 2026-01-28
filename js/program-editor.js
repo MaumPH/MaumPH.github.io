@@ -30,7 +30,7 @@ async function generateProgramPlan() {
 
     try {
         const prompt = buildProgramPlanPrompt(programName, programType, programContent);
-        const result = await callGeminiAPI(apiKey, prompt);
+        const result = await callGeminiAPI(prompt);
 
         displayProgramPlanResult(result);
         hideLoadingOverlay();
