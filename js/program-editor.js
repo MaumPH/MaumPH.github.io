@@ -4,6 +4,13 @@ async function generateProgramPlan() {
     const programType = document.getElementById('pe-program-type').value;
     const programContent = document.getElementById('pe-program-content').value.trim();
 
+    // API 키 확인
+    if (!apiKey) {
+        alert('API 키를 먼저 설정해주세요.');
+        showPage('settings');
+        return;
+    }
+
     // 필수 입력 검증
     if (!programName) {
         alert('프로그램 이름을 입력해주세요.');
@@ -18,19 +25,12 @@ async function generateProgramPlan() {
         return;
     }
 
-    // API 키 확인
-    const apiKey = await getApiKey();
-    if (!apiKey) {
-        alert('API 키가 설정되지 않았습니다. 설정 페이지에서 API 키를 입력해주세요.');
-        return;
-    }
-
     // 로딩 시작
     showLoadingOverlay('AI가 프로그램 계획안을 생성하고 있습니다...');
 
     try {
         const prompt = buildProgramPlanPrompt(programName, programType, programContent);
-        const result = await callGeminiAPI(apiKey, prompt);
+        const result = await callGeminiAPI(prompt);
 
         displayProgramPlanResult(result);
         hideLoadingOverlay();
