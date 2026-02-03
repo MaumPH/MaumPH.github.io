@@ -93,18 +93,60 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
         }
+        /* Sidebar styles */
+        #sidebar.collapsed {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #sidebar.collapsed * {
+            opacity: 0;
+            visibility: hidden;
+        }
+        #sidebar.collapsed #sidebar-toggle {
+            opacity: 1;
+            visibility: visible;
+            right: -36px;
+        }
+        #main-container.sidebar-collapsed {
+            margin-left: 0;
+        }
+        /* Sidebar scrollbar styling */
+        nav::-webkit-scrollbar {
+            width: 4px;
+        }
+        nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        nav::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+        nav::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+        .dark nav::-webkit-scrollbar-thumb {
+            background: #4b5563;
+        }
+        .dark nav::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
     </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark min-h-screen flex overflow-hidden">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-white dark:bg-surface-dark border-r border-gray-200 dark:border-gray-700 flex flex-col shrink-0 h-screen fixed left-0 top-0 z-20">
-        <div class="flex flex-col gap-6 p-6 flex-1">
-            <div class="bg-primary dark:bg-primary-dark rounded-lg p-4 shadow-md">
-                <h1 class="text-white text-xl font-bold tracking-tight">업무수행도우미</h1>
-                <p class="text-white/90 text-xs font-normal">주간보호센터</p>
+    <aside id="sidebar" class="w-64 bg-white dark:bg-surface-dark border-r border-gray-200 dark:border-gray-700 flex flex-col shrink-0 h-screen fixed left-0 top-0 z-20 transition-all duration-300">
+        <!-- Sidebar Toggle Button -->
+        <button id="sidebar-toggle" onclick="toggleSidebar()" class="absolute -right-3 top-6 w-6 h-6 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-600 rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors z-30">
+            <span id="sidebar-toggle-icon" class="material-symbols-outlined text-sm text-gray-500">chevron_left</span>
+        </button>
+        <div class="flex flex-col gap-6 p-6 flex-1 overflow-hidden">
+            <div class="bg-primary dark:bg-primary-dark rounded-lg p-4 shadow-md shrink-0">
+                <h1 id="sidebar-title" class="text-white text-xl font-bold tracking-tight">업무수행도우미</h1>
+                <p id="sidebar-subtitle" class="text-white/90 text-xs font-normal">주간보호센터</p>
             </div>
-            <nav class="flex flex-col gap-1">
+            <nav class="flex flex-col gap-1 overflow-y-auto flex-1 -mr-2 pr-2">
                 <!-- 업무수행일지 메뉴 (확장형) -->
                 <div class="flex flex-col">
                     <button id="journal-menu-toggle" class="flex items-center justify-between w-full px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 font-medium text-sm transition-colors" onclick="toggleJournalMenu()">
@@ -215,7 +257,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 ml-64 flex flex-col h-screen overflow-y-auto">
+    <main id="main-container" class="flex-1 ml-64 flex flex-col h-screen overflow-y-auto transition-all duration-300">
         <div id="main-content" class="flex-1 p-8 md:p-12">
             <div class="max-w-6xl mx-auto flex flex-col gap-6">
 
@@ -1845,6 +1887,9 @@
     <script>
         // Firebase 초기화 및 인증 체크
         document.addEventListener('DOMContentLoaded', () => {
+            // 사이드바 상태 복원
+            restoreSidebarState();
+
             if (initializeFirebase()) {
                 onAuthStateChanged(async (user) => {
                     if (!user) {
