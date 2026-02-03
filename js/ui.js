@@ -272,6 +272,38 @@ function toggleProgramMenu() {
     }
 }
 
+// 사이드바 토글 (접기/펼치기)
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContainer = document.getElementById('main-container');
+    const toggleIcon = document.getElementById('sidebar-toggle-icon');
+
+    sidebar.classList.toggle('collapsed');
+    mainContainer.classList.toggle('sidebar-collapsed');
+
+    if (sidebar.classList.contains('collapsed')) {
+        toggleIcon.textContent = 'chevron_right';
+        localStorage.setItem('sidebarCollapsed', 'true');
+    } else {
+        toggleIcon.textContent = 'chevron_left';
+        localStorage.setItem('sidebarCollapsed', 'false');
+    }
+}
+
+// 사이드바 상태 복원
+function restoreSidebarState() {
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    if (isCollapsed) {
+        const sidebar = document.getElementById('sidebar');
+        const mainContainer = document.getElementById('main-container');
+        const toggleIcon = document.getElementById('sidebar-toggle-icon');
+
+        sidebar.classList.add('collapsed');
+        mainContainer.classList.add('sidebar-collapsed');
+        toggleIcon.textContent = 'chevron_right';
+    }
+}
+
 // 로딩 오버레이 표시
 function showLoadingOverlay(message = '처리 중입니다...') {
     const overlay = document.getElementById('loading-overlay');
