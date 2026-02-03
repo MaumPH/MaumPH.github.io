@@ -23,6 +23,7 @@ function normalizeName(name) {
 
 /**
  * 날짜 정규화: yyyy-mm-dd 또는 다양한 형식 -> yyyymmdd
+ * Excel 시리얼 날짜도 처리
  */
 function normalizeDate(dateVal) {
     if (!dateVal) return '';
@@ -43,6 +44,22 @@ function normalizeDate(dateVal) {
         const month = match[2].padStart(2, '0');
         const day = match[3].padStart(2, '0');
         return year + month + day;
+    }
+
+    // Excel 시리얼 날짜 처리 (4~5자리 숫자, 대략 1900~2100년 범위)
+    // 예: 46023 -> 2026-01-05
+    if (digitsOnly.length >= 4 && digitsOnly.length <= 5) {
+        const serial = parseInt(digitsOnly, 10);
+        // Excel 시리얼 날짜 범위 체크 (1 ~ 73050, 약 1900-2100년)
+        if (serial >= 1 && serial <= 73050) {
+            // Excel serial to JS Date: (serial - 25569) * 86400 * 1000
+            // 25569 = days between 1900-01-01 and 1970-01-01
+            const jsDate = new Date((serial - 25569) * 86400 * 1000);
+            const year = jsDate.getUTCFullYear();
+            const month = String(jsDate.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(jsDate.getUTCDate()).padStart(2, '0');
+            return `${year}${month}${day}`;
+        }
     }
 
     return digitsOnly;
