@@ -198,6 +198,11 @@
                             <div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 submenu-dot"></div>
                             어르신 시간확인
                         </a>
+                        <a href="#" id="nav-schedule-verification" onclick="showPage('schedule-verification'); return false;" class="submenu-link relative pl-8 pr-3 py-2.5 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:text-primary transition-colors flex items-center gap-2">
+                            <div class="absolute left-3.5 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-600"></div>
+                            <div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 submenu-dot"></div>
+                            일정 확인
+                        </a>
                     </div>
                 </div>
 
@@ -1404,6 +1409,111 @@
                     </div>
                 </div>
 
+                <!-- Schedule Verification Page -->
+                <div id="page-schedule-verification" class="page-hidden">
+                    <div class="flex flex-col gap-2 mb-6">
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">일정 확인</h1>
+                        <p class="text-gray-500 dark:text-gray-400 mt-1">공단 일정과 입퇴소 내용을 비교하여 결석 및 일정 없는 출석을 확인합니다.</p>
+                    </div>
+
+                    <!-- 파일 업로드 섹션 -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
+                        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">upload_file</span>
+                            파일 업로드 (3개 필수)
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <!-- 수급자 목록 -->
+                            <div class="flex flex-col">
+                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">① 수급자 목록</label>
+                                <button onclick="document.getElementById('sv-master-input').click()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium text-sm shadow hover:shadow-md transition-all flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-lg">person</span>
+                                    수급자 목록 파일 선택
+                                </button>
+                                <input type="file" id="sv-master-input" accept=".xlsx,.xls" style="display: none;" onchange="handleScheduleFile(this, 'master')">
+                                <div id="sv-master-status" class="mt-2 text-xs"></div>
+                            </div>
+
+                            <!-- 일정계획 -->
+                            <div class="flex flex-col">
+                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">② 일정계획 (공단)</label>
+                                <button onclick="document.getElementById('sv-schedule-input').click()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg font-medium text-sm shadow hover:shadow-md transition-all flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-lg">calendar_month</span>
+                                    일정계획 파일 선택
+                                </button>
+                                <input type="file" id="sv-schedule-input" accept=".xlsx,.xls" style="display: none;" onchange="handleScheduleFile(this, 'schedule')">
+                                <div id="sv-schedule-status" class="mt-2 text-xs"></div>
+                            </div>
+
+                            <!-- 입퇴소내용 -->
+                            <div class="flex flex-col">
+                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">③ 입퇴소내용</label>
+                                <button onclick="document.getElementById('sv-attendance-input').click()" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 rounded-lg font-medium text-sm shadow hover:shadow-md transition-all flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-lg">fact_check</span>
+                                    입퇴소내용 파일 선택
+                                </button>
+                                <input type="file" id="sv-attendance-input" accept=".xlsx,.xls" style="display: none;" onchange="handleScheduleFile(this, 'attendance')">
+                                <div id="sv-attendance-status" class="mt-2 text-xs"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                            <h4 class="text-sm font-bold text-blue-900 dark:text-blue-200 mb-2">📋 파일 형식 안내</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-blue-800 dark:text-blue-300">
+                                <div>
+                                    <p class="font-semibold mb-1">수급자 목록:</p>
+                                    <ul class="list-disc list-inside space-y-0.5">
+                                        <li>수급자명, 생년월일, 인정번호</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <p class="font-semibold mb-1">일정계획 (공단):</p>
+                                    <ul class="list-disc list-inside space-y-0.5">
+                                        <li>A열: 일자 (yyyy-mm-dd)</li>
+                                        <li>D열: 이름</li>
+                                        <li>수급자 인정번호 컬럼</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <p class="font-semibold mb-1">입퇴소내용:</p>
+                                    <ul class="list-disc list-inside space-y-0.5">
+                                        <li>A열: 이름, B열: 생년키</li>
+                                        <li>C열: 일자, E열: 입퇴소구분</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 분석 실행 버튼 -->
+                    <div class="flex justify-center mb-6">
+                        <button onclick="runScheduleVerification()" class="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-lg font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                            <span class="material-symbols-outlined">compare_arrows</span>
+                            일정 비교 실행
+                        </button>
+                    </div>
+
+                    <!-- 결과 출력 -->
+                    <div id="sv-result-section" class="hidden">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">assignment</span>
+                                    비교 결과
+                                </h3>
+                                <button onclick="copyScheduleResult()" class="text-primary hover:text-primary-dark text-sm font-medium flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-lg">content_copy</span>
+                                    결과 복사
+                                </button>
+                            </div>
+
+                            <div id="sv-result-content" class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 font-mono text-sm whitespace-pre-wrap">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Settings Page -->
                 <div id="page-settings" class="page-hidden">
                     <div class="flex flex-col gap-2 mb-8">
@@ -1728,6 +1838,7 @@
     <script src="js/monitoring.js"></script>
     <script src="js/vehicle-checker.js"></script>
     <script src="js/elder-time-checker.js"></script>
+    <script src="js/schedule-verification.js"></script>
     <script src="js/main.js"></script>
 
     <!-- 인증 체크 -->
