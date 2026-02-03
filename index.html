@@ -95,18 +95,10 @@
         }
         /* Sidebar styles */
         #sidebar.collapsed {
-            width: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        #sidebar.collapsed * {
-            opacity: 0;
-            visibility: hidden;
+            transform: translateX(-256px);
         }
         #sidebar.collapsed #sidebar-toggle {
-            opacity: 1;
-            visibility: visible;
-            right: -36px;
+            transform: translateX(256px);
         }
         #main-container.sidebar-collapsed {
             margin-left: 0;
@@ -138,7 +130,7 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="w-64 bg-white dark:bg-surface-dark border-r border-gray-200 dark:border-gray-700 flex flex-col shrink-0 h-screen fixed left-0 top-0 z-20 transition-all duration-300">
         <!-- Sidebar Toggle Button -->
-        <button id="sidebar-toggle" onclick="toggleSidebar()" class="absolute -right-3 top-6 w-6 h-6 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-600 rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors z-30">
+        <button id="sidebar-toggle" onclick="toggleSidebar()" class="absolute -right-3 top-6 w-6 h-6 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-600 rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 z-30">
             <span id="sidebar-toggle-icon" class="material-symbols-outlined text-sm text-gray-500">chevron_left</span>
         </button>
         <div class="flex flex-col gap-6 p-6 flex-1 overflow-hidden">
