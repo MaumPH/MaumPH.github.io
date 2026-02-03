@@ -432,6 +432,27 @@ async function runScheduleVerification() {
         }
         result += `\n`;
 
+        result += `[샘플 - 공단 일정 KEY (상위 5개)]\n`;
+        result += `  헤더행: ${headerRowIdx}, 인정번호컬럼: ${colLetters[idColIdx]}\n`;
+        let schedSampleCount = 0;
+        for (const key of scheduleSet) {
+            if (schedSampleCount >= 5) break;
+            const rec = scheduleMap.get(key);
+            result += `  KEY: ${key} (이름: ${rec.name})\n`;
+            schedSampleCount++;
+        }
+        result += `\n`;
+
+        result += `[샘플 - 입퇴소 KEY (상위 5개)]\n`;
+        let attSampleCount = 0;
+        for (const key of attPresentSet) {
+            if (attSampleCount >= 5) break;
+            const rec = attPresentMap.get(key);
+            result += `  KEY: ${key} (이름: ${rec.name})\n`;
+            attSampleCount++;
+        }
+        result += `\n`;
+
         result += `결석 (공단 O / 입퇴소 X)\t${absentKeys.length}건\n`;
         result += `일정없는데 출석 (공단 X / 입퇴소 O)\t${extraPresentKeys.length}건\n`;
 
