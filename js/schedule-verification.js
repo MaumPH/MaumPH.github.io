@@ -416,11 +416,38 @@ async function runScheduleVerification() {
         // 디버깅: 샘플 데이터
         result += `[샘플 - 수급자 목록 매핑 (상위 5개)]\n`;
         let sampleCount = 0;
+        const masterIdSamples = [];
         for (const [key, idSet] of personToIdMap) {
             if (sampleCount >= 5) break;
-            result += `  ${key} → ${Array.from(idSet).join(',')}\n`;
+            const ids = Array.from(idSet);
+            result += `  ${key} → ${ids.join(',')}\n`;
+            masterIdSamples.push(...ids);
             sampleCount++;
         }
+        result += `\n`;
+
+        // 인정번호 형식 비교
+        result += `[인정번호 형식 비교]\n`;
+        result += `  마스터 인정번호 샘플:\n`;
+        masterIdSamples.slice(0, 5).forEach(id => {
+            result += `    "${id}" (길이: ${id.length})\n`;
+        });
+        result += `  일정계획 인정번호 샘플:\n`;
+        scheduleRecords.slice(0, 5).forEach(rec => {
+            result += `    "${rec.recognitionId}" (길이: ${rec.recognitionId.length})\n`;
+        });
+        result += `\n`;
+
+        // 날짜 형식 비교
+        result += `[날짜 형식 비교]\n`;
+        result += `  일정계획 날짜 샘플 (정규화 후):\n`;
+        scheduleRecords.slice(0, 3).forEach(rec => {
+            result += `    "${rec.date}"\n`;
+        });
+        result += `  입퇴소 날짜 샘플 (정규화 후):\n`;
+        attendanceRecords.slice(0, 3).forEach(rec => {
+            result += `    "${rec.date}"\n`;
+        });
         result += `\n`;
 
         result += `[샘플 - 입퇴소내용 person_key (상위 5개)]\n`;
@@ -432,14 +459,34 @@ async function runScheduleVerification() {
         }
         result += `\n`;
 
-        result += `[샘플 - 공단 일정 KEY (상위 5개)]\n`;
+        result += `[샘플 - 공단 일정 원본 (상위 5개)]\n`;
         result += `  헤더행: ${headerRowIdx}, 인정번호컬럼: ${colLetters[idColIdx]}\n`;
+        for (let i = headerRowIdx; i < Math.min(svScheduleData.length, headerRowIdx + 6); i++) {
+            const row = svScheduleData[i];
+            result += `  행${i}: A="${row.A}", D="${row.D}", ${colLetters[idColIdx]}="${row[colLetters[idColIdx]]}"\n`;
+        }
+        result += `\n`;
+
+        result += `[샘플 - 공단 일정 KEY (상위 5개)]\n`;
         let schedSampleCount = 0;
         for (const key of scheduleSet) {
             if (schedSampleCount >= 5) break;
             const rec = scheduleMap.get(key);
             result += `  KEY: ${key} (이름: ${rec.name})\n`;
             schedSampleCount++;
+        }
+        result += `\n`;
+
+        // 인정번호만으로 교집합 확인 (날짜 제외)
+        const scheduleIdSet = new Set(scheduleRecords.map(r => r.recognitionId));
+        const attendanceIdSet = new Set(attendanceRecords.map(r => r.recognitionId));
+        const commonIds = new Set([...scheduleIdSet].filter(id => attendanceIdSet.has(id)));
+        result += `[인정번호 교집합 (날짜 무시)]\n`;
+        result += `  일정계획 인정번호 수: ${scheduleIdSet.size}개\n`;
+        result += `  입퇴소 인정번호 수: ${attendanceIdSet.size}개\n`;
+        result += `  공통 인정번호 수: ${commonIds.size}개\n`;
+        if (commonIds.size === 0 && scheduleIdSet.size > 0 && attendanceIdSet.size > 0) {
+            result += `  ⚠️ 인정번호 형식이 다릅니다! 위 샘플을 비교해주세요.\n`;
         }
         result += `\n`;
 
