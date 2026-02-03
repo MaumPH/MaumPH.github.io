@@ -404,6 +404,34 @@ async function runScheduleVerification() {
         // ============================================
         let result = '';
 
+        // 디버깅: 데이터 현황
+        result += `[데이터 현황]\n`;
+        result += `- 수급자 목록 매핑: ${personToIdMap.size}명\n`;
+        result += `- 일정계획(공단) 레코드: ${scheduleRecords.length}건 (KEY: ${scheduleSet.size}개)\n`;
+        result += `- 입퇴소내용 매핑성공: ${attendanceRecords.length}건\n`;
+        result += `- 입퇴소 출석(입퇴소): ${attPresentSet.size}건\n`;
+        result += `- 입퇴소 전체(출석+결석): ${attAnySet.size}건\n`;
+        result += `\n`;
+
+        // 디버깅: 샘플 데이터
+        result += `[샘플 - 수급자 목록 매핑 (상위 5개)]\n`;
+        let sampleCount = 0;
+        for (const [key, idSet] of personToIdMap) {
+            if (sampleCount >= 5) break;
+            result += `  ${key} → ${Array.from(idSet).join(',')}\n`;
+            sampleCount++;
+        }
+        result += `\n`;
+
+        result += `[샘플 - 입퇴소내용 person_key (상위 5개)]\n`;
+        for (let i = 1; i < Math.min(svAttendanceData.length, 6); i++) {
+            const row = svAttendanceData[i];
+            const name = normalizeName(row.A);
+            const birthKey = String(row.B || '').trim();
+            result += `  ${name}|${birthKey} (원본: A="${row.A}", B="${row.B}")\n`;
+        }
+        result += `\n`;
+
         result += `결석 (공단 O / 입퇴소 X)\t${absentKeys.length}건\n`;
         result += `일정없는데 출석 (공단 X / 입퇴소 O)\t${extraPresentKeys.length}건\n`;
 
