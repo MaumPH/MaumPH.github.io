@@ -1,6 +1,11 @@
 /**
  * schedule-verification.js
  * 일정 확인 기능 - 공단 일정과 입퇴소 내용 비교
+ *
+ * [매핑 흐름]
+ * 1. 수급자 목록 (마스터): 이름+생년월일 → 인정번호 매핑 테이블 생성
+ * 2. 일정계획 (공단): 인정번호가 직접 있음 → KEY = 인정번호|일자
+ * 3. 입퇴소내용: 인정번호 없음 → 이름+생년키로 수급자목록에서 인정번호 찾기 → KEY = 인정번호|일자
  */
 
 // Global state
@@ -59,7 +64,7 @@ function normalizeBirthKey(birthVal) {
         return digitsOnly;
     }
 
-    // 8자리 (yyyymmdd)면 앞 2자리(yy) 추출
+    // 8자리 (yyyymmdd)면 앞 2자리 제외 (yymmdd)
     if (digitsOnly.length === 8) {
         return digitsOnly.substring(2, 8);
     }
@@ -112,30 +117,27 @@ function handleScheduleFile(input, type) {
             const worksheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 'A', defval: '' });
 
-            let statusElementId, dataVar, displayName;
+            let statusElementId;
 
             switch (type) {
                 case 'master':
                     statusElementId = 'sv-master-status';
                     svMasterData = jsonData;
-                    displayName = '수급자 목록';
                     break;
                 case 'schedule':
                     statusElementId = 'sv-schedule-status';
                     svScheduleData = jsonData;
-                    displayName = '일정계획';
                     break;
                 case 'attendance':
                     statusElementId = 'sv-attendance-status';
                     svAttendanceData = jsonData;
-                    displayName = '입퇴소내용';
                     break;
             }
 
             document.getElementById(statusElementId).innerHTML = `
                 <div class="text-green-600 dark:text-green-400 flex items-center gap-1">
                     <span class="material-symbols-outlined text-sm">check_circle</span>
-                    ${file.name} (${jsonData.length - 1}행)
+                    ${file.name} (${jsonData.length}행)
                 </div>
             `;
 
@@ -150,7 +152,9 @@ function handleScheduleFile(input, type) {
 
 /**
  * 수급자 목록에서 헤더 행 찾기 및 매핑 생성
- * person_key (이름|생년키) -> 인정번호
+ *
+ * [입력] 수급자 목록: 수급자명, 생년월일, 인정번호
+ * [출력] person_key (이름정규화|생년키yymmdd) -> Set<인정번호>
  */
 function buildMasterMap(masterData) {
     const personToId = new Map();  // person_key -> Set of 인정번호
@@ -165,21 +169,27 @@ function buildMasterMap(masterData) {
 
     for (let i = 0; i < Math.min(masterData.length, 20); i++) {
         const row = masterData[i];
+        // 각 행에서 컬럼 초기화
+        let foundName = -1, foundBirth = -1, foundId = -1;
+
         for (let j = 0; j < colLetters.length; j++) {
-            const cellVal = String(row[colLetters[j]] || '').trim();
+            const cellVal = String(row[colLetters[j]] || '').replace(/\s+/g, '').trim();
             if (cellVal.includes('수급자명') || cellVal === '성명' || cellVal === '이름') {
-                nameColIdx = j;
+                foundName = j;
             }
             if (cellVal.includes('생년월일')) {
-                birthColIdx = j;
+                foundBirth = j;
             }
             if (cellVal.includes('인정번호')) {
-                idColIdx = j;
+                foundId = j;
             }
         }
 
-        if (nameColIdx >= 0 && birthColIdx >= 0 && idColIdx >= 0) {
+        if (foundName >= 0 && foundBirth >= 0 && foundId >= 0) {
             headerRowIdx = i;
+            nameColIdx = foundName;
+            birthColIdx = foundBirth;
+            idColIdx = foundId;
             break;
         }
     }
@@ -188,7 +198,7 @@ function buildMasterMap(masterData) {
         throw new Error('수급자 목록에서 헤더 행(수급자명, 생년월일, 인정번호)을 찾을 수 없습니다.');
     }
 
-    // 데이터 행 처리
+    // 데이터 행 처리 (헤더 다음 행부터)
     for (let i = headerRowIdx + 1; i < masterData.length; i++) {
         const row = masterData[i];
         const name = normalizeName(row[colLetters[nameColIdx]]);
@@ -210,10 +220,15 @@ function buildMasterMap(masterData) {
 }
 
 /**
- * 공단 일정에서 인정번호 컬럼 찾기
+ * 공단 일정에서 인정번호 컬럼 및 헤더 행 찾기
+ *
+ * [입력] 일정계획: A열(일자), D열(이름), 수급자 인정번호 컬럼
+ * [출력] { headerRowIdx, idColIdx }
  */
-function findRecognitionIdColumn(scheduleData) {
-    if (!scheduleData || scheduleData.length === 0) return -1;
+function findScheduleHeader(scheduleData) {
+    if (!scheduleData || scheduleData.length === 0) {
+        return { headerRowIdx: -1, idColIdx: -1 };
+    }
 
     const colLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'];
 
@@ -223,12 +238,12 @@ function findRecognitionIdColumn(scheduleData) {
         for (let j = 0; j < colLetters.length; j++) {
             const cellVal = String(row[colLetters[j]] || '').replace(/\s+/g, '').trim();
             if (cellVal.includes('인정번호')) {
-                return j;
+                return { headerRowIdx: i, idColIdx: j };
             }
         }
     }
 
-    return -1;
+    return { headerRowIdx: -1, idColIdx: -1 };
 }
 
 /**
@@ -245,10 +260,19 @@ async function runScheduleVerification() {
     await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
-        // 1. 수급자 목록에서 person_key -> 인정번호 매핑 생성
+        const colLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'];
+
+        // ============================================
+        // 1. 수급자 목록에서 매핑 테이블 생성
+        //    person_key (이름|생년키) -> 인정번호
+        // ============================================
         const personToIdMap = buildMasterMap(svMasterData);
 
-        // 2. 입퇴소 데이터 처리
+        // ============================================
+        // 2. 입퇴소내용 처리
+        //    이름+생년키로 수급자목록에서 인정번호 찾기
+        //    → KEY = 인정번호|일자
+        // ============================================
         const attendanceRecords = [];
         const mappingErrors = {
             notFound: [],  // {date, name, birthKey}
@@ -258,17 +282,17 @@ async function runScheduleVerification() {
         // 헤더 행 건너뛰기 (첫 번째 행)
         for (let i = 1; i < svAttendanceData.length; i++) {
             const row = svAttendanceData[i];
-            const name = normalizeName(row.A);
-            const birthKey = String(row.B || '').trim();  // yymmdd 그대로 사용
-            const dateRaw = String(row.C || '').trim();
-            const status = String(row.E || '').trim();
+            const name = normalizeName(row.A);           // A열: 이름
+            const birthKey = String(row.B || '').trim(); // B열: 생년키 yymmdd (그대로 사용)
+            const dateRaw = String(row.C || '').trim();  // C열: 일자 yyyymmdd
+            const status = String(row.E || '').trim();   // E열: 입퇴소구분
 
             if (!name || !dateRaw) continue;
 
             const dateNorm = normalizeDate(dateRaw);
             const personKey = `${name}|${birthKey}`;
 
-            // 인정번호 매핑
+            // 수급자 목록에서 인정번호 매핑
             if (!personToIdMap.has(personKey)) {
                 mappingErrors.notFound.push({ date: dateNorm, name, birthKey });
                 continue;
@@ -292,21 +316,24 @@ async function runScheduleVerification() {
             });
         }
 
-        // 3. 공단 일정 처리
+        // ============================================
+        // 3. 일정계획(공단) 처리
+        //    인정번호가 직접 있음 → KEY = 인정번호|일자
+        //    (공단 파일의 생년 컬럼은 사용하지 않음)
+        // ============================================
         const scheduleRecords = [];
-        const idColIdx = findRecognitionIdColumn(svScheduleData);
-        const colLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'];
+        const { headerRowIdx, idColIdx } = findScheduleHeader(svScheduleData);
 
         if (idColIdx === -1) {
             throw new Error('일정계획 파일에서 인정번호 컬럼을 찾을 수 없습니다.');
         }
 
-        // 헤더 행 건너뛰기 (첫 번째 행)
-        for (let i = 1; i < svScheduleData.length; i++) {
+        // 헤더 다음 행부터 데이터 처리
+        for (let i = headerRowIdx + 1; i < svScheduleData.length; i++) {
             const row = svScheduleData[i];
-            const dateRaw = String(row.A || '').trim();  // A열: 일자
-            const name = normalizeName(row.D);  // D열: 이름
-            const recognitionId = String(row[colLetters[idColIdx]] || '').trim();
+            const dateRaw = String(row.A || '').trim();  // A열: 일자 (yyyy-mm-dd)
+            const name = normalizeName(row.D);           // D열: 이름 (출력용)
+            const recognitionId = String(row[colLetters[idColIdx]] || '').trim();  // 인정번호 컬럼
 
             if (!dateRaw || !recognitionId) continue;
 
@@ -319,7 +346,10 @@ async function runScheduleVerification() {
             });
         }
 
+        // ============================================
         // 4. 집합 생성
+        // ============================================
+
         // SCHEDULE_SET: 공단 일정 KEY 집합
         const scheduleSet = new Set();
         const scheduleMap = new Map();  // KEY -> {name, date, recognitionId}
@@ -334,7 +364,7 @@ async function runScheduleVerification() {
         const attAnySet = new Set();
         const attAnyMap = new Map();
 
-        // ATT_PRESENT_SET: 입퇴소에서 출석인 것만
+        // ATT_PRESENT_SET: 입퇴소에서 출석(입퇴소/출석)인 것만
         const attPresentSet = new Set();
         const attPresentMap = new Map();
 
@@ -349,8 +379,11 @@ async function runScheduleVerification() {
             }
         });
 
+        // ============================================
         // 5. 판정
-        // 결석: SCHEDULE_SET - ATT_ANY_SET
+        // ============================================
+
+        // 결석: SCHEDULE_SET - ATT_ANY_SET (공단에 있는데 입퇴소에 없음)
         const absentKeys = [];
         scheduleSet.forEach(key => {
             if (!attAnySet.has(key)) {
@@ -358,7 +391,7 @@ async function runScheduleVerification() {
             }
         });
 
-        // 일정없는데 출석: ATT_PRESENT_SET - SCHEDULE_SET
+        // 일정없는데 출석: ATT_PRESENT_SET - SCHEDULE_SET (입퇴소에 출석인데 공단에 없음)
         const extraPresentKeys = [];
         attPresentSet.forEach(key => {
             if (!scheduleSet.has(key)) {
@@ -366,7 +399,9 @@ async function runScheduleVerification() {
             }
         });
 
+        // ============================================
         // 6. 결과 출력 생성
+        // ============================================
         let result = '';
 
         result += `결석 (공단 O / 입퇴소 X)\t${absentKeys.length}건\n`;
@@ -386,28 +421,30 @@ async function runScheduleVerification() {
         // 매핑오류 출력
         result += `\n[매핑오류]\n`;
 
-        // NOT_FOUND
-        const notFoundCount = mappingErrors.notFound.length;
+        // NOT_FOUND: 수급자 목록에 없는 이름+생년키
+        const uniqueNotFound = [];
+        const seenNF = new Set();
+        mappingErrors.notFound.forEach(nf => {
+            const key = `${nf.name}|${nf.birthKey}`;
+            if (!seenNF.has(key)) {
+                seenNF.add(key);
+                uniqueNotFound.push(nf);
+            }
+        });
+        const notFoundCount = uniqueNotFound.length;
         result += `- NOT_FOUND: ${notFoundCount}건`;
         if (notFoundCount > 0) {
-            result += ` (`;
-            const uniqueNotFound = [];
-            const seenNF = new Set();
-            mappingErrors.notFound.forEach(nf => {
-                const key = `${nf.date}|${nf.name}|${nf.birthKey}`;
-                if (!seenNF.has(key)) {
-                    seenNF.add(key);
-                    uniqueNotFound.push(nf);
-                }
-            });
+            result += `\n`;
             const top20NF = uniqueNotFound.slice(0, 20);
-            result += top20NF.map(nf => `${nf.date}|${nf.name}|${nf.birthKey}`).join(', ');
-            if (uniqueNotFound.length > 20) result += `, ...`;
-            result += `)`;
+            top20NF.forEach(nf => {
+                result += `  ${nf.date}|${nf.name}|${nf.birthKey}\n`;
+            });
+            if (uniqueNotFound.length > 20) result += `  ... 외 ${uniqueNotFound.length - 20}건\n`;
+        } else {
+            result += `\n`;
         }
-        result += `\n`;
 
-        // AMBIGUOUS
+        // AMBIGUOUS: 동일 이름+생년키에 인정번호가 2개 이상
         const uniqueAmbiguous = [];
         const seenAmb = new Set();
         mappingErrors.ambiguous.forEach(amb => {
@@ -420,13 +457,15 @@ async function runScheduleVerification() {
         const ambiguousCount = uniqueAmbiguous.length;
         result += `- AMBIGUOUS: ${ambiguousCount}건`;
         if (ambiguousCount > 0) {
-            result += ` (`;
+            result += `\n`;
             const top20Amb = uniqueAmbiguous.slice(0, 20);
-            result += top20Amb.map(amb => `${amb.name}|${amb.birthKey}|[${amb.candidates.join(',')}]`).join(', ');
-            if (uniqueAmbiguous.length > 20) result += `, ...`;
-            result += `)`;
+            top20Amb.forEach(amb => {
+                result += `  ${amb.name}|${amb.birthKey}|[${amb.candidates.join(',')}]\n`;
+            });
+            if (uniqueAmbiguous.length > 20) result += `  ... 외 ${uniqueAmbiguous.length - 20}건\n`;
+        } else {
+            result += `\n`;
         }
-        result += `\n`;
 
         // 결과 표시
         document.getElementById('sv-result-content').textContent = result;
