@@ -139,27 +139,55 @@
                 <p id="sidebar-subtitle" class="text-white/90 text-xs font-normal">주간보호센터</p>
             </div>
             <nav class="flex flex-col gap-1 overflow-y-auto flex-1 -mr-2 pr-2">
-                <!-- 업무수행일지 메뉴 (확장형) -->
+                <!-- 업무수행일지(26년이후) 메뉴 (확장형) -->
                 <div class="flex flex-col">
-                    <button id="journal-menu-toggle" class="flex items-center justify-between w-full px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 font-medium text-sm transition-colors" onclick="toggleJournalMenu()">
+                    <button id="journal-new-menu-toggle" class="flex items-center justify-between w-full px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 font-medium text-sm transition-colors" onclick="toggleJournalNewMenu()">
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-gray-500">description</span>
-                            <span>업무수행일지</span>
+                            <span>업무수행일지(26년이후)</span>
                         </div>
-                        <span id="journal-menu-icon" class="material-symbols-outlined text-lg">expand_less</span>
+                        <span id="journal-new-menu-icon" class="material-symbols-outlined text-lg">expand_less</span>
                     </button>
-                    <div id="journal-submenu" class="flex flex-col gap-0.5 mt-1 pl-3">
-                        <a href="#" id="nav-step1" onclick="showPage('step1'); return false;" class="submenu-link relative pl-8 pr-3 py-2.5 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:text-primary transition-colors flex items-center gap-2">
+                    <div id="journal-new-submenu" class="flex flex-col gap-0.5 mt-1 pl-3">
+                        <a href="#" id="nav-step1-new" onclick="showPage('step1-new'); return false;" class="submenu-link relative pl-8 pr-3 py-2.5 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:text-primary transition-colors flex items-center gap-2">
                             <div class="absolute left-3.5 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-600"></div>
                             <div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 submenu-dot"></div>
                             어르신의 심신상태
                         </a>
-                        <a href="#" id="nav-step2" onclick="showPage('step2'); return false;" class="submenu-link relative pl-8 pr-3 py-2.5 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:text-primary transition-colors flex items-center gap-2">
+                        <a href="#" id="nav-step2-new" onclick="showPage('step2-new'); return false;" class="submenu-link relative pl-8 pr-3 py-2.5 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:text-primary transition-colors flex items-center gap-2">
                             <div class="absolute left-3.5 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-600"></div>
                             <div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 submenu-dot"></div>
                             프로그램 제공계획
                         </a>
-                        <a href="#" id="nav-step3" onclick="showPage('step3'); return false;" class="submenu-link relative pl-8 pr-3 py-2.5 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:text-primary transition-colors flex items-center gap-2">
+                        <a href="#" id="nav-step3-new" onclick="showPage('step3-new'); return false;" class="submenu-link relative pl-8 pr-3 py-2.5 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:text-primary transition-colors flex items-center gap-2">
+                            <div class="absolute left-3.5 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-600"></div>
+                            <div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 submenu-dot"></div>
+                            향후계획 및 기타사항
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 업무수행일지(26년이전) 메뉴 (확장형) -->
+                <div class="flex flex-col">
+                    <button id="journal-menu-toggle" class="flex items-center justify-between w-full px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 font-medium text-sm transition-colors" onclick="toggleJournalMenu()">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-gray-500">description</span>
+                            <span>업무수행일지(26년이전)</span>
+                        </div>
+                        <span id="journal-menu-icon" class="material-symbols-outlined text-lg">expand_less</span>
+                    </button>
+                    <div id="journal-submenu" class="flex flex-col gap-0.5 mt-1 pl-3">
+                        <a href="#" id="nav-step1-old" onclick="showPage('step1-old'); return false;" class="submenu-link relative pl-8 pr-3 py-2.5 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:text-primary transition-colors flex items-center gap-2">
+                            <div class="absolute left-3.5 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-600"></div>
+                            <div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 submenu-dot"></div>
+                            어르신의 심신상태
+                        </a>
+                        <a href="#" id="nav-step2-old" onclick="showPage('step2-old'); return false;" class="submenu-link relative pl-8 pr-3 py-2.5 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:text-primary transition-colors flex items-center gap-2">
+                            <div class="absolute left-3.5 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-600"></div>
+                            <div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 submenu-dot"></div>
+                            프로그램 제공계획
+                        </a>
+                        <a href="#" id="nav-step3-old" onclick="showPage('step3-old'); return false;" class="submenu-link relative pl-8 pr-3 py-2.5 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:text-primary transition-colors flex items-center gap-2">
                             <div class="absolute left-3.5 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-600"></div>
                             <div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 submenu-dot"></div>
                             향후계획 및 기타사항
@@ -264,8 +292,8 @@
                     </div>
                 </div>
 
-                <!-- Step 1: PDF Upload & 심신상태 -->
-                <div id="page-step1" class="page-active">
+                <!-- Step 1: PDF Upload & 심신상태 (26년이전) -->
+                <div id="page-step1-old" class="page-hidden">
                     <div class="flex flex-col gap-2 mb-6">
                         <h1 class="text-gray-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">
                             욕구사정 PDF 업로드 및 심신상태 작성
@@ -284,8 +312,8 @@
                                     욕구사정 PDF 업로드
                                 </h3>
 
-                                <div id="pdf-upload-area" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition-all" onclick="document.getElementById('pdf-file-input').click()">
-                                    <input type="file" id="pdf-file-input" accept=".pdf" class="hidden" onchange="handlePDFUpload(event)">
+                                <div id="pdf-upload-area-old" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition-all" onclick="document.getElementById('pdf-file-input-old').click()">
+                                    <input type="file" id="pdf-file-input-old" accept=".pdf" class="hidden" onchange="handlePDFUploadOld(event)">
                                     <span class="material-symbols-outlined text-4xl text-gray-400 mb-3 block">upload_file</span>
                                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">PDF 파일을 선택하거나 여기로 드래그하세요</p>
                                     <button class="mt-3 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
@@ -293,15 +321,15 @@
                                     </button>
                                 </div>
 
-                                <div id="pdf-preview" class="hidden mt-4">
+                                <div id="pdf-preview-old" class="hidden mt-4">
                                     <div class="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                                         <span class="material-symbols-outlined text-green-600 icon-fill">check_circle</span>
                                         <div class="flex-1 min-w-0">
-                                            <p id="pdf-filename" class="text-sm font-medium text-gray-900 dark:text-white truncate"></p>
+                                            <p id="pdf-filename-old" class="text-sm font-medium text-gray-900 dark:text-white truncate"></p>
                                             <p class="text-xs text-gray-500">PDF 업로드 완료</p>
                                         </div>
                                     </div>
-                                    <button onclick="analyzePDF()" id="analyze-btn" class="w-full mt-4 px-4 py-3 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
+                                    <button onclick="analyzePDFOld()" id="analyze-btn-old" class="w-full mt-4 px-4 py-3 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
                                         <span class="material-symbols-outlined">auto_awesome</span>
                                         PDF 분석 시작
                                     </button>
@@ -317,14 +345,14 @@
                                         <span class="material-symbols-outlined text-primary">auto_awesome</span>
                                         심신상태 및 환경변화 (자동분석)
                                     </h3>
-                                    <button onclick="regenerateFields()" class="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+                                    <button onclick="regenerateFieldsOld()" class="text-xs text-primary font-medium hover:underline flex items-center gap-1">
                                         <span class="material-symbols-outlined text-sm">refresh</span>
                                         데이터 다시 불러오기
                                     </button>
                                 </div>
 
                                 <div class="p-6">
-                                    <div id="analysis-status" class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                    <div id="analysis-status-old" class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                                         <p class="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
                                             <span class="material-symbols-outlined text-lg">info</span>
                                             PDF를 업로드하고 분석 버튼을 클릭하면 항목이 자동으로 채워집니다.
@@ -335,71 +363,71 @@
                                         <div class="flex flex-col gap-2">
                                             <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">1. 식사 및 영양상태</label>
                                             <div class="flex gap-2">
-                                                <textarea id="field-1" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
-                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon">check_circle</span>
+                                                <textarea id="field-1-old" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-old">check_circle</span>
                                             </div>
                                         </div>
                                         <div class="flex flex-col gap-2">
                                             <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">2. 보행</label>
                                             <div class="flex gap-2">
-                                                <textarea id="field-2" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
-                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon">check_circle</span>
+                                                <textarea id="field-2-old" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-old">check_circle</span>
                                             </div>
                                         </div>
                                         <div class="flex flex-col gap-2">
                                             <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">3. 신체기능</label>
                                             <div class="flex gap-2">
-                                                <textarea id="field-3" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
-                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon">check_circle</span>
+                                                <textarea id="field-3-old" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-old">check_circle</span>
                                             </div>
                                         </div>
                                         <div class="flex flex-col gap-2">
                                             <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">4. 배뇨·배변기능</label>
                                             <div class="flex gap-2">
-                                                <textarea id="field-4" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
-                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon">check_circle</span>
+                                                <textarea id="field-4-old" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-old">check_circle</span>
                                             </div>
                                         </div>
                                         <div class="flex flex-col gap-2">
                                             <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">5. 위생관리</label>
                                             <div class="flex gap-2">
-                                                <textarea id="field-5" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
-                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon">check_circle</span>
+                                                <textarea id="field-5-old" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-old">check_circle</span>
                                             </div>
                                         </div>
                                         <div class="flex flex-col gap-2">
                                             <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">6. 일상생활수행</label>
                                             <div class="flex gap-2">
-                                                <textarea id="field-6" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
-                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon">check_circle</span>
+                                                <textarea id="field-6-old" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-old">check_circle</span>
                                             </div>
                                         </div>
                                         <div class="flex flex-col gap-2">
                                             <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">7. 인지기능</label>
                                             <div class="flex gap-2">
-                                                <textarea id="field-7" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
-                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon">check_circle</span>
+                                                <textarea id="field-7-old" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-old">check_circle</span>
                                             </div>
                                         </div>
                                         <div class="flex flex-col gap-2">
                                             <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">8. 행동증상</label>
                                             <div class="flex gap-2">
-                                                <textarea id="field-8" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
-                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon">check_circle</span>
+                                                <textarea id="field-8-old" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-old">check_circle</span>
                                             </div>
                                         </div>
                                         <div class="flex flex-col gap-2">
                                             <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">9. 가족 및 생활환경</label>
                                             <div class="flex gap-2">
-                                                <textarea id="field-9" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
-                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon">check_circle</span>
+                                                <textarea id="field-9-old" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-old">check_circle</span>
                                             </div>
                                         </div>
                                         <div class="flex flex-col gap-2">
                                             <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">10. 기타 및 종합의견</label>
                                             <div class="flex gap-2">
-                                                <textarea id="field-10" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
-                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon">check_circle</span>
+                                                <textarea id="field-10-old" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-old">check_circle</span>
                                             </div>
                                         </div>
                                     </div>
@@ -412,15 +440,15 @@
                         <button class="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                             임시 저장
                         </button>
-                        <button onclick="showPage('step2')" id="step1-next" class="px-8 py-3 rounded-lg bg-primary text-white font-bold hover:bg-primary-dark shadow-md transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <button onclick="showPage('step2-old')" id="step1-next-old" class="px-8 py-3 rounded-lg bg-primary text-white font-bold hover:bg-primary-dark shadow-md transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                             다음 단계
                             <span class="material-symbols-outlined text-xl">arrow_forward</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Step 2: 프로그램 제공계획 -->
-                <div id="page-step2" class="page-hidden">
+                <!-- Step 2: 프로그램 제공계획 (26년이전) -->
+                <div id="page-step2-old" class="page-hidden">
                     <div class="flex flex-col gap-2 mb-6">
                         <h1 class="text-gray-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">
                             프로그램 제공계획 및 제공내용
@@ -441,8 +469,8 @@
                                 작성 지침: 날짜, 프로그램명, 주요 활동 내용을 포함하여 자유롭게 입력하면 상세 내용이 자동 완성됩니다.
                             </p>
                         </div>
-                        <textarea id="user-input" class="w-full min-h-[120px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4 text-base leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="예: 2025.09.16 / 외부강사프로그램(여가인지) 버섯블럭을 이용해서 동물모양을 잘 만들어서 표현하심"></textarea>
-                        <button onclick="generateProgramContent()" class="w-full mt-4 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all">
+                        <textarea id="user-input-old" class="w-full min-h-[120px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4 text-base leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="예: 2025.09.16 / 외부강사프로그램(여가인지) 버섯블럭을 이용해서 동물모양을 잘 만들어서 표현하심"></textarea>
+                        <button onclick="generateProgramContentOld()" class="w-full mt-4 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all">
                             <span class="material-symbols-outlined text-xl">auto_awesome</span>
                             내용 기반 상세 항목 생성
                         </button>
@@ -457,29 +485,29 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div class="flex flex-col gap-2">
                                 <label class="text-sm font-bold text-gray-900 dark:text-white">필요내용</label>
-                                <textarea id="program-need" class="w-full h-[140px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white p-3 leading-relaxed focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                                <textarea id="program-need-old" class="w-full h-[140px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white p-3 leading-relaxed focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
                             </div>
                             <div class="flex flex-col gap-2">
                                 <label class="text-sm font-bold text-gray-900 dark:text-white">제공방법</label>
-                                <textarea id="program-method" class="w-full h-[140px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white p-3 leading-relaxed focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                                <textarea id="program-method-old" class="w-full h-[140px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white p-3 leading-relaxed focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 gap-6">
                             <div class="flex flex-col gap-2">
                                 <label class="text-sm font-bold text-gray-900 dark:text-white">어르신 반응 및 특이사항</label>
-                                <textarea id="program-reaction" class="w-full h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white p-3 leading-relaxed focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                                <textarea id="program-reaction-old" class="w-full h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white p-3 leading-relaxed focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
                             </div>
 
                             <div class="flex flex-col gap-2">
                                 <label class="text-sm font-bold text-gray-900 dark:text-white">요양보호사 모니터링</label>
-                                <textarea id="program-monitoring" class="w-full h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white p-3 leading-relaxed focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                                <textarea id="program-monitoring-old" class="w-full h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white p-3 leading-relaxed focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex justify-between pt-6 mt-6 border-t border-gray-200 dark:border-gray-700">
-                        <button onclick="showPage('step1')" class="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-dark text-gray-900 dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2">
+                        <button onclick="showPage('step1-old')" class="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-dark text-gray-900 dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2">
                             <span class="material-symbols-outlined text-xl">arrow_back</span>
                             이전 단계
                         </button>
@@ -487,7 +515,7 @@
                             <button class="px-6 py-3 rounded-lg text-primary font-medium hover:bg-primary/5 transition-colors">
                                 임시 저장
                             </button>
-                            <button onclick="showPage('step3')" id="step2-next" class="px-8 py-3 rounded-lg bg-primary text-white font-bold hover:bg-primary-dark shadow-md transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <button onclick="showPage('step3-old')" id="step2-next-old" class="px-8 py-3 rounded-lg bg-primary text-white font-bold hover:bg-primary-dark shadow-md transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                                 다음 단계
                                 <span class="material-symbols-outlined text-xl">arrow_forward</span>
                             </button>
@@ -495,8 +523,8 @@
                     </div>
                 </div>
 
-                <!-- Step 3: 향후계획 -->
-                <div id="page-step3" class="page-hidden">
+                <!-- Step 3: 향후계획 (26년이전) -->
+                <div id="page-step3-old" class="page-hidden">
                     <div class="flex flex-col gap-2 mb-6">
                         <h1 class="text-gray-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">
                             향후계획 및 기타사항
@@ -518,7 +546,7 @@
                                 </p>
                             </div>
                         </div>
-                        <button onclick="generateFuturePlan()" class="shrink-0 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2 w-full md:w-auto justify-center">
+                        <button onclick="generateFuturePlanOld()" class="shrink-0 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2 w-full md:w-auto justify-center">
                             <span class="material-symbols-outlined">refresh</span>
                             내용 생성하기
                         </button>
@@ -537,7 +565,7 @@
                                         심신상태 변화와 프로그램 참여도를 바탕으로 금일 수급자의 전반적인 상태를 종합적으로 요약하여 기록합니다.
                                     </p>
                                 </div>
-                                <textarea id="future-summary" class="w-full min-h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4 text-base leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                                <textarea id="future-summary-old" class="w-full min-h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4 text-base leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
                             </div>
                         </div>
 
@@ -553,7 +581,7 @@
                                         낙상 위험, 식사 시 연하 곤란 등 수급자의 안전과 건강을 위해 급여 제공 시 특별히 유의해야 할 사항을 기재합니다.
                                     </p>
                                 </div>
-                                <textarea id="future-caution" class="w-full min-h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4 text-base leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                                <textarea id="future-caution-old" class="w-full min-h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4 text-base leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
                             </div>
                         </div>
 
@@ -569,13 +597,13 @@
                                         확인된 욕구 및 유의사항을 반영하여 차주 또는 향후 제공할 구체적인 서비스 계획을 작성합니다.
                                     </p>
                                 </div>
-                                <textarea id="future-plan" class="w-full min-h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4 text-base leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                                <textarea id="future-plan-old" class="w-full min-h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4 text-base leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div class="flex justify-between pt-6 mt-6 border-t border-gray-200 dark:border-gray-700 mb-8">
-                        <button onclick="showPage('step2')" class="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-dark text-gray-900 dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2">
+                        <button onclick="showPage('step2-old')" class="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-dark text-gray-900 dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2">
                             <span class="material-symbols-outlined text-xl">arrow_back</span>
                             이전 단계
                         </button>
@@ -583,7 +611,334 @@
                             <button class="px-6 py-3 rounded-lg text-primary font-medium hover:bg-primary/5 transition-colors">
                                 임시 저장
                             </button>
-                            <button onclick="completeJournal()" class="px-8 py-3 rounded-lg bg-primary text-white font-bold hover:bg-primary-dark shadow-md transition-all flex items-center gap-2 active:scale-95">
+                            <button onclick="completeJournalOld()" class="px-8 py-3 rounded-lg bg-primary text-white font-bold hover:bg-primary-dark shadow-md transition-all flex items-center gap-2 active:scale-95">
+                                <span class="material-symbols-outlined text-xl">check_circle</span>
+                                작성 완료
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 1: PDF Upload & 심신상태 (26년이후) -->
+                <div id="page-step1-new" class="page-active">
+                    <div class="flex flex-col gap-2 mb-6">
+                        <h1 class="text-gray-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">
+                            욕구사정 PDF 업로드 및 심신상태 작성
+                        </h1>
+                        <p class="text-gray-500 dark:text-gray-300 text-lg font-normal leading-relaxed">
+                            욕구사정 평가지 PDF를 업로드하면 심신상태 및 환경변화 항목이 자동으로 작성됩니다.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- PDF Upload Section -->
+                        <div class="lg:col-span-4">
+                            <div class="bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+                                <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+                                    <span class="material-symbols-outlined text-red-500">picture_as_pdf</span>
+                                    욕구사정 PDF 업로드
+                                </h3>
+
+                                <div id="pdf-upload-area-new" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition-all" onclick="document.getElementById('pdf-file-input-new').click()">
+                                    <input type="file" id="pdf-file-input-new" accept=".pdf" class="hidden" onchange="handlePDFUploadNew(event)">
+                                    <span class="material-symbols-outlined text-4xl text-gray-400 mb-3 block">upload_file</span>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">PDF 파일을 선택하거나 여기로 드래그하세요</p>
+                                    <button class="mt-3 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                                        파일 선택
+                                    </button>
+                                </div>
+
+                                <div id="pdf-preview-new" class="hidden mt-4">
+                                    <div class="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                                        <span class="material-symbols-outlined text-green-600 icon-fill">check_circle</span>
+                                        <div class="flex-1 min-w-0">
+                                            <p id="pdf-filename-new" class="text-sm font-medium text-gray-900 dark:text-white truncate"></p>
+                                            <p class="text-xs text-gray-500">PDF 업로드 완료</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="analyzePDFNew()" id="analyze-btn-new" class="w-full mt-4 px-4 py-3 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
+                                        <span class="material-symbols-outlined">auto_awesome</span>
+                                        PDF 분석 시작
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 심신상태 Form -->
+                        <div class="lg:col-span-8">
+                            <div class="bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                                <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 flex justify-between items-center">
+                                    <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-primary">auto_awesome</span>
+                                        심신상태 및 환경변화 (자동분석)
+                                    </h3>
+                                    <button onclick="regenerateFieldsNew()" class="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">refresh</span>
+                                        데이터 다시 불러오기
+                                    </button>
+                                </div>
+
+                                <div class="p-6">
+                                    <div id="analysis-status-new" class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                        <p class="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-lg">info</span>
+                                            PDF를 업로드하고 분석 버튼을 클릭하면 항목이 자동으로 채워집니다.
+                                        </p>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+                                        <div class="flex flex-col gap-2">
+                                            <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">1. 식사 및 영양상태</label>
+                                            <div class="flex gap-2">
+                                                <textarea id="field-1-new" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-new">check_circle</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">2. 보행</label>
+                                            <div class="flex gap-2">
+                                                <textarea id="field-2-new" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-new">check_circle</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">3. 신체기능</label>
+                                            <div class="flex gap-2">
+                                                <textarea id="field-3-new" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-new">check_circle</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">4. 배뇨·배변기능</label>
+                                            <div class="flex gap-2">
+                                                <textarea id="field-4-new" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-new">check_circle</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">5. 위생관리</label>
+                                            <div class="flex gap-2">
+                                                <textarea id="field-5-new" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-new">check_circle</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">6. 일상생활수행</label>
+                                            <div class="flex gap-2">
+                                                <textarea id="field-6-new" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-new">check_circle</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">7. 인지기능</label>
+                                            <div class="flex gap-2">
+                                                <textarea id="field-7-new" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-new">check_circle</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">8. 행동증상</label>
+                                            <div class="flex gap-2">
+                                                <textarea id="field-8-new" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-new">check_circle</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">9. 가족 및 생활환경</label>
+                                            <div class="flex gap-2">
+                                                <textarea id="field-9-new" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-new">check_circle</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <label class="text-sm font-semibold text-gray-900 dark:text-gray-300">10. 기타 및 종합의견</label>
+                                            <div class="flex gap-2">
+                                                <textarea id="field-10-new" class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="100자 내외로 자동 작성됩니다"></textarea>
+                                                <span class="material-symbols-outlined text-green-500 text-lg self-center hidden verified-icon-new">check_circle</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between pt-6 mt-6 border-t border-gray-200 dark:border-gray-700">
+                        <button class="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                            임시 저장
+                        </button>
+                        <button onclick="showPage('step2-new')" id="step1-next-new" class="px-8 py-3 rounded-lg bg-primary text-white font-bold hover:bg-primary-dark shadow-md transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            다음 단계
+                            <span class="material-symbols-outlined text-xl">arrow_forward</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: 프로그램 제공계획 (26년이후) -->
+                <div id="page-step2-new" class="page-hidden">
+                    <div class="flex flex-col gap-2 mb-6">
+                        <h1 class="text-gray-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">
+                            프로그램 제공계획 및 제공내용
+                        </h1>
+                        <p class="text-gray-500 dark:text-gray-300 text-lg font-normal leading-relaxed">
+                            금일 제공된 프로그램 내용과 어르신의 참여도, 계획 이행 여부를 기록합니다.
+                        </p>
+                    </div>
+
+                    <div class="bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
+                        <label class="text-base font-bold text-gray-900 dark:text-white mb-2 flex items-center justify-between">
+                            프로그램 수행 내용
+                            <span class="text-xs font-normal text-gray-500">내용 입력 후 생성을 눌러주세요</span>
+                        </label>
+                        <div class="mb-3 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
+                                <span class="material-symbols-outlined text-lg text-primary mt-0.5 shrink-0">info</span>
+                                작성 지침: 날짜, 프로그램명, 주요 활동 내용을 포함하여 자유롭게 입력하면 상세 내용이 자동 완성됩니다.
+                            </p>
+                        </div>
+                        <textarea id="user-input-new" class="w-full min-h-[120px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4 text-base leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="예: 2025.09.16 / 외부강사프로그램(여가인지) 버섯블럭을 이용해서 동물모양을 잘 만들어서 표현하심"></textarea>
+                        <button onclick="generateProgramContentNew()" class="w-full mt-4 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all">
+                            <span class="material-symbols-outlined text-xl">auto_awesome</span>
+                            내용 기반 상세 항목 생성
+                        </button>
+                    </div>
+
+                    <div class="bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+                        <div class="flex items-center gap-2 mb-6 border-b border-gray-200 dark:border-gray-700 pb-4">
+                            <span class="material-symbols-outlined text-primary">description</span>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">상세 제공 기록</h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div class="flex flex-col gap-2">
+                                <label class="text-sm font-bold text-gray-900 dark:text-white">필요내용</label>
+                                <textarea id="program-need-new" class="w-full h-[140px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white p-3 leading-relaxed focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label class="text-sm font-bold text-gray-900 dark:text-white">제공방법</label>
+                                <textarea id="program-method-new" class="w-full h-[140px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white p-3 leading-relaxed focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="flex flex-col gap-2">
+                                <label class="text-sm font-bold text-gray-900 dark:text-white">어르신 반응 및 특이사항</label>
+                                <textarea id="program-reaction-new" class="w-full h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white p-3 leading-relaxed focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                            </div>
+
+                            <div class="flex flex-col gap-2">
+                                <label class="text-sm font-bold text-gray-900 dark:text-white">요양보호사 모니터링</label>
+                                <textarea id="program-monitoring-new" class="w-full h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white p-3 leading-relaxed focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between pt-6 mt-6 border-t border-gray-200 dark:border-gray-700">
+                        <button onclick="showPage('step1-new')" class="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-dark text-gray-900 dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2">
+                            <span class="material-symbols-outlined text-xl">arrow_back</span>
+                            이전 단계
+                        </button>
+                        <div class="flex gap-3">
+                            <button class="px-6 py-3 rounded-lg text-primary font-medium hover:bg-primary/5 transition-colors">
+                                임시 저장
+                            </button>
+                            <button onclick="showPage('step3-new')" id="step2-next-new" class="px-8 py-3 rounded-lg bg-primary text-white font-bold hover:bg-primary-dark shadow-md transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                다음 단계
+                                <span class="material-symbols-outlined text-xl">arrow_forward</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: 향후계획 (26년이후) -->
+                <div id="page-step3-new" class="page-hidden">
+                    <div class="flex flex-col gap-2 mb-6">
+                        <h1 class="text-gray-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">
+                            향후계획 및 기타사항
+                        </h1>
+                        <p class="text-gray-500 dark:text-gray-300 text-lg font-normal leading-relaxed">
+                            금일 관찰된 어르신의 상태 및 욕구를 종합하고, 이를 반영한 향후 급여 제공 계획을 기록합니다.
+                        </p>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 border border-primary/20 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-full bg-white dark:bg-surface-dark flex items-center justify-center shrink-0 shadow-sm text-primary">
+                                <span class="material-symbols-outlined text-2xl">auto_awesome</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">내용 자동 생성</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    '심신상태' 및 '프로그램 제공내용'에 입력된 데이터를 분석하여 아래 항목들을 자동으로 작성합니다.
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="generateFuturePlanNew()" class="shrink-0 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2 w-full md:w-auto justify-center">
+                            <span class="material-symbols-outlined">refresh</span>
+                            내용 생성하기
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6">
+                        <div class="bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="material-symbols-outlined text-primary">summarize</span>
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">종합</h3>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <div class="mb-2 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex items-start gap-2">
+                                        <span class="material-symbols-outlined text-base mt-0.5 shrink-0 text-primary">info</span>
+                                        심신상태 변화와 프로그램 참여도를 바탕으로 금일 수급자의 전반적인 상태를 종합적으로 요약하여 기록합니다.
+                                    </p>
+                                </div>
+                                <textarea id="future-summary-new" class="w-full min-h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4 text-base leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="material-symbols-outlined text-primary">gpp_maybe</span>
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">급여제공 관련 유의사항</h3>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <div class="mb-2 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex items-start gap-2">
+                                        <span class="material-symbols-outlined text-base mt-0.5 shrink-0 text-primary">info</span>
+                                        낙상 위험, 식사 시 연하 곤란 등 수급자의 안전과 건강을 위해 급여 제공 시 특별히 유의해야 할 사항을 기재합니다.
+                                    </p>
+                                </div>
+                                <textarea id="future-caution-new" class="w-full min-h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4 text-base leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="material-symbols-outlined text-primary">edit_calendar</span>
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">급여제공 관련 세부계획</h3>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <div class="mb-2 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex items-start gap-2">
+                                        <span class="material-symbols-outlined text-base mt-0.5 shrink-0 text-primary">info</span>
+                                        확인된 욕구 및 유의사항을 반영하여 차주 또는 향후 제공할 구체적인 서비스 계획을 작성합니다.
+                                    </p>
+                                </div>
+                                <textarea id="future-plan-new" class="w-full min-h-[160px] resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4 text-base leading-relaxed placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="자동 생성됩니다"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between pt-6 mt-6 border-t border-gray-200 dark:border-gray-700 mb-8">
+                        <button onclick="showPage('step2-new')" class="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-dark text-gray-900 dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2">
+                            <span class="material-symbols-outlined text-xl">arrow_back</span>
+                            이전 단계
+                        </button>
+                        <div class="flex gap-3">
+                            <button class="px-6 py-3 rounded-lg text-primary font-medium hover:bg-primary/5 transition-colors">
+                                임시 저장
+                            </button>
+                            <button onclick="completeJournalNew()" class="px-8 py-3 rounded-lg bg-primary text-white font-bold hover:bg-primary-dark shadow-md transition-all flex items-center gap-2 active:scale-95">
                                 <span class="material-symbols-outlined text-xl">check_circle</span>
                                 작성 완료
                             </button>

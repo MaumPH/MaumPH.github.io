@@ -52,10 +52,16 @@ function showPage(pageName) {
         }
     });
 
-    // Reset journal menu toggle button
+    // Reset journal menu toggle button (26년이전)
     const journalBtn = document.getElementById('journal-menu-toggle');
     if (journalBtn) {
         journalBtn.classList.remove('bg-primary/10', 'dark:bg-primary/20');
+    }
+
+    // Reset journal new menu toggle button (26년이후)
+    const journalNewBtn = document.getElementById('journal-new-menu-toggle');
+    if (journalNewBtn) {
+        journalNewBtn.classList.remove('bg-primary/10', 'dark:bg-primary/20');
     }
 
     // Reset billing menu toggle button
@@ -71,8 +77,8 @@ function showPage(pageName) {
     }
 
     // Highlight active menu item
-    if (pageName === 'step1' || pageName === 'step2' || pageName === 'step3') {
-        // Highlight submenu item
+    if (pageName === 'step1-old' || pageName === 'step2-old' || pageName === 'step3-old') {
+        // Highlight submenu item (26년이전)
         const activeNav = document.getElementById(`nav-${pageName}`);
         if (activeNav) {
             activeNav.classList.remove('text-gray-600', 'dark:text-gray-400');
@@ -84,10 +90,28 @@ function showPage(pageName) {
             }
         }
 
-        // Highlight journal menu button
+        // Highlight journal menu button (26년이전)
         const journalBtn = document.getElementById('journal-menu-toggle');
         if (journalBtn) {
             journalBtn.classList.add('bg-primary/10', 'dark:bg-primary/20');
+        }
+    } else if (pageName === 'step1-new' || pageName === 'step2-new' || pageName === 'step3-new') {
+        // Highlight submenu item (26년이후)
+        const activeNav = document.getElementById(`nav-${pageName}`);
+        if (activeNav) {
+            activeNav.classList.remove('text-gray-600', 'dark:text-gray-400');
+            activeNav.classList.add('text-primary', 'font-semibold', 'bg-primary/5', 'dark:bg-primary/10');
+            const dot = activeNav.querySelector('.submenu-dot');
+            if (dot) {
+                dot.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+                dot.classList.add('bg-primary');
+            }
+        }
+
+        // Highlight journal new menu button (26년이후)
+        const journalNewBtn = document.getElementById('journal-new-menu-toggle');
+        if (journalNewBtn) {
+            journalNewBtn.classList.add('bg-primary/10', 'dark:bg-primary/20');
         }
     } else if (pageName === 'vehicle-checker' || pageName === 'elder-time-checker') {
         // Highlight submenu item
@@ -177,13 +201,14 @@ function showPage(pageName) {
 
     // Update progress bar visibility
     const progressSection = document.getElementById('progress-section');
-    if (pageName === 'step1' || pageName === 'step2' || pageName === 'step3') {
+    if (pageName === 'step1-old' || pageName === 'step2-old' || pageName === 'step3-old' ||
+        pageName === 'step1-new' || pageName === 'step2-new' || pageName === 'step3-new') {
         progressSection.style.display = 'flex';
 
         // Update step
-        if (pageName === 'step1') currentStep = 1;
-        else if (pageName === 'step2') currentStep = 2;
-        else if (pageName === 'step3') currentStep = 3;
+        if (pageName === 'step1-old' || pageName === 'step1-new') currentStep = 1;
+        else if (pageName === 'step2-old' || pageName === 'step2-new') currentStep = 2;
+        else if (pageName === 'step3-old' || pageName === 'step3-new') currentStep = 3;
 
         updateProgress();
     } else {
@@ -230,10 +255,24 @@ function updateProgress() {
     document.getElementById('progress-text').textContent = `${progress}% 완료`;
 }
 
-// 저널 메뉴 토글
+// 저널 메뉴 토글 (26년이전)
 function toggleJournalMenu() {
     const submenu = document.getElementById('journal-submenu');
     const icon = document.getElementById('journal-menu-icon');
+
+    if (submenu.style.display === 'none') {
+        submenu.style.display = 'flex';
+        icon.textContent = 'expand_less';
+    } else {
+        submenu.style.display = 'none';
+        icon.textContent = 'expand_more';
+    }
+}
+
+// 저널 메뉴 토글 (26년이후)
+function toggleJournalNewMenu() {
+    const submenu = document.getElementById('journal-new-submenu');
+    const icon = document.getElementById('journal-new-menu-icon');
 
     if (submenu.style.display === 'none') {
         submenu.style.display = 'flex';
@@ -344,9 +383,10 @@ async function handlePDFUpload(event) {
     reader.readAsArrayBuffer(file);
 }
 
-// Drag and drop 설정
-function setupDragAndDrop() {
-    const dropArea = document.getElementById('pdf-upload-area');
+// Drag and drop 설정 헬퍼
+function setupDragAndDropForArea(dropAreaId, fileInputId, uploadHandler) {
+    const dropArea = document.getElementById(dropAreaId);
+    if (!dropArea) return;
 
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, preventDefaults, false);
@@ -369,20 +409,24 @@ function setupDragAndDrop() {
         }, false);
     });
 
-    dropArea.addEventListener('drop', handleDrop, false);
-
-    function handleDrop(e) {
+    dropArea.addEventListener('drop', (e) => {
         const dt = e.dataTransfer;
         const files = dt.files;
 
         if (files.length > 0) {
             const file = files[0];
             if (file.type === 'application/pdf') {
-                document.getElementById('pdf-file-input').files = files;
-                handlePDFUpload({ target: { files: files } });
+                document.getElementById(fileInputId).files = files;
+                uploadHandler({ target: { files: files } });
             } else {
                 alert('PDF 파일만 업로드 가능합니다.');
             }
         }
-    }
+    }, false);
+}
+
+// Drag and drop 설정 (모든 PDF 업로드 영역)
+function setupDragAndDrop() {
+    setupDragAndDropForArea('pdf-upload-area-old', 'pdf-file-input-old', handlePDFUploadOld);
+    setupDragAndDropForArea('pdf-upload-area-new', 'pdf-file-input-new', handlePDFUploadNew);
 }

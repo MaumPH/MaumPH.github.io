@@ -7,9 +7,11 @@
  */
 
 // 전역 상태 변수
-let currentPage = 'step1';
+let currentPage = 'step1-new';
 let currentStep = 1;
 let pdfText = '';
+let pdfTextOld = '';
+let pdfTextNew = '';
 let apiKeys = JSON.parse(localStorage.getItem('gemini_api_keys') || '[]');
 let activeApiKeyIndex = parseInt(localStorage.getItem('active_api_key_index') || '0');
 let apiKey = apiKeys[activeApiKeyIndex] || '';

@@ -267,6 +267,572 @@ function completeJournal() {
     window.scrollTo(0, 0);
 }
 
+// =============================================
+// 업무수행일지 (26년이전) - Old 버전 함수들
+// =============================================
+
+// PDF 업로드 처리 (Old)
+async function handlePDFUploadOld(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    document.getElementById('pdf-filename-old').textContent = file.name;
+    document.getElementById('pdf-preview-old').classList.remove('hidden');
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const typedarray = new Uint8Array(e.target.result);
+        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+        let text = '';
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            const pageText = content.items.map(item => item.str).join(' ');
+            text += pageText + '\n';
+        }
+
+        pdfTextOld = text;
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// PDF 분석 (Old)
+async function analyzePDFOld() {
+    if (!pdfTextOld) {
+        alert('PDF를 먼저 업로드해주세요.');
+        return;
+    }
+
+    const btn = document.getElementById('analyze-btn-old');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="loading-spinner"></div> 분석 중...';
+
+    document.getElementById('analysis-status-old').innerHTML = `
+        <p class="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
+            <div class="loading-spinner"></div>
+            AI가 PDF를 분석하여 항목을 작성하고 있습니다...
+        </p>
+    `;
+
+    try {
+        const prompt = `${SYSTEM_PROMPT}
+
+PDF 내용:
+${pdfTextOld}
+
+위 PDF 내용을 분석하여 아래 10개 항목을 각각 100자 내외로 작성해주세요:
+1. 식사 및 영양상태
+2. 보행
+3. 신체기능
+4. 배뇨·배변기능
+5. 위생관리
+6. 일상생활수행
+7. 인지기능
+8. 행동증상
+9. 가족 및 생활환경
+10. 기타 및 종합의견
+
+각 항목은 다음 형식으로 작성:
+[항목번호]
+내용
+
+예시:
+[1]
+일반식 섭취는 양호함. 거부 없이 식사하며 저작과 연하 기능에 뚜렷한 어려움은 관찰되지 않음.`;
+
+        const result = await callGeminiAPI(prompt);
+
+        for (let i = 1; i <= 10; i++) {
+            const regex = new RegExp(`\\[${i}\\]\\s*([\\s\\S]*?)(?=\\[${i+1}\\]|$)`, 'm');
+            const match = result.match(regex);
+            if (match && match[1]) {
+                document.getElementById(`field-${i}-old`).value = match[1].trim();
+            }
+        }
+
+        document.querySelectorAll('.verified-icon-old').forEach(icon => {
+            icon.classList.remove('hidden');
+        });
+
+        document.getElementById('analysis-status-old').innerHTML = `
+            <p class="text-sm text-green-800 dark:text-green-200 flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg icon-fill">check_circle</span>
+                분석이 완료되었습니다. 내용을 확인하고 수정하세요.
+            </p>
+        `;
+
+        document.getElementById('step1-next-old').disabled = false;
+
+    } catch (error) {
+        alert('분석 중 오류가 발생했습니다: ' + error.message);
+        document.getElementById('analysis-status-old').innerHTML = `
+            <p class="text-sm text-red-800 dark:text-red-200 flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg">error</span>
+                분석 중 오류가 발생했습니다. API 키를 확인하거나 다시 시도해주세요.
+            </p>
+        `;
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">auto_awesome</span> PDF 분석 시작';
+    }
+}
+
+// 필드 재생성 (Old)
+async function regenerateFieldsOld() {
+    if (confirm('현재 내용을 삭제하고 다시 생성하시겠습니까?')) {
+        await analyzePDFOld();
+    }
+}
+
+// 프로그램 내용 생성 (Old)
+async function generateProgramContentOld() {
+    const userInput = document.getElementById('user-input-old').value.trim();
+    if (!userInput) {
+        alert('프로그램 수행 내용을 먼저 입력해주세요.');
+        return;
+    }
+
+    showLoadingOverlay('입력하신 내용을 바탕으로 상세 항목을 생성하고 있습니다...');
+
+    try {
+        const prompt = `${SYSTEM_PROMPT}
+
+# 작성 요청: 프로그램 제공계획 및 제공내용
+
+사용자 입력:
+${userInput}
+
+위 입력을 바탕으로 아래 4개 항목을 작성해주세요.
+
+## 작성 항목:
+1. 필요내용 - 프로그램이 어르신에게 어떤 도움이 되는지 핵심만 간결하게 작성. 나열 후 "등"으로 마무리하거나, 간단한 목적 문구 추가 가능
+2. 제공방법 (50자 이상) - 프로그램을 어떤 방식으로 진행했는지 구체적 방법
+3. 어르신 반응 및 특이사항 (100자 이내) - 프로그램 참여 시 어르신의 행동과 반응
+4. 요양보호사 모니터링 (100자 이내) - 사회복지사/프로그램관리자 관점에서 요양보호사가 프로그램 제공 시 보인 업무 수행 방식, 어르신 대응, 제공 과정의 적절성에 대한 평가
+
+## 중요 지침:
+- 자연스러운 일상어 사용 필수:
+  ❌ "과업", "과제", "수행", "지속", "완수", "보조", "지원", "제공", "언어적 안내"
+  ✅ "프로그램", "활동", "진행", "계속", "마무리", "도움드림", "도와드림", "설명함", "알려드림"
+- 딱딱한 공문서 표현 절대 금지:
+  ❌ "언어적 안내를 제공하며" → ✅ "말로 설명해드리며", "알려드리며"
+  ❌ "활동을 지원함" → ✅ "활동을 도와드림", "도움드림"
+- "수급자" 대신 "어르신" 사용 필수
+- 공문서 어투 지양 - 자연스럽고 부드러운 표현 사용
+- 제목은 절대 포함하지 말고 내용만 작성
+
+## 출력 형식 (제목 없이 내용만):
+[1]
+감각기능 자극, 소근육 발달, 집중력 향상 등
+
+또는
+
+지남력, 기억력, 주의집중력 향상 등 인지기능 유지와 향상을 위한 현실인식 훈련을 반복함
+
+[2]
+색칠 도안과 크레용을 드리고, 직원이 개별로 도와드리며 단계별로 진행함
+
+[3]
+외부강사프로그램 참여 시 여러 가지 대칭 막대기를 활용하여 그림과 숫자를 만들며 활동에 참여함. 제시된 도구를 이용해 모양을 만들고 배열을 조정하는 모습이 관찰됨
+
+[4]
+요양보호사는 어르신의 인지 수준을 고려하여 프로그램을 적절히 조정하였으며, 단계별로 친절하게 설명하며 안정적으로 진행함. 어르신의 반응을 수시로 확인하며 맞춤형으로 제공하여 참여도가 높았음
+
+위 예시처럼 [1], [2], [3], [4] 뒤에 바로 내용만 작성하세요.`;
+
+        const result = await callGeminiAPI(prompt);
+
+        const sections = result.split(/\[(\d+)\]/);
+
+        if (sections[2]) document.getElementById('program-need-old').value = sections[2].trim();
+        if (sections[4]) document.getElementById('program-method-old').value = sections[4].trim();
+        if (sections[6]) document.getElementById('program-reaction-old').value = sections[6].trim();
+        if (sections[8]) document.getElementById('program-monitoring-old').value = sections[8].trim();
+
+        document.getElementById('step2-next-old').disabled = false;
+
+        hideLoadingOverlay();
+        alert('✓ 프로그램 내용이 생성되었습니다!');
+
+    } catch (error) {
+        hideLoadingOverlay();
+        alert('생성 중 오류가 발생했습니다: ' + error.message);
+    }
+}
+
+// 향후 계획 생성 (Old)
+async function generateFuturePlanOld() {
+    const needsContent = document.getElementById('program-need-old').value.trim();
+    const methodContent = document.getElementById('program-method-old').value.trim();
+    const reactionContent = document.getElementById('program-reaction-old').value.trim();
+    const monitoringContent = document.getElementById('program-monitoring-old').value.trim();
+
+    let mentalStateContent = '';
+    for (let i = 1; i <= 10; i++) {
+        const field = document.getElementById(`field-${i}-old`);
+        if (field && field.value.trim()) {
+            mentalStateContent += field.value.trim() + ' ';
+        }
+    }
+
+    if (!needsContent || !methodContent) {
+        alert('먼저 필요내용과 제공방법을 작성해주세요.');
+        return;
+    }
+
+    showLoadingOverlay('향후 계획 및 기타사항을 생성하고 있습니다...');
+
+    try {
+        const prompt = `${SYSTEM_PROMPT}
+
+# 작성 요청: 향후 계획 및 기타사항
+
+## 심신상태 정보:
+${mentalStateContent}
+
+## 프로그램 제공 정보:
+필요내용: ${needsContent}
+제공방법: ${methodContent}
+어르신 반응 및 특이사항: ${reactionContent}
+요양보호사 모니터링: ${monitoringContent}
+
+위 내용을 바탕으로 아래 3개 항목을 작성해주세요.
+
+## 작성 항목:
+1. 종합 (150자 내외) - 심신상태 변화와 프로그램 참여도를 바탕으로 금일 어르신의 전반적인 상태를 종합적으로 요약
+2. 급여제공 관련 유의사항 (150자 내외) - 프로그램 진행 시 어르신의 신체기능, 취향, 흥미, 참여 의지 등을 고려하여 적정 서비스 제공을 위해 유의해야 할 사항
+3. 급여제공 관련 세부계획 (100자 내외) - 어르신의 신체기능과 흥미, 참여도를 반영하여 향후 프로그램 제공 시 고려할 계획
+
+## 중요 지침:
+- 자연스러운 일상어 사용 필수:
+  ❌ "과업", "과제", "수행", "지속", "완수", "보조", "지원", "제공", "언어적 안내"
+  ✅ "프로그램", "활동", "진행", "계속", "마무리", "도움드림", "도와드림", "설명함", "알려드림"
+- 딱딱한 공문서 표현 절대 금지:
+  ❌ "언어적 안내를 제공하며" → ✅ "말로 설명해드리며", "알려드리며"
+  ❌ "활동을 지원함" → ✅ "활동을 도와드림", "도움드림"
+- "수급자" 대신 "어르신" 사용 필수
+- 공문서 어투 지양 - 자연스럽고 부드러운 표현 사용
+- 제목은 절대 포함하지 말고 내용만 작성
+
+## 출력 형식 (제목 없이 내용만):
+[1]
+금일 프로그램 참여도는 높은 편이며, 활동 시 집중력이 양호함. 신체 움직임도 무리 없이 진행하였고, 전반적으로 안정적인 상태에서 프로그램에 참여함
+
+[2]
+어르신이 세밀한 손동작에 다소 어려움을 보여 활동 난이도 조절이 필요함. 흥미를 보이는 활동 위주로 진행하고, 피로감이 느껴질 때 적절한 휴식을 드리도록 함
+
+[3]
+어르신의 흥미와 신체 능력에 맞춰 활동 난이도를 조정하며 진행할 예정임. 참여 의지가 높은 프로그램 위주로 구성하여 지속적인 참여를 유도할 계획임
+
+위 예시처럼 [1], [2], [3] 뒤에 바로 내용만 작성하세요.`;
+
+        const result = await callGeminiAPI(prompt);
+
+        const sections = result.split(/\[(\d+)\]/);
+
+        if (sections[2]) document.getElementById('future-summary-old').value = sections[2].trim();
+        if (sections[4]) document.getElementById('future-caution-old').value = sections[4].trim();
+        if (sections[6]) document.getElementById('future-plan-old').value = sections[6].trim();
+
+        hideLoadingOverlay();
+        alert('✓ 향후 계획 및 기타사항이 생성되었습니다!');
+
+    } catch (error) {
+        hideLoadingOverlay();
+        alert('생성 중 오류가 발생했습니다: ' + error.message);
+    }
+}
+
+// 일지 완료 (Old)
+function completeJournalOld() {
+    alert('업무수행일지(26년이전) 작성이 완료되었습니다!\\n\\n각 항목의 내용을 확인하고 필요시 수정한 후 저장하세요.');
+    window.scrollTo(0, 0);
+}
+
+// =============================================
+// 업무수행일지 (26년이후) - New 버전 함수들
+// =============================================
+
+// PDF 업로드 처리 (New)
+async function handlePDFUploadNew(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    document.getElementById('pdf-filename-new').textContent = file.name;
+    document.getElementById('pdf-preview-new').classList.remove('hidden');
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const typedarray = new Uint8Array(e.target.result);
+        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+        let text = '';
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            const pageText = content.items.map(item => item.str).join(' ');
+            text += pageText + '\n';
+        }
+
+        pdfTextNew = text;
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// PDF 분석 (New)
+async function analyzePDFNew() {
+    if (!pdfTextNew) {
+        alert('PDF를 먼저 업로드해주세요.');
+        return;
+    }
+
+    const btn = document.getElementById('analyze-btn-new');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="loading-spinner"></div> 분석 중...';
+
+    document.getElementById('analysis-status-new').innerHTML = `
+        <p class="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
+            <div class="loading-spinner"></div>
+            AI가 PDF를 분석하여 항목을 작성하고 있습니다...
+        </p>
+    `;
+
+    try {
+        const prompt = `${SYSTEM_PROMPT}
+
+PDF 내용:
+${pdfTextNew}
+
+위 PDF 내용을 분석하여 아래 10개 항목을 각각 100자 내외로 작성해주세요:
+1. 식사 및 영양상태
+2. 보행
+3. 신체기능
+4. 배뇨·배변기능
+5. 위생관리
+6. 일상생활수행
+7. 인지기능
+8. 행동증상
+9. 가족 및 생활환경
+10. 기타 및 종합의견
+
+각 항목은 다음 형식으로 작성:
+[항목번호]
+내용
+
+예시:
+[1]
+일반식 섭취는 양호함. 거부 없이 식사하며 저작과 연하 기능에 뚜렷한 어려움은 관찰되지 않음.`;
+
+        const result = await callGeminiAPI(prompt);
+
+        for (let i = 1; i <= 10; i++) {
+            const regex = new RegExp(`\\[${i}\\]\\s*([\\s\\S]*?)(?=\\[${i+1}\\]|$)`, 'm');
+            const match = result.match(regex);
+            if (match && match[1]) {
+                document.getElementById(`field-${i}-new`).value = match[1].trim();
+            }
+        }
+
+        document.querySelectorAll('.verified-icon-new').forEach(icon => {
+            icon.classList.remove('hidden');
+        });
+
+        document.getElementById('analysis-status-new').innerHTML = `
+            <p class="text-sm text-green-800 dark:text-green-200 flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg icon-fill">check_circle</span>
+                분석이 완료되었습니다. 내용을 확인하고 수정하세요.
+            </p>
+        `;
+
+        document.getElementById('step1-next-new').disabled = false;
+
+    } catch (error) {
+        alert('분석 중 오류가 발생했습니다: ' + error.message);
+        document.getElementById('analysis-status-new').innerHTML = `
+            <p class="text-sm text-red-800 dark:text-red-200 flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg">error</span>
+                분석 중 오류가 발생했습니다. API 키를 확인하거나 다시 시도해주세요.
+            </p>
+        `;
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">auto_awesome</span> PDF 분석 시작';
+    }
+}
+
+// 필드 재생성 (New)
+async function regenerateFieldsNew() {
+    if (confirm('현재 내용을 삭제하고 다시 생성하시겠습니까?')) {
+        await analyzePDFNew();
+    }
+}
+
+// 프로그램 내용 생성 (New)
+async function generateProgramContentNew() {
+    const userInput = document.getElementById('user-input-new').value.trim();
+    if (!userInput) {
+        alert('프로그램 수행 내용을 먼저 입력해주세요.');
+        return;
+    }
+
+    showLoadingOverlay('입력하신 내용을 바탕으로 상세 항목을 생성하고 있습니다...');
+
+    try {
+        const prompt = `${SYSTEM_PROMPT}
+
+# 작성 요청: 프로그램 제공계획 및 제공내용
+
+사용자 입력:
+${userInput}
+
+위 입력을 바탕으로 아래 4개 항목을 작성해주세요.
+
+## 작성 항목:
+1. 필요내용 - 프로그램이 어르신에게 어떤 도움이 되는지 핵심만 간결하게 작성. 나열 후 "등"으로 마무리하거나, 간단한 목적 문구 추가 가능
+2. 제공방법 (50자 이상) - 프로그램을 어떤 방식으로 진행했는지 구체적 방법
+3. 어르신 반응 및 특이사항 (100자 이내) - 프로그램 참여 시 어르신의 행동과 반응
+4. 요양보호사 모니터링 (100자 이내) - 사회복지사/프로그램관리자 관점에서 요양보호사가 프로그램 제공 시 보인 업무 수행 방식, 어르신 대응, 제공 과정의 적절성에 대한 평가
+
+## 중요 지침:
+- 자연스러운 일상어 사용 필수:
+  ❌ "과업", "과제", "수행", "지속", "완수", "보조", "지원", "제공", "언어적 안내"
+  ✅ "프로그램", "활동", "진행", "계속", "마무리", "도움드림", "도와드림", "설명함", "알려드림"
+- 딱딱한 공문서 표현 절대 금지:
+  ❌ "언어적 안내를 제공하며" → ✅ "말로 설명해드리며", "알려드리며"
+  ❌ "활동을 지원함" → ✅ "활동을 도와드림", "도움드림"
+- "수급자" 대신 "어르신" 사용 필수
+- 공문서 어투 지양 - 자연스럽고 부드러운 표현 사용
+- 제목은 절대 포함하지 말고 내용만 작성
+
+## 출력 형식 (제목 없이 내용만):
+[1]
+감각기능 자극, 소근육 발달, 집중력 향상 등
+
+또는
+
+지남력, 기억력, 주의집중력 향상 등 인지기능 유지와 향상을 위한 현실인식 훈련을 반복함
+
+[2]
+색칠 도안과 크레용을 드리고, 직원이 개별로 도와드리며 단계별로 진행함
+
+[3]
+외부강사프로그램 참여 시 여러 가지 대칭 막대기를 활용하여 그림과 숫자를 만들며 활동에 참여함. 제시된 도구를 이용해 모양을 만들고 배열을 조정하는 모습이 관찰됨
+
+[4]
+요양보호사는 어르신의 인지 수준을 고려하여 프로그램을 적절히 조정하였으며, 단계별로 친절하게 설명하며 안정적으로 진행함. 어르신의 반응을 수시로 확인하며 맞춤형으로 제공하여 참여도가 높았음
+
+위 예시처럼 [1], [2], [3], [4] 뒤에 바로 내용만 작성하세요.`;
+
+        const result = await callGeminiAPI(prompt);
+
+        const sections = result.split(/\[(\d+)\]/);
+
+        if (sections[2]) document.getElementById('program-need-new').value = sections[2].trim();
+        if (sections[4]) document.getElementById('program-method-new').value = sections[4].trim();
+        if (sections[6]) document.getElementById('program-reaction-new').value = sections[6].trim();
+        if (sections[8]) document.getElementById('program-monitoring-new').value = sections[8].trim();
+
+        document.getElementById('step2-next-new').disabled = false;
+
+        hideLoadingOverlay();
+        alert('✓ 프로그램 내용이 생성되었습니다!');
+
+    } catch (error) {
+        hideLoadingOverlay();
+        alert('생성 중 오류가 발생했습니다: ' + error.message);
+    }
+}
+
+// 향후 계획 생성 (New)
+async function generateFuturePlanNew() {
+    const needsContent = document.getElementById('program-need-new').value.trim();
+    const methodContent = document.getElementById('program-method-new').value.trim();
+    const reactionContent = document.getElementById('program-reaction-new').value.trim();
+    const monitoringContent = document.getElementById('program-monitoring-new').value.trim();
+
+    let mentalStateContent = '';
+    for (let i = 1; i <= 10; i++) {
+        const field = document.getElementById(`field-${i}-new`);
+        if (field && field.value.trim()) {
+            mentalStateContent += field.value.trim() + ' ';
+        }
+    }
+
+    if (!needsContent || !methodContent) {
+        alert('먼저 필요내용과 제공방법을 작성해주세요.');
+        return;
+    }
+
+    showLoadingOverlay('향후 계획 및 기타사항을 생성하고 있습니다...');
+
+    try {
+        const prompt = `${SYSTEM_PROMPT}
+
+# 작성 요청: 향후 계획 및 기타사항
+
+## 심신상태 정보:
+${mentalStateContent}
+
+## 프로그램 제공 정보:
+필요내용: ${needsContent}
+제공방법: ${methodContent}
+어르신 반응 및 특이사항: ${reactionContent}
+요양보호사 모니터링: ${monitoringContent}
+
+위 내용을 바탕으로 아래 3개 항목을 작성해주세요.
+
+## 작성 항목:
+1. 종합 (150자 내외) - 심신상태 변화와 프로그램 참여도를 바탕으로 금일 어르신의 전반적인 상태를 종합적으로 요약
+2. 급여제공 관련 유의사항 (150자 내외) - 프로그램 진행 시 어르신의 신체기능, 취향, 흥미, 참여 의지 등을 고려하여 적정 서비스 제공을 위해 유의해야 할 사항
+3. 급여제공 관련 세부계획 (100자 내외) - 어르신의 신체기능과 흥미, 참여도를 반영하여 향후 프로그램 제공 시 고려할 계획
+
+## 중요 지침:
+- 자연스러운 일상어 사용 필수:
+  ❌ "과업", "과제", "수행", "지속", "완수", "보조", "지원", "제공", "언어적 안내"
+  ✅ "프로그램", "활동", "진행", "계속", "마무리", "도움드림", "도와드림", "설명함", "알려드림"
+- 딱딱한 공문서 표현 절대 금지:
+  ❌ "언어적 안내를 제공하며" → ✅ "말로 설명해드리며", "알려드리며"
+  ❌ "활동을 지원함" → ✅ "활동을 도와드림", "도움드림"
+- "수급자" 대신 "어르신" 사용 필수
+- 공문서 어투 지양 - 자연스럽고 부드러운 표현 사용
+- 제목은 절대 포함하지 말고 내용만 작성
+
+## 출력 형식 (제목 없이 내용만):
+[1]
+금일 프로그램 참여도는 높은 편이며, 활동 시 집중력이 양호함. 신체 움직임도 무리 없이 진행하였고, 전반적으로 안정적인 상태에서 프로그램에 참여함
+
+[2]
+어르신이 세밀한 손동작에 다소 어려움을 보여 활동 난이도 조절이 필요함. 흥미를 보이는 활동 위주로 진행하고, 피로감이 느껴질 때 적절한 휴식을 드리도록 함
+
+[3]
+어르신의 흥미와 신체 능력에 맞춰 활동 난이도를 조정하며 진행할 예정임. 참여 의지가 높은 프로그램 위주로 구성하여 지속적인 참여를 유도할 계획임
+
+위 예시처럼 [1], [2], [3] 뒤에 바로 내용만 작성하세요.`;
+
+        const result = await callGeminiAPI(prompt);
+
+        const sections = result.split(/\[(\d+)\]/);
+
+        if (sections[2]) document.getElementById('future-summary-new').value = sections[2].trim();
+        if (sections[4]) document.getElementById('future-caution-new').value = sections[4].trim();
+        if (sections[6]) document.getElementById('future-plan-new').value = sections[6].trim();
+
+        hideLoadingOverlay();
+        alert('✓ 향후 계획 및 기타사항이 생성되었습니다!');
+
+    } catch (error) {
+        hideLoadingOverlay();
+        alert('생성 중 오류가 발생했습니다: ' + error.message);
+    }
+}
+
+// 일지 완료 (New)
+function completeJournalNew() {
+    alert('업무수행일지(26년이후) 작성이 완료되었습니다!\\n\\n각 항목의 내용을 확인하고 필요시 수정한 후 저장하세요.');
+    window.scrollTo(0, 0);
+}
+
 // 감정 표현 형식 생성
 function formatEmotionExpressions(emotionDict, maxItemsPerCategory = 10) {
     if (!emotionDict) return "";
