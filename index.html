@@ -1170,7 +1170,7 @@
                 <div id="page-program-feedback" class="page-hidden">
                     <div class="flex flex-col gap-2 mb-6">
                         <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">프로그램 의견수렴</h1>
-                        <p class="text-gray-500 dark:text-gray-400 mt-1">어르신의 의견을 입력하면 AI가 자동으로 평가 및 차후 반영사항을 작성합니다.</p>
+                        <p class="text-gray-500 dark:text-gray-400 mt-1">의견수렴 내용과 반영 내용을 입력하면 AI가 서식에 맞춰 작성합니다.</p>
                     </div>
 
                     <!-- 기본 정보 입력 -->
@@ -1200,29 +1200,39 @@
                     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
                         <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                             <span class="material-symbols-outlined text-primary">comment</span>
-                            어르신 의견
+                            의견수렴 및 반영 내용
                         </h3>
 
-                        <div>
-                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">의견 내용 <span class="text-red-500">*</span></label>
-                            <textarea id="pf-feedback" rows="5" placeholder="어르신의 의견을 입력하세요.&#10;&#10;예시:&#10;- 글씨가 작아서 잘 안 보인다&#10;- 노래 속도가 너무 빠르다&#10;- 트로트 음악이 더 좋겠다" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></textarea>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">수급자(보호자) 의견수렴 내용 <span class="text-red-500">*</span></label>
+                                <textarea id="pf-collected-opinion" rows="6" placeholder="수급자 또는 보호자에게 받은 의견을 입력하세요.&#10;&#10;예시:&#10;- 글씨가 작아 보기 어렵다는 의견을 받음&#10;- 음악 속도가 빨라 따라가기 어렵다고 말씀하심&#10;- 트로트 음악을 더 희망한다고 보호자가 전달함" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></textarea>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">수급자(보호자) 의견반영 내용 <span class="text-red-500">*</span></label>
+                                <textarea id="pf-reflected-opinion" rows="6" placeholder="의견을 어떻게 반영했는지 입력하세요.&#10;&#10;예시:&#10;- 큰 글씨 활동지로 변경하고 설명 속도를 조정함&#10;- 음악 속도를 낮추고 동작을 단계별로 안내함&#10;- 선호 음악을 포함하여 다음 프로그램을 구성함" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></textarea>
+                            </div>
                         </div>
 
                         <div class="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                            <h4 class="text-sm font-bold text-blue-900 dark:text-blue-200 mb-2">💡 의견 입력 안내</h4>
+                            <h4 class="text-sm font-bold text-blue-900 dark:text-blue-200 mb-2">입력 안내</h4>
                             <ul class="text-sm text-blue-800 dark:text-blue-300 space-y-1">
-                                <li>• <strong>난이도·수준 조절:</strong> "글씨가 작다", "속도가 빠르다", "어렵다" 등</li>
-                                <li>• <strong>흥미·기호 관련:</strong> "음악이 좋다/싫다", "주제가 재미있다", "다른 활동을 하고 싶다" 등</li>
-                                <li>• AI가 의견 유형을 자동 분류하여 적절한 반영 방안과 평가를 생성합니다.</li>
+                                <li>• <strong>의견수렴:</strong> 수급자 또는 보호자에게 실제로 받은 의견을 입력합니다.</li>
+                                <li>• <strong>의견반영:</strong> 해당 의견을 프로그램에 어떻게 반영했는지 입력합니다.</li>
+                                <li>• AI는 입력 내용을 바탕으로 두 항목을 분리하여 행정기록체 문장으로 정리합니다.</li>
                             </ul>
                         </div>
                     </div>
 
                     <!-- 생성 버튼 -->
-                    <div class="flex justify-center mb-6">
+                    <div class="flex flex-wrap justify-center gap-3 mb-6">
+                        <button onclick="resetProgramFeedbackForm()" class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 px-6 py-3 rounded-lg font-semibold text-base shadow-sm transition-all flex items-center gap-2">
+                            <span class="material-symbols-outlined">restart_alt</span>
+                            초기화
+                        </button>
                         <button onclick="generateProgramFeedback()" class="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-lg font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
                             <span class="material-symbols-outlined">auto_awesome</span>
-                            AI로 평가 및 차후 반영사항 생성하기
+                            AI로 의견수렴 및 의견반영 작성하기
                         </button>
                     </div>
 
@@ -1232,7 +1242,7 @@
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                     <span class="material-symbols-outlined text-primary">assignment</span>
-                                    생성된 평가 및 차후 반영사항
+                                    생성된 의견수렴 및 의견반영
                                 </h3>
                                 <button onclick="copyProgramFeedbackResult()" class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium flex items-center gap-2 transition-colors">
                                     <span class="material-symbols-outlined text-lg">content_copy</span>

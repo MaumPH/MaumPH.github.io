@@ -10,7 +10,8 @@ async function generateProgramFeedback() {
     const beneficiary = document.getElementById('pf-beneficiary').value.trim();
     const programName = document.getElementById('pf-program-name').value.trim();
     const programDate = document.getElementById('pf-program-date').value;
-    const feedback = document.getElementById('pf-feedback').value.trim();
+    const collectedOpinion = document.getElementById('pf-collected-opinion').value.trim();
+    const reflectedOpinion = document.getElementById('pf-reflected-opinion').value.trim();
 
     // 필수 입력 검증
     if (!beneficiary) {
@@ -25,16 +26,26 @@ async function generateProgramFeedback() {
         alert('프로그램 날짜를 선택해주세요.');
         return;
     }
-    if (!feedback) {
-        alert('어르신 의견을 입력해주세요.');
+    if (!collectedOpinion) {
+        alert('수급자(보호자) 의견수렴 내용을 입력해주세요.');
+        return;
+    }
+    if (!reflectedOpinion) {
+        alert('수급자(보호자) 의견반영 내용을 입력해주세요.');
         return;
     }
 
     // 프롬프트 생성
-    const prompt = buildProgramFeedbackPrompt(beneficiary, programName, programDate, feedback);
+    const prompt = buildProgramFeedbackPrompt(
+        beneficiary,
+        programName,
+        programDate,
+        collectedOpinion,
+        reflectedOpinion
+    );
 
     // 로딩 시작
-    showLoadingOverlay('AI가 평가 및 차후 반영사항을 생성하고 있습니다...');
+    showLoadingOverlay('AI가 의견수렴 및 의견반영 결과를 생성하고 있습니다...');
 
     try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
@@ -66,12 +77,12 @@ async function generateProgramFeedback() {
     } catch (error) {
         console.error('Error generating program feedback:', error);
         hideLoadingOverlay();
-        alert('평가 및 차후 반영사항 생성 중 오류가 발생했습니다: ' + error.message);
+        alert('의견수렴 및 의견반영 생성 중 오류가 발생했습니다: ' + error.message);
     }
 }
 
 // 프롬프트 생성
-function buildProgramFeedbackPrompt(beneficiary, programName, programDate, feedback) {
+function buildProgramFeedbackPrompt(beneficiary, programName, programDate, collectedOpinion, reflectedOpinion) {
     // 날짜 포맷팅 (YYYY.MM.DD)
     const dateObj = new Date(programDate);
     const formattedDate = `${dateObj.getFullYear()}.${String(dateObj.getMonth() + 1).padStart(2, '0')}.${String(dateObj.getDate()).padStart(2, '0')}`;
@@ -81,20 +92,19 @@ function buildProgramFeedbackPrompt(beneficiary, programName, programDate, feedb
 
     // 다양한 문장 시작 패턴들
     const sentenceStarters = [
-        '어르신의 의견을 반영하여',
-        '어르신께서 말씀하신 내용을 토대로',
-        '프로그램 진행 중 제시된 의견에 따라',
-        '어르신의 요구사항을 수렴하여',
-        '의견수렴 과정에서 나온 제안을 고려하여'
+        '수급자(보호자)가 제시한 의견은',
+        '프로그램 운영 중 수렴된 의견은',
+        '수급자(보호자)의 의견을 확인한 결과',
+        '해당 프로그램과 관련하여 접수된 의견은',
+        '수급자(보호자) 의견수렴 내용은'
     ];
 
-    // 다양한 평가 연결 표현들
-    const evaluationConnectors = [
-        '진행 후 어르신께서',
-        '프로그램 종료 시',
-        '활동을 마친 뒤 어르신께서',
-        '이에 대해 어르신께서',
-        '프로그램 진행 결과'
+    const reflectionConnectors = [
+        '이에 따라',
+        '해당 의견을 반영하여',
+        '수렴된 의견을 바탕으로',
+        '프로그램 운영 시',
+        '차후 운영 방향에 반영하여'
     ];
 
     // 다양한 차후 계획 표현들
@@ -106,31 +116,31 @@ function buildProgramFeedbackPrompt(beneficiary, programName, programDate, feedb
         '차기 진행 시'
     ];
 
-    return `# 프로그램 의견수렴 자동 기록 지침 ver.8-DIVERSE
-(표현 다양성 강화 · 의견 유형별 반영 논리 명시 · 평가 의미 강화 · 실무 검수 기준 포함)
+    return `# 프로그램 의견수렴 및 의견반영 자동 기록 지침 ver.9-SPLIT
+(수급자/보호자 의견수렴 · 의견반영 분리 작성 · 행정기록체 · 실무 검수 기준 포함)
 
 ---
 
 ## # 역할(Role)
 너는 주야간보호센터의 **프로그램 의견수렴 기록 담당자**다.
-어르신의 의견을 기반으로 프로그램을 어떻게 **조정·진행했는지**,
-그에 대한 **어르신의 평가(반응)**와
-**차후 운영 방향**을 사실 중심으로 기록한다.
+수급자 또는 보호자에게 받은 의견과 그 의견을 프로그램 운영에 어떻게 반영했는지를
+각각 분리하여 사실 중심의 행정기록체로 작성한다.
 
 ---
 
 ## # 목표
-- 「평가 및 차후 반영사항」이 이름에 맞게
-  **반영 결과 + 어르신 평가 + 향후 계획**을 모두 담도록 한다.
-- 의견 유형에 맞는 조치가 자동으로 연결되도록 한다.
+- 「수급자(보호자) 의견수렴」과 「수급자(보호자) 의견반영」을 각각 별도 항목으로 작성한다.
+- 입력된 의견수렴 내용과 의견반영 내용의 의미를 보존한다.
+- 의견과 반영 조치의 인과관계가 명확하게 드러나도록 한다.
 - 실무 점검·외부 평가에서도 문제없는 기록을 생성한다.
 
 **산출물 타입**
-- 프로그램 평가 결과 반영 기록
+- 프로그램 의견수렴 및 의견반영 기록
 
 **성공 기준**
-- 의견 → 반영 → 평가 → 차후 계획의 인과관계가 명확함
-- 평가의 주체가 항상 '어르신'으로 표현됨
+- 의견수렴 항목에는 받은 의견만 정리됨
+- 의견반영 항목에는 실제 반영 내용과 필요 시 차후 운영 방향만 정리됨
+- 두 항목이 서로 섞이지 않음
 - 의학적·심리적 판단 문장 없음
 - 단문·문어체·중립 톤 유지
 
@@ -138,11 +148,12 @@ function buildProgramFeedbackPrompt(beneficiary, programName, programDate, feedb
 
 ## # 입력 정보
 
-### ① 프로그램 평가
+### ① 기본 정보
 - 수급자명(보호자명): ${beneficiary}
 - 프로그램명: ${programName}
 - 프로그램 날짜: ${formattedDate}
-- 의견(진술): ${feedback}
+- 수급자(보호자) 의견수렴 내용: ${collectedOpinion}
+- 수급자(보호자) 의견반영 내용: ${reflectedOpinion}
 - 다양성 시드: ${randomSeed}
 
 ---
@@ -161,8 +172,8 @@ function buildProgramFeedbackPrompt(beneficiary, programName, programDate, feedb
 ### 문장 시작 패턴
 - ${sentenceStarters.join('\n- ')}
 
-### 평가 연결 표현
-- ${evaluationConnectors.join('\n- ')}
+### 반영 연결 표현
+- ${reflectionConnectors.join('\n- ')}
 
 ### 차후 계획 표현
 - ${futurePlanStarters.join('\n- ')}
@@ -171,67 +182,52 @@ function buildProgramFeedbackPrompt(beneficiary, programName, programDate, feedb
 
 ---
 
-## # 의견 유형별 반영 문장 생성 규칙
+## # 항목별 작성 규칙
 
-### 1) 난이도·수준 조절 의견
-- 반영 방식: 크기 확대, 속도 조절, 단계 완화, 난이도 조정 등
-- 평가 표현 예시: "보기 편하다", "수월하다", "하기 좋다", "적당하다", "편안하다"
+### 1) 수급자(보호자) 의견수렴
+- 입력된 의견수렴 내용을 바탕으로 작성한다.
+- 누가 어떤 의견을 제시했는지 드러나도록 하되, 과장하거나 새 사실을 만들지 않는다.
+- 1~2문장으로 간결하게 작성한다.
 
-**문장 패턴 예시 (매번 다르게 변형할 것)**
-- 예시 1: 어르신의 의견을 수렴하여 ~을 조정하여 프로그램을 진행하였음. 진행 후 어르신께서 ~하다고 말씀하심. 차후에도 난이도를 고려하여 프로그램을 운영할 예정임.
-- 예시 2: 프로그램 진행 중 제시된 의견에 따라 ~을 변경하였음. 이에 대해 어르신께서 ~다는 반응을 보이심. 향후에도 어르신의 수준을 반영하여 진행할 계획임.
-- 예시 3: 어르신께서 말씀하신 내용을 토대로 ~을 조절하여 운영하였음. 활동을 마친 뒤 어르신께서 ~다고 하심. 앞으로도 적절한 난이도를 유지할 예정임.
+**예시 패턴**
+- 수급자(보호자)가 프로그램 중 ~에 대한 의견을 제시하였음.
+- 보호자가 ~와 관련하여 프로그램 운영 시 고려가 필요하다는 의견을 전달하였음.
+- 수급자가 ~에 대해 불편함 또는 희망사항을 표현하였음.
 
----
+### 2) 수급자(보호자) 의견반영
+- 입력된 의견반영 내용을 바탕으로 작성한다.
+- 실제 반영한 조치가 의견수렴 내용과 직접 연결되도록 작성한다.
+- 차후 계획을 넣을 경우 '예정', '계획', '검토' 수준으로만 작성한다.
+- 1~2문장으로 간결하게 작성한다.
 
-### 2) 흥미·기호 관련 의견
-- 반영 방식: 음악, 주제, 활동 방식 변경, 소재 교체 등
-- 평가 표현 예시: "흥이 난다", "재미있다", "좋다", "즐겁다", "만족스럽다"
-
-**문장 패턴 예시 (매번 다르게 변형할 것)**
-- 예시 1: 어르신의 의견을 반영하여 ~로 변경하여 프로그램을 진행하였음. 진행 후 어르신께서 ~다고 말씀하심. 차후 유사 프로그램 운영 시에도 어르신의 기호를 반영할 계획임.
-- 예시 2: 어르신의 요구사항을 수렴하여 ~을 활용하여 진행하였음. 프로그램 종료 시 어르신께서 ~다는 의견을 주심. 다음 프로그램 운영 시에도 선호도를 고려할 예정임.
-- 예시 3: 의견수렴 과정에서 나온 제안을 고려하여 ~로 구성하였음. 프로그램 진행 결과 어르신께서 ~다고 하심. 향후에도 어르신의 취향을 반영하여 운영할 계획임.
-
----
-
-### 3) 시간·분량 관련 의견
-- 반영 방식: 활동 시간 조절, 휴식 추가, 속도 변경 등
-- 평가 표현 예시: "적절하다", "부담 없다", "편하다", "괜찮다"
-
-**문장 패턴 예시 (매번 다르게 변형할 것)**
-- 예시 1: 어르신의 의견을 반영하여 활동 시간을 조정하여 진행하였음. 이에 대해 어르신께서 ~다고 말씀하심. 차후에도 적절한 시간 배분을 유지할 예정임.
-- 예시 2: 프로그램 진행 중 제시된 의견에 따라 휴식 시간을 추가하였음. 활동을 마친 뒤 어르신께서 ~다는 반응을 보이심. 앞으로도 어르신의 체력을 고려하여 운영할 계획임.
-
----
-
-## # 「평가 및 차후 반영사항」 필수 구성 요소
-1. 의견을 수렴했음을 명시
-2. 실제 반영한 조치 내용
-3. 어르신의 평가(반응)
-4. 차후 운영 방향(계획 수준)
-
-※ 반응이 입력되지 않은 경우
-→ "특이사항 없이 프로그램을 마무리하였음" 사용
+**예시 패턴**
+- 해당 의견을 반영하여 ~로 조정하여 프로그램을 진행하였음.
+- 수렴된 의견을 바탕으로 ~을 변경하였으며, 차후에도 ~을 고려하여 운영할 계획임.
+- 프로그램 운영 시 ~을 적용하였고, 다음 진행 시에도 동일 사항을 검토할 예정임.
 
 ---
 
 ## # 자체 점검 체크리스트(최종 검수용)
 
-- [인과관계] 의견 내용과 반영 조치가 직접 연결되는가?
-- [주어 일치] 평가의 주체가 '어르신'으로 표현되었는가?
+- [항목 분리] 의견수렴과 의견반영이 각각 다른 항목에 작성되었는가?
+- [인과관계] 수렴된 의견과 반영 조치가 직접 연결되는가?
 - [객관성] 의학적 판단·효과 단정 표현이 없는가?
 - [다양성] 이전에 생성된 것과 다른 문장 구조와 표현을 사용했는가?
+- [사실성] 입력되지 않은 반응·성과·평가를 생성하지 않았는가?
 
 ---
 
 ## # 최종 출력 형식
 
-다음 형식으로 출력해주세요:
+아래 형식만 출력한다. 마크다운 코드블록, 불릿, 추가 설명은 출력하지 않는다.
 
-② 평가 및 차후 반영사항
+① 수급자(보호자) 의견수렴
 ${formattedDate}  ${programName}
-[의견 수렴 및 반영 내용을 여기에 작성]
+[의견수렴 내용을 행정기록체로 작성]
+
+② 수급자(보호자) 의견반영
+${formattedDate}  ${programName}
+[의견반영 내용을 행정기록체로 작성]
 
 ---
 
@@ -239,6 +235,7 @@ ${formattedDate}  ${programName}
 - '적극', '효과적', '개선됨' 등 평가처럼 보이는 형용사 사용 금지
 - 차후 반영은 반드시 '예정', '계획', '검토' 수준으로 작성
 - 입력되지 않은 반응·성과는 생성하지 않는다
+- 입력된 의견수렴 내용과 의견반영 내용의 의미를 임의로 바꾸지 않는다
 - 최종 출력 전 형식·톤·중립성 자체 점검 수행
 - **매번 다른 문장 구조와 표현을 사용하여 다양성 확보**
 
@@ -246,13 +243,15 @@ ${formattedDate}  ${programName}
 
 ## # 작성 지시
 
-위 지침과 다양한 표현 패턴을 활용하여 "${programName}" 프로그램의 평가 및 차후 반영사항을 작성해주세요.
+위 지침과 다양한 표현 패턴을 활용하여 "${programName}" 프로그램의
+「수급자(보호자) 의견수렴」과 「수급자(보호자) 의견반영」을 각각 작성해주세요.
 
 **중요:**
 - 제공된 여러 문장 패턴과 표현들을 참고하되, 매번 다른 조합과 구조로 작성할 것
 - 같은 프로그램이라도 문장 시작, 연결어, 표현 방식을 다양하게 변경할 것
 - 자연스러우면서도 이전 생성 결과와 구별되는 새로운 기록을 만들 것
-- 어르신의 의견을 분석하여 적절한 반영 방안과 평가, 차후 계획을 포함한 완성된 기록을 생성해주세요.`;
+- 출력에는 반드시 "① 수급자(보호자) 의견수렴"과 "② 수급자(보호자) 의견반영" 두 제목을 포함할 것
+- 각 항목은 입력된 내용을 바탕으로 사실 중심의 완성된 기록을 생성할 것`;
 }
 
 // 결과 표시
@@ -260,11 +259,43 @@ function displayProgramFeedbackResult(result) {
     const resultSection = document.getElementById('pf-result-section');
     const resultContent = document.getElementById('pf-result-content');
 
-    resultContent.innerHTML = result;
+    resultContent.textContent = result;
     resultSection.classList.remove('hidden');
 
     // 결과 섹션으로 스크롤
     resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetProgramFeedbackForm() {
+    const fieldIds = [
+        'pf-beneficiary',
+        'pf-program-name',
+        'pf-program-date',
+        'pf-collected-opinion',
+        'pf-reflected-opinion'
+    ];
+
+    fieldIds.forEach((fieldId) => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.value = '';
+        }
+    });
+
+    const resultSection = document.getElementById('pf-result-section');
+    const resultContent = document.getElementById('pf-result-content');
+
+    if (resultContent) {
+        resultContent.textContent = '';
+    }
+    if (resultSection) {
+        resultSection.classList.add('hidden');
+    }
+
+    const firstField = document.getElementById('pf-beneficiary');
+    if (firstField) {
+        firstField.focus();
+    }
 }
 
 // 결과 복사
@@ -273,7 +304,7 @@ function copyProgramFeedbackResult() {
     const textToCopy = resultContent.innerText;
 
     navigator.clipboard.writeText(textToCopy).then(() => {
-        alert('평가 및 차후 반영사항이 클립보드에 복사되었습니다.');
+        alert('의견수렴 및 의견반영이 클립보드에 복사되었습니다.');
     }).catch(err => {
         console.error('복사 실패:', err);
         alert('복사에 실패했습니다. 다시 시도해주세요.');
