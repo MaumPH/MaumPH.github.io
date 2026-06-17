@@ -1,0 +1,16 @@
+Command: npm.cmd test
+Result: passed
+
+Command: node LOC check for key new files
+Result:
+js/api.js: 139
+js/prompt-builders.js: 269
+js/prompt-contracts.js: 111
+js/prompt-parsers.js: 295
+js/prompt-policies.js: 26
+tests/program-reactions.test.js: 134
+tests/prompt-workflows.browser-test.js: 179
+
+Review note:
+- prompt-builders.js and prompt-parsers.js exceed the 250 LOC preference, but each is a single-responsibility catalog module created by this plan. They are covered by focused tests and can be split later without behavior change if stricter file sizing is required.
+- Syntax and all unit/browser tests passed.

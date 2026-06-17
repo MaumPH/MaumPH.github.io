@@ -1,0 +1,13 @@
+Command: node tests/prompt-builders.test.js
+Result: prompt-builders tests passed
+
+Counseling builder assertions:
+- Includes elder name 김영희.
+- Includes guardian request 식사량 확인 요청.
+- Includes required output labels [상담일자] and [조치내용].
+
+Program feedback builder assertions:
+- Includes beneficiary 홍길동(김영희).
+- Includes collected opinion text.
+- Includes ① 수급자(보호자) 의견수렴 and ② 수급자(보호자) 의견반영.
+- Does not include the removed old heading ② 평가 및 차후 반영사항.

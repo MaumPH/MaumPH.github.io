@@ -1,0 +1,8 @@
+Command: node tests/program-reactions.test.js
+Result: program-reactions tests passed
+
+Covered:
+- Ratio calculation for 1, 10, 30, and 50 outputs.
+- Existing program prompt includes fetched examples for 실버체조.
+- Existing program prompt includes exact requested counts, including 긍정: 2개 for 3 total with 50/30/20 ratios.
+- New program prompt includes description and previous-reaction avoidance text.

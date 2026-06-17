@@ -1,40 +1,134 @@
-/**
- * api.js
- * Gemini API 호출 관련 함수
- * - callGeminiAPI: API 호출 및 응답 처리
- * - callGeminiAPIWithImage: 이미지 포함 API 호출
- * - callGeminiAPIWithImages: 여러 이미지 포함 API 호출
- */
+const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-lite';
 
-// Gemini API 호출 함수
-async function callGeminiAPI(prompt, options = {}) {
-    if (!apiKey) {
-        alert('API 키를 먼저 설정해주세요.');
-        showPage('settings');
-        return null;
+function getGeminiApiKey() {
+    return typeof apiKey === 'string' ? apiKey : '';
+}
+
+function getGeminiModel(options = {}) {
+    if (options.model) {
+        return options.model;
     }
 
-    // 기본 temperature는 1.0, 옵션으로 조정 가능 (다양성 증가를 위해)
-    const temperature = options.temperature !== undefined ? options.temperature : 1.0;
+    if (typeof selectedModel === 'string' && selectedModel) {
+        return selectedModel;
+    }
 
-    const requestBody = {
-        contents: [{
-            parts: [{
-                text: prompt
-            }]
-        }]
-    };
+    return DEFAULT_GEMINI_MODEL;
+}
 
-    // temperature 설정 추가 (다양성 증가)
-    if (temperature !== 1.0) {
-        requestBody.generationConfig = {
-            temperature: temperature,
-            topK: 40,
-            topP: 0.95
+function ensureGeminiApiKey() {
+    const key = getGeminiApiKey();
+    if (key) {
+        return key;
+    }
+
+    alert('API 키를 먼저 설정해주세요.');
+    showPage('settings');
+    return null;
+}
+
+function buildGenerationConfig(options = {}) {
+    const config = options.generationConfig ? { ...options.generationConfig } : {};
+
+    if (options.temperature !== undefined && config.temperature === undefined) {
+        config.temperature = options.temperature;
+        if (config.topK === undefined) {
+            config.topK = 40;
+        }
+        if (config.topP === undefined) {
+            config.topP = 0.95;
+        }
+    }
+
+    if (options.responseFormat !== undefined) {
+        config.responseFormat = options.responseFormat;
+    }
+
+    if (options.responseSchema !== undefined) {
+        config.responseFormat = {
+            text: {
+                mimeType: 'application/json',
+                schema: options.responseSchema
+            }
         };
     }
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`, {
+    return Object.keys(config).length > 0 ? config : null;
+}
+
+function buildGeminiRequestBody(parts, options = {}) {
+    const requestBody = {
+        contents: [{ parts }]
+    };
+    const generationConfig = buildGenerationConfig(options);
+
+    if (generationConfig) {
+        requestBody.generationConfig = generationConfig;
+    }
+
+    return requestBody;
+}
+
+function parseImageData(imageData) {
+    const match = typeof imageData === 'string'
+        ? imageData.match(/^data:([^;]+);base64,(.+)$/)
+        : null;
+
+    return {
+        inline_data: {
+            mime_type: match ? match[1] : 'image/jpeg',
+            data: match ? match[2] : imageData
+        }
+    };
+}
+
+async function extractGeminiErrorMessage(response) {
+    try {
+        const errorData = await response.json();
+        return errorData.error?.message || response.statusText || `HTTP ${response.status}`;
+    } catch (error) {
+        return response.statusText || `HTTP ${response.status}`;
+    }
+}
+
+function extractGeminiText(data) {
+    const parts = data?.candidates?.[0]?.content?.parts || [];
+    const text = parts
+        .map(part => part.text || '')
+        .filter(Boolean)
+        .join('');
+
+    if (!text) {
+        throw new Error('API 응답에서 텍스트를 찾을 수 없습니다.');
+    }
+
+    return text;
+}
+
+function incrementGeminiUsage() {
+    if (typeof usageCount === 'number') {
+        usageCount += 1;
+    } else {
+        usageCount = 1;
+    }
+
+    localStorage.setItem('usage_count', usageCount.toString());
+
+    const usageCountElement = document.getElementById('usage-count');
+    if (usageCountElement) {
+        usageCountElement.textContent = usageCount;
+    }
+}
+
+async function requestGeminiContent(parts, options = {}) {
+    const key = ensureGeminiApiKey();
+    if (!key) {
+        return null;
+    }
+
+    const model = getGeminiModel(options);
+    const requestBody = buildGeminiRequestBody(parts, options);
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -43,114 +137,37 @@ async function callGeminiAPI(prompt, options = {}) {
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`API 호출 실패: ${errorData.error?.message || response.statusText}`);
+        const message = await extractGeminiErrorMessage(response);
+        throw new Error(`API 호출 실패: ${message}`);
     }
 
     const data = await response.json();
+    const text = extractGeminiText(data);
 
-    // Increment usage count
-    usageCount++;
-    localStorage.setItem('usage_count', usageCount.toString());
-    document.getElementById('usage-count').textContent = usageCount;
+    incrementGeminiUsage();
 
-    return data.candidates[0].content.parts[0].text;
+    return text;
 }
 
-// 이미지 포함 Gemini API 호출 함수
-async function callGeminiAPIWithImage(prompt, imageData) {
-    if (!apiKey) {
-        alert('API 키를 먼저 설정해주세요.');
-        showPage('settings');
-        return null;
-    }
-
-    // Remove data URL prefix to get base64 string
-    const base64Image = imageData.split(',')[1];
-
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            contents: [{
-                parts: [
-                    {
-                        text: prompt
-                    },
-                    {
-                        inline_data: {
-                            mime_type: 'image/jpeg',
-                            data: base64Image
-                        }
-                    }
-                ]
-            }]
-        })
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`API 호출 실패: ${errorData.error?.message || response.statusText}`);
-    }
-
-    const data = await response.json();
-
-    // Increment usage count
-    usageCount++;
-    localStorage.setItem('usage_count', usageCount.toString());
-    document.getElementById('usage-count').textContent = usageCount;
-
-    return data.candidates[0].content.parts[0].text;
+async function callGeminiAPI(prompt, options = {}) {
+    return requestGeminiContent([{ text: prompt }], options);
 }
 
-// 여러 이미지 포함 Gemini API 호출 함수
-async function callGeminiAPIWithImages(prompt, imageDataArray) {
-    if (!apiKey) {
-        alert('API 키를 먼저 설정해주세요.');
-        showPage('settings');
-        return null;
-    }
+async function callGeminiAPIWithImage(prompt, imageData, options = {}) {
+    return requestGeminiContent([
+        { text: prompt },
+        parseImageData(imageData)
+    ], options);
+}
 
-    // Build parts array with prompt and images
+async function callGeminiAPIWithImages(prompt, imageDataArray, options = {}) {
     const parts = [{ text: prompt }];
 
     for (const imageData of imageDataArray) {
         if (imageData) {
-            const base64Image = imageData.split(',')[1];
-            parts.push({
-                inline_data: {
-                    mime_type: 'image/jpeg',
-                    data: base64Image
-                }
-            });
+            parts.push(parseImageData(imageData));
         }
     }
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            contents: [{
-                parts: parts
-            }]
-        })
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`API 호출 실패: ${errorData.error?.message || response.statusText}`);
-    }
-
-    const data = await response.json();
-
-    // Increment usage count
-    usageCount++;
-    localStorage.setItem('usage_count', usageCount.toString());
-    document.getElementById('usage-count').textContent = usageCount;
-
-    return data.candidates[0].content.parts[0].text;
+    return requestGeminiContent(parts, options);
 }

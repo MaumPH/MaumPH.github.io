@@ -1,0 +1,6 @@
+Command: node tests/program-reactions.test.js
+Result: expected failure before reaction helpers existed.
+
+TypeError: context.calculateEmotionDistributionFromRatios is not a function
+
+This confirmed the RED state for pure ratio and output validation helpers.

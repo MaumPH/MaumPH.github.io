@@ -1,0 +1,7 @@
+Command: npm.cmd test
+Result: passed
+
+Summary:
+- npm run check:syntax checked 33 JavaScript files.
+- npm run test:unit passed all 9 unit test files.
+- npm run test:browser passed program-feedback browser test.

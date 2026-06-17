@@ -1,0 +1,7 @@
+Command: rg -n -- "program_patterns\.js|await loadProgramPatterns\(\)|program_patterns\.json" index.html js README.md
+
+Result:
+- index.html has no js/program_patterns.js script tag.
+- README documents program_patterns.json as the normal source and program_patterns.js as file:// fallback only.
+- js/monitoring.js loads patterns lazily before existing-program generation.
+- js/program-data.js retains file:// fallback support.

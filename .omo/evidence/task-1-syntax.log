@@ -1,0 +1,6 @@
+Command: npm run check:syntax
+Result: PASS
+
+Output summary:
+- checked 22 JavaScript files
+- included js/, scripts/, and tests/ targets

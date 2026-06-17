@@ -82,6 +82,10 @@ MaumPH.github.io/
     ├── auth.js                         # 사용자 인증 및 권한 관리
     ├── config.js                       # 전역 설정 및 상태 관리
     ├── api.js                          # Gemini API 호출 로직
+    ├── prompt-policies.js              # 공통 프롬프트 정책
+    ├── prompt-builders.js              # 프롬프트 빌더
+    ├── prompt-contracts.js             # AI 출력 계약
+    ├── prompt-parsers.js               # AI 출력 파서
     ├── ui.js                           # UI 공통 함수 및 네비게이션
     ├── program-data.js                 # 프로그램 데이터 관리
     ├── counseling.js                   # 상담일지 생성
@@ -118,6 +122,9 @@ MaumPH.github.io/
 - **vehicle-checker.js**: 엑셀 기반 차량 중복 검사
 - **elder-time-checker.js**: 엑셀 기반 시간 합산 및 분류
 - **program-data.js**: 프로그램 데이터 관리
+- **program_names.js**: 초기 화면용 경량 프로그램명 목록
+- **program_patterns.json**: GitHub Pages 정상 실행 시 사용하는 프로그램 반응 패턴 단일 원본
+- **program_patterns.js**: 웹 서버 없이 `file://`로 직접 열어 확인할 때만 쓰는 로컬 fallback이며, `index.html`에서 기본 로드하지 않음
 
 ## 보안 기능
 
@@ -170,6 +177,20 @@ MaumPH.github.io/
 - 각 메뉴에서 필요한 정보 입력
 - AI 생성 버튼 클릭
 - 결과 확인 및 복사
+
+## 로컬 테스트
+
+```bash
+npm ci
+npm run check:syntax
+npm run test:unit
+npm run test:browser
+npm test
+```
+
+- 자동 테스트는 Firebase와 Gemini를 mock 처리하므로 실제 Gemini API 키가 필요하지 않음
+- 브라우저 QA는 Playwright로 실행하며, 로컬 Chrome/Edge가 있으면 해당 브라우저를 사용함
+- `program_patterns.json`은 프로그램 제공일지에서 기존 프로그램을 선택하거나 반응 생성이 필요할 때 lazy-load됨
 
 ## 메뉴 구조
 

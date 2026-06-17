@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "active_work_id": "optimization-prompt-upgrade",
+  "works": {
+    "optimization-prompt-upgrade": {
+      "work_id": "optimization-prompt-upgrade",
+      "active_plan": ".omo/plans/optimization-prompt-upgrade.md",
+      "plan_name": "optimization-prompt-upgrade",
+      "session_ids": ["codex:current-thread"],
+      "status": "active",
+      "worktree_path": null
+    }
+  }
+}

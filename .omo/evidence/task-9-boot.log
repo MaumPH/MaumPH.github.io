@@ -1,0 +1,7 @@
+Command: npm.cmd run test:browser
+Result: program-feedback browser test passed
+
+Boot evidence:
+- index.html loaded in Playwright with Firebase/CDN/Gemini mocked.
+- Navigation to a prompt workflow completed without page errors.
+- No ReferenceError was reported by the browser test.

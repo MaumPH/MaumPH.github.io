@@ -1,0 +1,17 @@
+{
+  "featureId": "program-reactions",
+  "input": {
+    "programTitle": "실버체조",
+    "programDesc": "의자에 앉아 상지 스트레칭과 박수 동작을 진행함",
+    "count": 3,
+    "ratios": {
+      "positive": 34,
+      "neutral": 33,
+      "negative": 33
+    }
+  },
+  "expected": {
+    "sections": ["긍정", "중립", "소극/피로"]
+  },
+  "mockOutput": "[긍정]\n1. 박수 치며 밝은 표정 보이심\n\n[중립]\n1. 설명 듣고 천천히 따라하심\n\n[소극/피로]\n1. 중간에 쉬며 일부 동작 참여하심"
+}

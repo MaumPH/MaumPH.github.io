@@ -1,0 +1,6 @@
+Command: node tests/render-safety.test.js
+Result: expected failure before replacing program-plan innerHTML rendering.
+
+AssertionError: resultContent.textContent did not contain malicious HTML literally because the old renderer wrote to innerHTML.
+
+This confirmed the RED state for generated-output safe rendering.

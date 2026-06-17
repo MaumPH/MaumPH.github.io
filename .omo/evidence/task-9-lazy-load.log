@@ -1,0 +1,16 @@
+Command: rg -n -- "script src" index.html
+Result:
+- index.html loads js/program_names.js and js/program-data.js.
+- index.html does not load js/program_patterns.js.
+
+Command: Get-Item js\program_patterns.js, program_patterns.json, js\program_names.js, index.html
+Result:
+- js/program_patterns.js: 124577 bytes
+- program_patterns.json: 124429 bytes
+- js/program_names.js: 7254 bytes
+- index.html: 164259 bytes
+
+Command: rg -n -- "program_patterns\.json" index.html README.md js\main.js js\monitoring.js js\program-data.js
+Result:
+- program_patterns.json appears in program-data.js lazy fetch paths and README documentation.
+- It does not appear in index.html or main.js startup preload code.

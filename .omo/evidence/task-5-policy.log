@@ -1,0 +1,13 @@
+Command: node tests/prompt-builders.test.js
+Result: prompt-builders tests passed
+
+Covered:
+- PromptKit.policies exists with factuality, careTone, plainCareLanguage, and formatSelfCheck.
+- PromptKit.builders exists beside PromptKit.parsers and PromptKit.contracts.
+- Builders preserve user input for counseling, program feedback, case management, program plan, journal content, future plan, and newsletter workflows.
+- Builders preserve required output labels and contract field names.
+
+Command: rg -n -- "PromptKit\.builders|PromptKit\.policies|prompt-policies|prompt-builders" js index.html tests
+Result:
+- index.html loads js/prompt-policies.js and js/prompt-builders.js after contracts/parsers.
+- Core feature prompt paths call PromptKit.builders from counseling, grievance, program-feedback, program-editor, case-management, monitoring, and main.

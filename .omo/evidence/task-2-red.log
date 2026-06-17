@@ -1,0 +1,7 @@
+Command: node tests/prompt-inventory.test.js
+Result: expected failure before Task 2 artifacts existed.
+
+AssertionError [ERR_ASSERTION]: docs/prompt-inventory.md must exist
+at tests/prompt-inventory.test.js:48:8
+
+This confirmed the RED state for the inventory/manifest/fixture contract test.

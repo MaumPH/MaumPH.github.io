@@ -1,0 +1,9 @@
+Command: node tests/program-data.test.js
+Result: program-data tests passed
+
+Covered:
+- index.html does not eager-load js/program_patterns.js.
+- main.js no longer awaits loadProgramPatterns() during app startup.
+- populateProgramList() uses PROGRAM_NAMES_LIST without fetching program_patterns.json.
+- loadProgramPatterns() fetches ./program_patterns.json only when explicitly called.
+- getProgramPatterns("실버체조") returns fetched pattern data after lazy load.

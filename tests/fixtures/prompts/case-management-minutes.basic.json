@@ -1,0 +1,17 @@
+{
+  "featureId": "case-management-minutes",
+  "input": {
+    "recipientName": "김영희",
+    "age": "83",
+    "diagnosis": "치매",
+    "recentChanges": "최근 식사량이 줄고 낮 시간 피로감을 자주 표현함",
+    "attendees": "사회복지사, 간호조무사, 요양보호사",
+    "serviceType": "신체활동지원",
+    "serviceContent": "식사 관찰 및 휴식 시간 조정",
+    "reflectionReason": "최근 상태 변화를 반영하기 위함"
+  },
+  "expected": {
+    "sections": ["선정사유", "회의내용", "회의결과", "급여제공반영"]
+  },
+  "mockOutput": "[1]\n최근 식사량 감소와 피로감 표현이 확인되어 사례관리 대상으로 선정함.\n\n[2]\n사회복지사: 지금부터 사례관리를 시작하겠습니다.\n\n[3]\n식사 관찰을 강화하고 휴식 시간을 조정하기로 함.\n\n[4]\n회의 다음날부터 식사 관찰과 휴식 제공 방식을 급여에 반영함."
+}

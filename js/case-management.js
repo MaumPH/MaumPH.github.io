@@ -91,6 +91,21 @@ async function generateCaseManagement() {
 
 // 사례관리 프롬프트 생성 (상세 지침 포함)
 function buildCaseManagementPrompt(recipientName, age, diagnosis, recentChanges, year, quarter, attendees, guardianInfo, programParticipation, serviceType, serviceContent, reflectionReason) {
+    return PromptKit.builders.caseManagement({
+        recipientName,
+        age,
+        diagnosis,
+        recentChanges,
+        year,
+        quarter,
+        attendees,
+        guardianInfo,
+        programParticipation,
+        serviceType,
+        serviceContent,
+        reflectionReason
+    });
+
     const quarterText = quarter === '1' ? '1/2' : quarter === '2' ? '1/2' : quarter === '3' ? '3/4' : '3/4';
 
     return `# 사례관리 지침 - 평가 기준 완전 준수
@@ -155,37 +170,43 @@ ${programParticipation ? `- 프로그램 참여도: ${programParticipation}` : '
 
 // 사례관리 결과 표시
 function displayCaseManagementResult(result) {
-    const sections = result.split(/\[(\d+)\]/);
-
-    const selectionReason = sections[2] ? sections[2].trim() : '';
-    const meetingContent = sections[4] ? sections[4].trim() : '';
-    const meetingResult = sections[6] ? sections[6].trim() : '';
-    const serviceReflection = sections[8] ? sections[8].trim() : '';
-
     const resultContainer = document.getElementById('cm-result-content');
-    resultContainer.innerHTML = `
-        <div class="space-y-4">
-            <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">선정사유</h4>
-                <p class="text-sm text-gray-900 dark:text-white leading-relaxed whitespace-pre-wrap">${selectionReason}</p>
-            </div>
+    const parsed = PromptKit.parsers.caseManagementMinutes(result);
 
-            <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">회의내용</h4>
-                <p class="text-sm text-gray-900 dark:text-white leading-relaxed whitespace-pre-wrap">${meetingContent}</p>
-            </div>
+    if (!parsed.ok) {
+        resultContainer.textContent = PromptKit.formatParseError(parsed, result);
+        document.getElementById('cm-result-section').classList.remove('hidden');
+        document.getElementById('cm-result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+    }
 
-            <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">회의결과</h4>
-                <p class="text-sm text-gray-900 dark:text-white leading-relaxed whitespace-pre-wrap">${meetingResult}</p>
-            </div>
+    const selectionReason = parsed.data.selectionReason;
+    const meetingContent = parsed.data.meetingContent;
+    const meetingResult = parsed.data.meetingResult;
+    const serviceReflection = parsed.data.serviceReflection;
+    resultContainer.innerHTML = '';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'space-y-4';
+    [
+        ['선정사유', selectionReason, true],
+        ['회의내용', meetingContent, true],
+        ['회의결과', meetingResult, true],
+        ['급여제공반영', serviceReflection, false]
+    ].forEach(([title, content, bordered]) => {
+        const section = document.createElement('div');
+        const heading = document.createElement('h4');
+        const body = document.createElement('p');
 
-            <div>
-                <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">급여제공반영</h4>
-                <p class="text-sm text-gray-900 dark:text-white leading-relaxed whitespace-pre-wrap">${serviceReflection}</p>
-            </div>
-        </div>
-    `;
+        section.className = bordered ? 'border-b border-gray-200 dark:border-gray-700 pb-4' : '';
+        heading.className = 'text-sm font-bold text-gray-700 dark:text-gray-300 mb-2';
+        heading.textContent = title;
+        body.className = 'text-sm text-gray-900 dark:text-white leading-relaxed whitespace-pre-wrap';
+        body.textContent = content;
+        section.appendChild(heading);
+        section.appendChild(body);
+        wrapper.appendChild(section);
+    });
+    resultContainer.appendChild(wrapper);
 
     // Show result section
     document.getElementById('cm-result-section').classList.remove('hidden');

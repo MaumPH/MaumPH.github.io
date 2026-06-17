@@ -52,16 +52,30 @@ ${pdfText}
 [1]
 일반식 섭취는 양호함. 거부 없이 식사하며 저작과 연하 기능에 뚜렷한 어려움은 관찰되지 않음.`;
 
-        const result = await callGeminiAPI(prompt);
-
-        // Parse and fill fields
-        for (let i = 1; i <= 10; i++) {
-            const regex = new RegExp(`\\[${i}\\]\\s*([\\s\\S]*?)(?=\\[${i+1}\\]|$)`, 'm');
-            const match = result.match(regex);
-            if (match && match[1]) {
-                document.getElementById(`field-${i}`).value = match[1].trim();
-            }
+        const result = await callGeminiAPI(PromptKit.builders.pdfMentalStateAnalysis({ pdfText }), {
+            responseFormat: PromptKit.contracts.pdfMentalStateAnalysis.responseFormat
+        });
+        const parsed = PromptKit.parsers.pdfMentalStateAnalysis(result);
+        if (!parsed.ok) {
+            throw new Error(parsed.error);
         }
+
+        const fieldValues = [
+            parsed.data.mealNutrition,
+            parsed.data.walking,
+            parsed.data.physicalFunction,
+            parsed.data.toileting,
+            parsed.data.hygiene,
+            parsed.data.dailyLiving,
+            parsed.data.cognition,
+            parsed.data.behaviorSymptoms,
+            parsed.data.familyEnvironment,
+            parsed.data.overallOpinion
+        ];
+
+        fieldValues.forEach((value, index) => {
+            document.getElementById(`field-${index + 1}`).value = value;
+        });
 
         // Show verification icons
         document.querySelectorAll('.verified-icon').forEach(icon => {
@@ -154,15 +168,18 @@ ${userInput}
 
 위 예시처럼 [1], [2], [3], [4] 뒤에 바로 내용만 작성하세요.`;
 
-        const result = await callGeminiAPI(prompt);
+        const result = await callGeminiAPI(PromptKit.builders.programJournalContent({ userInput }), {
+            responseFormat: PromptKit.contracts.programJournalContent.responseFormat
+        });
+        const parsed = PromptKit.parsers.programJournalContent(result);
+        if (!parsed.ok) {
+            throw new Error(parsed.error);
+        }
 
-        // Parse results
-        const sections = result.split(/\[(\d+)\]/);
-
-        if (sections[2]) document.getElementById('program-need').value = sections[2].trim();
-        if (sections[4]) document.getElementById('program-method').value = sections[4].trim();
-        if (sections[6]) document.getElementById('program-reaction').value = sections[6].trim();
-        if (sections[8]) document.getElementById('program-monitoring').value = sections[8].trim();
+        document.getElementById('program-need').value = parsed.data.need;
+        document.getElementById('program-method').value = parsed.data.method;
+        document.getElementById('program-reaction').value = parsed.data.reaction;
+        document.getElementById('program-monitoring').value = parsed.data.caregiverMonitoring;
 
         // 다음 단계 버튼 활성화
         document.getElementById('step2-next').disabled = false;
@@ -243,14 +260,23 @@ ${mentalStateContent}
 
 위 예시처럼 [1], [2], [3] 뒤에 바로 내용만 작성하세요.`;
 
-        const result = await callGeminiAPI(prompt);
+        const result = await callGeminiAPI(PromptKit.builders.programJournalFuturePlan({
+            mentalStateContent,
+            needsContent,
+            methodContent,
+            reactionContent,
+            monitoringContent
+        }), {
+            responseFormat: PromptKit.contracts.programJournalFuturePlan.responseFormat
+        });
+        const parsed = PromptKit.parsers.programJournalFuturePlan(result);
+        if (!parsed.ok) {
+            throw new Error(parsed.error);
+        }
 
-        // Parse results
-        const sections = result.split(/\[(\d+)\]/);
-
-        if (sections[2]) document.getElementById('future-summary').value = sections[2].trim();
-        if (sections[4]) document.getElementById('future-caution').value = sections[4].trim();
-        if (sections[6]) document.getElementById('future-plan').value = sections[6].trim();
+        document.getElementById('future-summary').value = parsed.data.summary;
+        document.getElementById('future-caution').value = parsed.data.caution;
+        document.getElementById('future-plan').value = parsed.data.plan;
 
         hideLoadingOverlay();
         alert('✓ 향후 계획 및 기타사항이 생성되었습니다!');
@@ -284,19 +310,17 @@ function formatEmotionExpressions(emotionDict, maxItemsPerCategory = 10) {
 }
 
 // 감정 분포 계산
-function calculateEmotionDistribution(count) {
-    const positive = parseInt(document.getElementById('positive-ratio').value);
-    const neutral = parseInt(document.getElementById('neutral-ratio').value);
-    const negative = parseInt(document.getElementById('negative-ratio').value);
-
+function calculateEmotionDistributionFromRatios(count, ratios) {
+    const positive = Number(ratios.positive);
+    const neutral = Number(ratios.neutral);
+    const negative = Number(ratios.negative);
     const totalRatio = positive + neutral + negative;
 
     if (totalRatio !== 100) {
-        // Use default ratios if sum is not 100
         return {
             positive: Math.round(count * 0.5),
             neutral: Math.round(count * 0.3),
-            negative: Math.round(count * 0.2)
+            negative: count - Math.round(count * 0.5) - Math.round(count * 0.3)
         };
     }
 
@@ -305,6 +329,78 @@ function calculateEmotionDistribution(count) {
     const negativeCount = count - positiveCount - neutralCount;
 
     return { positive: positiveCount, neutral: neutralCount, negative: negativeCount };
+}
+
+function calculateEmotionDistribution(count) {
+    return calculateEmotionDistributionFromRatios(count, {
+        positive: parseInt(document.getElementById('positive-ratio').value),
+        neutral: parseInt(document.getElementById('neutral-ratio').value),
+        negative: parseInt(document.getElementById('negative-ratio').value)
+    });
+}
+
+function normalizeReactionLine(line) {
+    return String(line || '')
+        .replace(/^\s*\d+[\.)]\s*/, '')
+        .replace(/\s*\(\d+자\)\s*$/g, '')
+        .trim();
+}
+
+function dedupeReactionLines(lines) {
+    const seen = new Set();
+    const result = [];
+
+    for (const line of lines) {
+        const normalized = normalizeReactionLine(line);
+        if (normalized && !seen.has(normalized)) {
+            seen.add(normalized);
+            result.push(normalized);
+        }
+    }
+
+    return result;
+}
+
+function validateProgramReactionOutput(reactions, expectedDistribution, maxLength = 40) {
+    const errors = [];
+    const normalized = {
+        positive: dedupeReactionLines(reactions.positive || []),
+        neutral: dedupeReactionLines(reactions.neutral || []),
+        negative: dedupeReactionLines(reactions.negative || [])
+    };
+    const labels = {
+        positive: '긍정',
+        neutral: '중립',
+        negative: '소극/피로'
+    };
+    const all = [];
+    const seen = new Set();
+
+    for (const key of ['positive', 'neutral', 'negative']) {
+        if (normalized[key].length !== expectedDistribution[key]) {
+            errors.push(`${labels[key]} 개수 불일치: 예상 ${expectedDistribution[key]}개, 실제 ${normalized[key].length}개`);
+        }
+
+        for (const line of normalized[key]) {
+            if (line.length > maxLength) {
+                errors.push(`${labels[key]} 40자 초과: ${line}`);
+            }
+            all.push(line);
+        }
+    }
+
+    for (const line of all) {
+        if (seen.has(line)) {
+            errors.push(`중복 반응 발견: ${line}`);
+        }
+        seen.add(line);
+    }
+
+    return {
+        ok: errors.length === 0,
+        errors,
+        data: normalized
+    };
 }
 
 // 프로그램 예시 반응 가져오기
@@ -487,6 +583,25 @@ ${previousReactions}
 - "마지막에 다소 지치셨으나 만족스러워하심"`;
     }
 
+    return PromptKit.builders.programReactions({
+        programTitle,
+        programDesc,
+        count,
+        distribution,
+        isExisting,
+        randomSeed,
+        previousReactions,
+        examplesSection,
+        positiveEmotionsText,
+        neutralEmotionsText,
+        negativeEmotionsText,
+        cognitiveText,
+        physicalText,
+        socialText,
+        programBehaviorsText,
+        timeFlowText
+    });
+
     return `당신은 요양원 프로그램 운영 기록 작성 전문가입니다.
 
 # ${isExisting ? '기존' : '신규'} 프로그램 정보
@@ -629,51 +744,35 @@ ${timeFlowText}
 }
 
 // 감정 섹션 파싱
-function parseEmotionSections(generatedText) {
-    let positive = "";
-    let neutral = "";
-    let negative = "";
-
-    try {
-        const lines = generatedText.trim().split('\n');
-        let currentSection = null;
-
-        for (const line of lines) {
-            const trimmedLine = line.trim();
-            if (!trimmedLine) continue;
-
-            // Detect section headers
-            if (trimmedLine.includes('[긍정]') || (trimmedLine.includes('긍정') && trimmedLine.startsWith('['))) {
-                currentSection = 'positive';
-                continue;
-            } else if (trimmedLine.includes('[중립]') || (trimmedLine.includes('중립') && trimmedLine.startsWith('['))) {
-                currentSection = 'neutral';
-                continue;
-            } else if (trimmedLine.includes('[소극/피로]') || trimmedLine.includes('[소극') || (trimmedLine.includes('소극') && trimmedLine.startsWith('['))) {
-                currentSection = 'negative';
-                continue;
-            }
-
-            // Add content to current section (글자수 표시 제거)
-            // "(숫자자)" 형태의 글자수 표시를 제거
-            const cleanedLine = trimmedLine.replace(/\s*\(\d+자\)\s*$/g, '').trim();
-            if (currentSection === 'positive') {
-                positive += cleanedLine + '\n';
-            } else if (currentSection === 'neutral') {
-                neutral += cleanedLine + '\n';
-            } else if (currentSection === 'negative') {
-                negative += cleanedLine + '\n';
-            }
-        }
-    } catch (error) {
-        // If parsing fails, put all text in positive
-        positive = generatedText;
+function parseEmotionSections(generatedText, expectedDistribution = null) {
+    const parsed = PromptKit.parsers.programReactions(generatedText);
+    if (!parsed.ok) {
+        return parsed;
     }
 
+    const validation = expectedDistribution
+        ? validateProgramReactionOutput(parsed.data, expectedDistribution)
+        : { ok: true, data: parsed.data, errors: [] };
+    if (!validation.ok) {
+        return {
+            ok: false,
+            error: validation.errors.join('\n'),
+            missingSections: []
+        };
+    }
+
+    const formatLines = (lines) => lines.map((line, index) => {
+        const text = normalizeReactionLine(line);
+        return /^\d+[\.)]\s*/.test(text) ? text : `${index + 1}. ${text}`;
+    }).join('\n');
+
     return {
-        positive: positive.trim(),
-        neutral: neutral.trim(),
-        negative: negative.trim()
+        ok: true,
+        data: {
+            positive: formatLines(validation.data.positive),
+            neutral: formatLines(validation.data.neutral),
+            negative: formatLines(validation.data.negative)
+        }
     };
 }
 
@@ -717,6 +816,14 @@ async function generateProgramReactions() {
         }
         programTitle = selectElement.value;
         programDesc = ''; // Not needed for existing programs
+
+        if (typeof loadProgramPatterns === 'function' && !getProgramPatterns(programTitle)) {
+            const loaded = await loadProgramPatterns();
+            if (!loaded) {
+                alert('프로그램 패턴 데이터를 불러오지 못했습니다. 신규 프로그램으로 입력하거나 잠시 후 다시 시도해주세요.');
+                return;
+            }
+        }
     } else {
         programTitle = document.getElementById('new-program-title').value.trim();
         programDesc = document.getElementById('new-program-desc').value.trim();
@@ -736,6 +843,8 @@ async function generateProgramReactions() {
     const storageKey = `prev_reactions_${programTitle}`;
     const previousReactions = sessionStorage.getItem(storageKey);
 
+    const expectedDistribution = calculateEmotionDistribution(count);
+
     // Build prompt
     const prompt = buildAdvancedPrompt(programTitle, programDesc, count, isExisting, previousReactions);
 
@@ -744,21 +853,26 @@ async function generateProgramReactions() {
 
     try {
         // Temperature를 1.5로 높여서 더 창의적이고 다양한 결과 생성
-        const result = await callGeminiAPI(prompt, { temperature: 1.5 });
+        const result = await callGeminiAPI(prompt, {
+            temperature: 1.5,
+            responseFormat: PromptKit.contracts.programReactions.responseFormat
+        });
 
-        // Parse sections
-        const sections = parseEmotionSections(result);
+        const sections = parseEmotionSections(result, expectedDistribution);
+        if (!sections.ok) {
+            throw new Error(sections.error);
+        }
 
         // Display results
-        document.getElementById('positive-reactions').value = sections.positive;
-        document.getElementById('neutral-reactions').value = sections.neutral;
-        document.getElementById('negative-reactions').value = sections.negative;
+        document.getElementById('positive-reactions').value = sections.data.positive;
+        document.getElementById('neutral-reactions').value = sections.data.neutral;
+        document.getElementById('negative-reactions').value = sections.data.negative;
 
         // 생성 결과를 sessionStorage에 저장 (다음 생성 시 참조)
         const currentReactions = [
-            sections.positive.split('\n').slice(0, 3).join('\n'),  // 처음 3개만 저장
-            sections.neutral.split('\n').slice(0, 2).join('\n'),
-            sections.negative.split('\n').slice(0, 2).join('\n')
+            sections.data.positive.split('\n').slice(0, 3).join('\n'),
+            sections.data.neutral.split('\n').slice(0, 2).join('\n'),
+            sections.data.negative.split('\n').slice(0, 2).join('\n')
         ].join('\n');
         sessionStorage.setItem(storageKey, currentReactions);
 
@@ -941,6 +1055,13 @@ function updateSelectedProgramDisplay() {
         const selectedProgram = selectElement.value;
         nameSpan.textContent = selectedProgram;
         displayBox.classList.remove('hidden');
+        if (typeof loadProgramPatterns === 'function') {
+            loadProgramPatterns().then(() => {
+                if (typeof updatePatternIndicator === 'function') {
+                    updatePatternIndicator(selectedProgram);
+                }
+            });
+        }
     } else {
         displayBox.classList.add('hidden');
     }

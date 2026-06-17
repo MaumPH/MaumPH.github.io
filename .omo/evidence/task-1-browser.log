@@ -1,0 +1,6 @@
+Command: npm run test:browser
+Result: PASS
+
+Output summary:
+- program-feedback browser test passed
+- mocked Gemini, Firebase, Tailwind, PDF.js, XLSX, and fonts

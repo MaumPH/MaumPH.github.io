@@ -1,0 +1,34 @@
+Command: rg -n -- "generate[A-Z].*\\(" js
+
+js\case-management.js:37:async function generateCaseManagement() {
+js\counseling.js:11:async function generateCounselingLog() {
+js\main.js:154:async function generateNewsletter() {
+js\grievance.js:11:async function generateGrievanceReport() {
+js\monitoring.js:95:async function regenerateFields() {
+js\monitoring.js:102:async function generateProgramContent() {
+js\monitoring.js:180:async function generateFuturePlan() {
+js\monitoring.js:681:async function generateProgramReactions() {
+js\program-editor.js:2:async function generateProgramPlan() {
+js\program-feedback.js:2:async function generateProgramFeedback() {
+
+Command: rg -n -- "callGemini|generateContent" js
+
+js\api.js:10:async function callGeminiAPI(prompt, options = {}) {
+js\api.js:37:fetch(...generateContent...)
+js\api.js:61:async function callGeminiAPIWithImage(prompt, imageData) {
+js\api.js:71:fetch(...generateContent...)
+js\api.js:109:async function callGeminiAPIWithImages(prompt, imageDataArray) {
+js\api.js:131:fetch(...generateContent...)
+js\case-management.js:80:callGeminiAPI(prompt)
+js\counseling.js:53:direct generateContent fetch
+js\grievance.js:67:direct generateContent fetch
+js\monitoring.js:55:callGeminiAPI(prompt)
+js\monitoring.js:157:callGeminiAPI(prompt)
+js\monitoring.js:246:callGeminiAPI(prompt)
+js\monitoring.js:747:callGeminiAPI(prompt, { temperature: 1.5 })
+js\program-editor.js:33:callGeminiAPI(prompt)
+js\program-feedback.js:51:direct generateContent fetch
+js\main.js:215:callGeminiAPIWithImage(prompt, image)
+js\main.js:309:callGeminiAPIWithImages(contentPrompt, newsletterImages)
+
+Result: all generation functions and Gemini workflows are represented by rows in docs/prompt-inventory.md and features in tests/fixtures/prompts/manifest.json.

@@ -1,0 +1,16 @@
+{
+  "featureId": "counseling-log",
+  "input": {
+    "date": "2026-06-17",
+    "method": "전화",
+    "elderName": "김영희",
+    "guardianRelation": "딸",
+    "guardianRequest": "최근 식사량을 확인해 달라고 요청함",
+    "centerRequest": "가정에서도 간식 섭취량을 확인해 달라고 안내함",
+    "writingStyle": "mixed"
+  },
+  "expected": {
+    "sections": ["상담일자", "상담방식", "상담내용", "조치내용"]
+  },
+  "mockOutput": "[상담일자]\n2026-06-17\n\n[상담방식]\n전화\n\n[상담내용]\n보호자가 최근 식사량 확인을 요청하여 센터 관찰 내용을 안내함.\n\n[조치내용]\n식사량을 지속 관찰하고 가정에서도 간식 섭취량을 확인하도록 안내함."
+}

@@ -1,0 +1,6 @@
+Command: npm run test:unit
+Result: PASS
+
+Output summary:
+- check-js-syntax tests passed
+- program-feedback tests passed

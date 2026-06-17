@@ -1,0 +1,10 @@
+Command: npm.cmd run test:browser
+Result:
+program-feedback browser test passed
+prompt-workflows browser test passed
+
+Coverage:
+- Program feedback mocked Gemini success.
+- Reset behavior.
+- Navigation smoke for 업무수행일지, 프로그램 제공일지, 프로그램 계획안, 의견수렴, 사례관리, 상담일지, 고충처리.
+- Browser test recorded no page errors.

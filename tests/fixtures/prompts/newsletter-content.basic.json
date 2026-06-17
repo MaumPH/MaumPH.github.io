@@ -1,0 +1,12 @@
+{
+  "featureId": "newsletter-content",
+  "input": {
+    "titles": ["대추 다듬기", "공원 산책", "생신 잔치"],
+    "descriptions": ["손질 활동", "산책 활동", "축하 활동"],
+    "imageCount": 3
+  },
+  "expected": {
+    "sections": ["activity1", "activity2", "activity3"]
+  },
+  "mockOutput": "'대추 다듬기'\n\n어르신들이 대추를 하나씩 살펴보며 손질하셨어요~\n\n---\n\n'공원 산책'\n\n가벼운 발걸음으로 공원을 둘러보셨어요~^^\n\n---\n\n'생신 잔치'\n\n함께 축하 노래를 부르며 즐거운 시간을 보냈어요~!"
+}

@@ -50,33 +50,10 @@ async function generateCounselingLog() {
     showLoadingOverlay('AI가 상담일지를 생성하고 있습니다...');
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: prompt }]
-                }]
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`API 호출 실패: ${errorData.error?.message || response.statusText}`);
-        }
-
-        const data = await response.json();
-        const result = data.candidates[0].content.parts[0].text.trim();
+        const result = (await callGeminiAPI(prompt)).trim();
 
         // Display result
         displayCounselingLogResult(result);
-
-        // Increment usage count
-        usageCount++;
-        localStorage.setItem('usage_count', usageCount.toString());
-        document.getElementById('usage-count').textContent = usageCount;
 
         hideLoadingOverlay();
         alert('✓ 상담일지가 생성되었습니다!');
@@ -89,6 +66,16 @@ async function generateCounselingLog() {
 
 // 상담일지 프롬프트 생성
 function buildCounselingLogPrompt(date, method, elderName, guardianRelation, guardianRequest, centerRequest, writingStyle) {
+    return PromptKit.builders.counselingLog({
+        date,
+        method,
+        elderName,
+        guardianRelation,
+        guardianRequest,
+        centerRequest,
+        writingStyle
+    });
+
     let styleInstruction = '';
     let outputFormat = '';
 
@@ -187,6 +174,14 @@ ${outputFormat}
 // 상담일지 결과 표시
 function displayCounselingLogResult(result) {
     const resultDiv = document.getElementById('cl-result-content');
+    const parsed = PromptKit.parsers.counselingLog(result);
+
+    if (!parsed.ok) {
+        resultDiv.textContent = PromptKit.formatParseError(parsed, result);
+        document.getElementById('cl-result-section').classList.remove('hidden');
+        document.getElementById('cl-result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+    }
 
     // Clean markdown if present
     const cleanText = (text) => {
@@ -199,28 +194,28 @@ function displayCounselingLogResult(result) {
             .trim();
     };
 
-    // Split by sections
-    const sections = result.split(/\[(.+?)\]/).filter(s => s.trim());
+    resultDiv.innerHTML = '';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'space-y-4';
+    [
+        ['상담일자', parsed.data.date],
+        ['상담방식', parsed.data.method],
+        ['상담내용', parsed.data.content],
+        ['조치내용', parsed.data.action]
+    ].forEach(([title, content]) => {
+        const section = document.createElement('div');
+        const heading = document.createElement('h4');
+        const body = document.createElement('div');
 
-    let html = '<div class="space-y-4">';
-
-    // Parse sections
-    for (let i = 0; i < sections.length; i += 2) {
-        if (i + 1 < sections.length) {
-            const title = cleanText(sections[i]);
-            const content = cleanText(sections[i + 1]);
-
-            html += `
-                <div>
-                    <h4 class="font-bold text-primary mb-2">[${title}]</h4>
-                    <div class="whitespace-pre-wrap pl-4">${content}</div>
-                </div>
-            `;
-        }
-    }
-
-    html += '</div>';
-    resultDiv.innerHTML = html;
+        heading.className = 'font-bold text-primary mb-2';
+        heading.textContent = `[${title}]`;
+        body.className = 'whitespace-pre-wrap pl-4';
+        body.textContent = cleanText(content);
+        section.appendChild(heading);
+        section.appendChild(body);
+        wrapper.appendChild(section);
+    });
+    resultDiv.appendChild(wrapper);
 
     // Show result section
     document.getElementById('cl-result-section').classList.remove('hidden');

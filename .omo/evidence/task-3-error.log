@@ -1,0 +1,11 @@
+Command: node tests/api-client.test.js
+
+Covered cases:
+- responseFormat.text.mimeType/schema pass-through in generationConfig.
+- usage_count increments exactly once after success.
+- single-image data URL preserves MIME type.
+- multi-image data URL preserves MIME type and skips null images.
+- mocked API error `{error:{message:"quota exceeded"}}` rejects with `quota exceeded`.
+- missing API key returns null without fetch and routes to settings.
+
+Result: api-client tests passed

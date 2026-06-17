@@ -29,9 +29,11 @@ main*.py
 # 빌드 파일
 *.pyc
 __pycache__/
+node_modules/
 
 # 로그 파일
 *.log
+!.omo/evidence/*.log
 
 # 임시 파일
 *.tmp

@@ -1,0 +1,8 @@
+Command: node tests/program-reactions.test.js
+Result: program-reactions tests passed
+
+Covered:
+- Duplicate reaction lines are normalized and detected.
+- Count mismatch reports expected and actual counts.
+- Lines over 40 characters are reported.
+- parseEmotionSections returns ok=false when structured JSON output has a count mismatch.

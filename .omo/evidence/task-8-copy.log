@@ -1,0 +1,6 @@
+Command: npm.cmd run test:browser
+Result: program-feedback browser test passed
+
+Copy behavior evidence:
+- Existing program-feedback copy path still reads result text from text content.
+- Unit/browser tests passed after switching generated renderers to textContent/DOM nodes.

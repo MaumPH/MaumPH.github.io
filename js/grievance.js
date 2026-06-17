@@ -64,33 +64,10 @@ async function generateGrievanceReport() {
     showLoadingOverlay('AI가 고충처리 기록서를 생성하고 있습니다...');
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: prompt }]
-                }]
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`API 호출 실패: ${errorData.error?.message || response.statusText}`);
-        }
-
-        const data = await response.json();
-        const result = data.candidates[0].content.parts[0].text.trim();
+        const result = (await callGeminiAPI(prompt)).trim();
 
         // Display result
         displayGrievanceResult(result);
-
-        // Increment usage count
-        usageCount++;
-        localStorage.setItem('usage_count', usageCount.toString());
-        document.getElementById('usage-count').textContent = usageCount;
 
         hideLoadingOverlay();
         alert('✓ 고충처리 기록서가 생성되었습니다!');
@@ -103,6 +80,8 @@ async function generateGrievanceReport() {
 
 // 고충처리 프롬프트 생성
 function buildGrievancePrompt(data) {
+    return PromptKit.builders.grievanceReport(data);
+
     const today = new Date().toISOString().split('T')[0].replace(/-/g, '.');
 
     return `# 직원 고충처리 지침 ver.3
@@ -304,30 +283,16 @@ A직원에게 근무표 조정 내용과 역할 분담 개선사항을 대면으
 // 고충처리 결과 표시
 function displayGrievanceResult(result) {
     const resultDiv = document.getElementById('gr-result-content');
+    const parsed = PromptKit.parsers.grievanceReport(result);
 
-    // Convert markdown to HTML
-    const convertMarkdown = (text) => {
-        return text
-            // Headers
-            .replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold text-gray-900 dark:text-white mb-3">$1</h1>')
-            .replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold text-gray-900 dark:text-white mb-2 mt-4">$1</h2>')
-            .replace(/^### (.+)$/gm, '<h3 class="text-base font-bold text-primary mb-2 mt-3">$1</h3>')
-            // Horizontal rules
-            .replace(/^---$/gm, '<hr class="my-4 border-gray-300 dark:border-gray-600">')
-            // Bold
-            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-            // Lists
-            .replace(/^\* (.+)$/gm, '<li class="ml-4">$1</li>')
-            // Paragraphs
-            .replace(/\n\n/g, '</p><p class="mb-2">')
-            .trim();
-    };
+    if (!parsed.ok) {
+        resultDiv.textContent = PromptKit.formatParseError(parsed, result);
+        document.getElementById('gr-result-section').classList.remove('hidden');
+        document.getElementById('gr-result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+    }
 
-    let html = '<div class="space-y-2">';
-    html += '<p class="mb-2">' + convertMarkdown(result) + '</p>';
-    html += '</div>';
-
-    resultDiv.innerHTML = html;
+    resultDiv.textContent = result;
 
     // Show result section
     document.getElementById('gr-result-section').classList.remove('hidden');

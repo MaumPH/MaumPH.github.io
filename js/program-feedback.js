@@ -48,29 +48,7 @@ async function generateProgramFeedback() {
     showLoadingOverlay('AI가 의견수렴 및 의견반영 결과를 생성하고 있습니다...');
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: prompt }]
-                }]
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error?.message || 'API 호출 실패');
-        }
-
-        const data = await response.json();
-        const result = data.candidates[0].content.parts[0].text;
-
-        // 사용 횟수 증가
-        usageCount++;
-        localStorage.setItem('usage_count', usageCount.toString());
+        const result = await callGeminiAPI(prompt);
 
         displayProgramFeedbackResult(result);
         hideLoadingOverlay();
@@ -83,6 +61,14 @@ async function generateProgramFeedback() {
 
 // 프롬프트 생성
 function buildProgramFeedbackPrompt(beneficiary, programName, programDate, collectedOpinion, reflectedOpinion) {
+    return PromptKit.builders.programFeedback({
+        beneficiary,
+        programName,
+        programDate,
+        collectedOpinion,
+        reflectedOpinion
+    });
+
     // 날짜 포맷팅 (YYYY.MM.DD)
     const dateObj = new Date(programDate);
     const formattedDate = `${dateObj.getFullYear()}.${String(dateObj.getMonth() + 1).padStart(2, '0')}.${String(dateObj.getDate()).padStart(2, '0')}`;
@@ -258,8 +244,9 @@ ${formattedDate}  ${programName}
 function displayProgramFeedbackResult(result) {
     const resultSection = document.getElementById('pf-result-section');
     const resultContent = document.getElementById('pf-result-content');
+    const parsed = PromptKit.parsers.programFeedback(result);
 
-    resultContent.textContent = result;
+    resultContent.textContent = parsed.ok ? result : PromptKit.formatParseError(parsed, result);
     resultSection.classList.remove('hidden');
 
     // 결과 섹션으로 스크롤

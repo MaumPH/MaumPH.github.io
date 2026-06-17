@@ -1,0 +1,7 @@
+Command: rg -n -- "npm run check:syntax|npm run test:unit|npm run test:browser|실제 Gemini API 키가 필요하지 않음|program_patterns.json" README.md
+Result:
+- README includes npm run check:syntax.
+- README includes npm run test:unit.
+- README includes npm run test:browser.
+- README states automated tests mock Firebase/Gemini and do not require a real Gemini API key.
+- README documents program_patterns.json lazy loading.

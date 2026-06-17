@@ -1,0 +1,14 @@
+{
+  "name": "maumph-work-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "check:syntax": "node scripts/check-js-syntax.js",
+    "test:unit": "node tests/check-js-syntax.test.js && node tests/program-feedback.test.js && node tests/prompt-inventory.test.js && node tests/api-client.test.js && node tests/prompt-parsers.test.js && node tests/prompt-ui-fallback.test.js && node tests/prompt-builders.test.js && node tests/program-data.test.js && node tests/program-reactions.test.js && node tests/render-safety.test.js",
+    "test:browser": "node tests/program-feedback.browser-test.js && node tests/prompt-workflows.browser-test.js",
+    "test": "npm run check:syntax && npm run test:unit && npm run test:browser"
+  },
+  "devDependencies": {
+    "playwright": "^1.57.0"
+  }
+}

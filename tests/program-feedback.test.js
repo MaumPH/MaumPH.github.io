@@ -4,11 +4,20 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const sourcePath = path.join(__dirname, '..', 'js', 'program-feedback.js');
-const source = fs.readFileSync(sourcePath, 'utf8');
-const context = { console, Date };
+const context = { console, Date, window: {}, SYSTEM_PROMPT: '공통 시스템 프롬프트' };
 
 vm.createContext(context);
-vm.runInContext(source, context, { filename: sourcePath });
+for (const file of [
+    'prompt-contracts.js',
+    'prompt-parsers.js',
+    'prompt-policies.js',
+    'prompt-builders.js',
+    'program-feedback.js'
+]) {
+    const filePath = path.join(__dirname, '..', 'js', file);
+    vm.runInContext(fs.readFileSync(filePath, 'utf8'), context, { filename: filePath });
+}
+context.PromptKit = context.window.PromptKit;
 
 const prompt = context.buildProgramFeedbackPrompt(
     '홍길동(김영희)',

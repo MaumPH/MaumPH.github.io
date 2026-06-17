@@ -1,0 +1,8 @@
+Command: node tests/api-client.test.js
+Result: expected failure before api.js supported REST responseFormat.
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+actual: undefined
+expected: generationConfig with temperature/topK/topP and responseFormat.text.mimeType/schema
+
+This confirmed the RED state for the common Gemini REST client request-builder contract.

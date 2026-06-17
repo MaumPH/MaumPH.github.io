@@ -1,0 +1,15 @@
+Command: node tests/prompt-parsers.test.js
+Result: prompt-parsers tests passed
+
+Covered:
+- Every parser rejects unrelated output as missing required sections.
+- Every parser rejects empty output.
+- Every parser rejects malformed `{bad json` output.
+
+Command: node tests/prompt-ui-fallback.test.js
+Result: prompt-ui-fallback tests passed
+
+Covered:
+- Malformed program feedback output renders a recoverable fallback message.
+- Fallback text contains "결과 형식이 올바르지 않습니다" and "필수 섹션 누락".
+- Result section becomes visible and scroll target is reached.

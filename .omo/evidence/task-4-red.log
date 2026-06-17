@@ -1,0 +1,6 @@
+Command: node tests/prompt-parsers.test.js
+Result: expected failure before parser modules existed.
+
+Error: ENOENT: no such file or directory, open 'js\prompt-contracts.js'
+
+This confirmed the RED state for the PromptKit contracts/parsers task.

@@ -1,0 +1,12 @@
+Command: node tests/prompt-inventory.test.js
+Result: prompt-inventory tests passed
+
+Command: npm.cmd run test:unit
+Result:
+check-js-syntax tests passed
+program-feedback tests passed
+prompt-inventory tests passed
+
+Command: npm.cmd run check:syntax
+Result:
+checked 23 JavaScript files

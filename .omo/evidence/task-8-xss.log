@@ -1,0 +1,13 @@
+Command: node tests/render-safety.test.js
+Result: render-safety tests passed
+
+Covered:
+- Malicious `<img onerror>`, `<script>`, `<b>`, and `<iframe>` strings are displayed literally for program-plan output.
+- Program-plan renderer leaves innerHTML empty for generated content.
+- Result section still becomes visible.
+
+Command: rg -n -- "resultContent\.innerHTML|resultDiv\.innerHTML|resultContainer\.innerHTML|escapeHtml" js admin.html
+Result:
+- AI output renderers use textContent or DOM node textContent.
+- Remaining result innerHTML assignments are empty-string clearing operations.
+- admin.html user display names/emails are escaped through escapeHtml().

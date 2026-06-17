@@ -1,0 +1,10 @@
+Command: npm.cmd run test:browser
+Result:
+program-feedback browser test passed
+prompt-workflows browser test passed
+
+Covered:
+- Mocked end-to-end program feedback success.
+- Form reset behavior.
+- Browser navigation smoke for 업무수행일지, 프로그램 제공일지, 상담일지, 고충처리, 프로그램 계획안, 의견수렴, 사례관리.
+- Program list appears from lightweight names without loading duplicate pattern payload at boot.

@@ -1,0 +1,16 @@
+Command: npm.cmd run test:unit
+Result:
+check-js-syntax tests passed
+program-feedback tests passed
+prompt-inventory tests passed
+api-client tests passed
+prompt-parsers tests passed
+prompt-ui-fallback tests passed
+
+Command: npm.cmd run check:syntax
+Result:
+checked 28 JavaScript files
+
+Command: npm.cmd run test:browser
+Result:
+program-feedback browser test passed

@@ -1,0 +1,16 @@
+Command: Get-ChildItem -LiteralPath tests\fixtures\prompts | Sort-Object Name | Select-Object Name, Length
+
+case-management-minutes.basic.json        953
+counseling-log.basic.json                 755
+grievance-report.basic.json              1246
+manifest.json                           10658
+newsletter-content.basic.json             593
+newsletter-image-titles.basic.json        341
+pdf-mental-state-analysis.basic.json     1221
+program-feedback.basic.json               819
+program-journal-content.basic.json        718
+program-journal-future-plan.basic.json    733
+program-plan.basic.json                   659
+program-reactions.basic.json              549
+
+Result: 11 feature fixtures plus manifest exist, covering every manifest feature.

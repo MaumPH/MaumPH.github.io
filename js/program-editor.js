@@ -43,6 +43,12 @@ async function generateProgramPlan() {
 
 // 프롬프트 생성
 function buildProgramPlanPrompt(programName, programType, programContent) {
+    return PromptKit.builders.programPlan({
+        programName,
+        programType,
+        programContent
+    });
+
     return `# 역할
 너는 주야간보호센터 프로그램 계획안을 작성·보완하는 실무 전용 작성기다.
 입력된 정보만을 바탕으로 내부 시스템에 바로 등록 가능한 프로그램 계획안을 생성한다.
@@ -141,8 +147,9 @@ ${programContent}
 function displayProgramPlanResult(result) {
     const resultSection = document.getElementById('pe-result-section');
     const resultContent = document.getElementById('pe-result-content');
+    const parsed = PromptKit.parsers.programPlan(result);
 
-    resultContent.innerHTML = result;
+    resultContent.textContent = parsed.ok ? result : PromptKit.formatParseError(parsed, result);
     resultSection.classList.remove('hidden');
 
     // 결과 섹션으로 스크롤

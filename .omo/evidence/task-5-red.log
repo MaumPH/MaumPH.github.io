@@ -1,0 +1,6 @@
+Command: node tests/prompt-builders.test.js
+Result: expected failure before prompt policy/builder modules existed.
+
+Error: ENOENT: no such file or directory, open 'js\prompt-policies.js'
+
+This confirmed the RED state for the prompt catalog extraction task.

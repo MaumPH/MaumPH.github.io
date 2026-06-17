@@ -1,0 +1,11 @@
+{
+  "featureId": "newsletter-image-titles",
+  "input": {
+    "descriptions": ["대추를 손질하는 사진", "공원 산책 사진", "생신 축하 사진"],
+    "imageCount": 3
+  },
+  "expected": {
+    "sections": ["imageTitle1", "imageTitle2", "imageTitle3"]
+  },
+  "mockOutput": ["대추 다듬기", "공원 산책", "생신 잔치"]
+}

@@ -1,0 +1,9 @@
+Command: node tests/prompt-parsers.test.js
+Result: prompt-parsers tests passed
+
+Covered:
+- Every manifest feature has a parser and contract.
+- Every fixture valid output parses into a data object.
+- Every parser accepts extra markdown/code-fence wrapping around the valid fixture.
+- Structured JSON parses for pdfMentalStateAnalysis.
+- Structured JSON parses for programReactions.

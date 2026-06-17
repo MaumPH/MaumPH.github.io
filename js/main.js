@@ -26,23 +26,6 @@ window.addEventListener('load', async () => {
     // 서비스 체크박스 설정
     setupServiceCheckboxes();
 
-    // 프로그램 패턴 데이터 로드 (비동기)
-    if (typeof loadProgramPatterns === 'function') {
-        const loaded = await loadProgramPatterns();
-        if (loaded) {
-            console.log('✓ 프로그램 패턴 데이터 로드 완료');
-            if (typeof setupProgramAutocomplete === 'function') {
-                setupProgramAutocomplete();
-                console.log('✓ 프로그램 자동완성 설정 완료');
-            }
-        } else {
-            console.warn('⚠️ 프로그램 패턴 데이터 로드 실패');
-        }
-    }
-
-    // 프로그램 모드 초기화는 페이지 전환 시에만 실행 (showPage에서 처리)
-    // 초기 로딩 시에는 불필요
-
     // 소식지 드래그 앤 드롭 설정
     setupNewsletterDragDrop();
 
@@ -212,7 +195,9 @@ async function generateNewsletter() {
 
 **제목만 출력하세요. 설명이나 추가 문구는 필요 없습니다.**`;
 
-            return callGeminiAPIWithImage(prompt, image);
+            return callGeminiAPIWithImage(PromptKit.builders.newsletterImageTitle({
+                description: descriptions[i]
+            }), image);
         });
 
         const newsletterTitles = (await Promise.all(titlePromises)).map(title => title.trim());
@@ -306,10 +291,15 @@ async function generateNewsletter() {
 이제 제공된 3장의 사진을 보고 위의 **문체 DNA를 정확히 지키며** 소식지를 작성해주세요!`;
 
         // Generate newsletter content with images
-        newsletterContent = await callGeminiAPIWithImages(contentPrompt, newsletterImages);
+        newsletterContent = await callGeminiAPIWithImages(PromptKit.builders.newsletterContent({
+            titles: newsletterTitles,
+            descriptions
+        }), newsletterImages);
 
-        // Display result
-        document.getElementById('nl-result-content').textContent = newsletterContent;
+        const parsedNewsletter = PromptKit.parsers.newsletterContent(newsletterContent);
+        document.getElementById('nl-result-content').textContent = parsedNewsletter.ok
+            ? newsletterContent
+            : PromptKit.formatParseError(parsedNewsletter, newsletterContent);
         document.getElementById('nl-result-section').classList.remove('hidden');
 
         hideLoadingOverlay();

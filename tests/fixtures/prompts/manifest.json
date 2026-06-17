@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-06-17",
+  "modelDefault": "gemini-3.1-flash-lite",
+  "features": [
+    {
+      "id": "pdf-mental-state-analysis",
+      "name": "업무수행일지 PDF 심신상태 분석",
+      "inputs": ["pdfText"],
+      "promptBuilder": "js/monitoring.js:analyzePDF inline prompt",
+      "modelOptions": {
+        "requestType": "text",
+        "model": "selectedModel",
+        "temperature": 1
+      },
+      "expectedSections": ["식사 및 영양상태", "보행", "신체기능", "배뇨·배변기능", "위생관리", "일상생활수행", "인지기능", "행동증상", "가족 및 생활환경", "기타 및 종합의견"],
+      "contract": "pdfMentalStateAnalysis",
+      "parser": "js/monitoring.js inline [n] regex parser; target PromptKit.parsers.pdfMentalStateAnalysis",
+      "renderer": "field-1 through field-10 textarea values plus verified icons",
+      "copyPath": "manual journal completion after generated fields are reviewed",
+      "fixtures": ["pdf-mental-state-analysis.basic.json"],
+      "sourceReferences": ["js/monitoring.js:11", "js/monitoring.js:55", "js/monitoring.js:95"],
+      "aliases": ["regenerateFields"]
+    },
+    {
+      "id": "program-journal-content",
+      "name": "프로그램 제공계획 및 제공내용 생성",
+      "inputs": ["user-input"],
+      "promptBuilder": "js/monitoring.js:generateProgramContent inline prompt",
+      "modelOptions": {
+        "requestType": "text",
+        "model": "selectedModel",
+        "temperature": 1
+      },
+      "expectedSections": ["필요내용", "제공방법", "어르신 반응 및 특이사항", "요양보호사 모니터링"],
+      "contract": "programJournalContent",
+      "parser": "js/monitoring.js split(/\\[(\\d+)\\]/); target PromptKit.parsers.programJournalContent",
+      "renderer": "program-need, program-method, program-reaction, program-monitoring inputs",
+      "copyPath": "included in 업무수행일지 saved fields",
+      "fixtures": ["program-journal-content.basic.json"],
+      "sourceReferences": ["js/monitoring.js:102", "js/monitoring.js:157"],
+      "aliases": []
+    },
+    {
+      "id": "program-journal-future-plan",
+      "name": "향후 계획 및 기타사항 생성",
+      "inputs": ["program-need", "program-method", "program-reaction", "program-monitoring", "field-1..field-10"],
+      "promptBuilder": "js/monitoring.js:generateFuturePlan inline prompt",
+      "modelOptions": {
+        "requestType": "text",
+        "model": "selectedModel",
+        "temperature": 1
+      },
+      "expectedSections": ["종합", "급여제공 관련 유의사항", "급여제공 관련 세부계획"],
+      "contract": "programJournalFuturePlan",
+      "parser": "js/monitoring.js split(/\\[(\\d+)\\]/); target PromptKit.parsers.programJournalFuturePlan",
+      "renderer": "future-summary, future-caution, future-plan inputs",
+      "copyPath": "included in 업무수행일지 saved fields",
+      "fixtures": ["program-journal-future-plan.basic.json"],
+      "sourceReferences": ["js/monitoring.js:180", "js/monitoring.js:246"],
+      "aliases": []
+    },
+    {
+      "id": "program-reactions",
+      "name": "프로그램 제공일지 어르신 반응 생성",
+      "inputs": ["program-mode", "program-title", "program-desc", "reaction-count", "positive-ratio", "neutral-ratio", "negative-ratio", "programPatterns", "sessionStorage previous reactions"],
+      "promptBuilder": "js/monitoring.js:buildAdvancedPrompt",
+      "modelOptions": {
+        "requestType": "text",
+        "model": "selectedModel",
+        "temperature": 1.5
+      },
+      "expectedSections": ["긍정", "중립", "소극/피로"],
+      "contract": "programReactions",
+      "parser": "js/monitoring.js:parseEmotionSections; target PromptKit.parsers.programReactions",
+      "renderer": "positive-reactions, neutral-reactions, negative-reactions textareas",
+      "copyPath": "copyAllReactions()",
+      "fixtures": ["program-reactions.basic.json"],
+      "sourceReferences": ["js/monitoring.js:333", "js/monitoring.js:631", "js/monitoring.js:681", "js/monitoring.js:747"],
+      "aliases": []
+    },
+    {
+      "id": "case-management-minutes",
+      "name": "사례관리 회의록 생성",
+      "inputs": ["recipientName", "age", "diagnosis", "recentChanges", "year", "quarter", "attendees", "guardianInfo", "programParticipation", "serviceType", "serviceContent", "reflectionReason"],
+      "promptBuilder": "js/case-management.js:buildCaseManagementPrompt",
+      "modelOptions": {
+        "requestType": "text",
+        "model": "selectedModel",
+        "temperature": 1
+      },
+      "expectedSections": ["선정사유", "회의내용", "회의결과", "급여제공반영"],
+      "contract": "caseManagementMinutes",
+      "parser": "js/case-management.js split(/\\[(\\d+)\\]/); target PromptKit.parsers.caseManagementMinutes",
+      "renderer": "displayCaseManagementResult() four result blocks",
+      "copyPath": "copyCaseManagementResult()",
+      "fixtures": ["case-management-minutes.basic.json"],
+      "sourceReferences": ["js/case-management.js:37", "js/case-management.js:80", "js/case-management.js:93"],
+      "aliases": []
+    },
+    {
+      "id": "counseling-log",
+      "name": "상담일지 생성",
+      "inputs": ["date", "method", "elderName", "guardianRelation", "guardianRequest", "centerRequest", "writingStyle"],
+      "promptBuilder": "js/counseling.js:buildCounselingLogPrompt",
+      "modelOptions": {
+        "requestType": "text",
+        "model": "gemini-3.1-flash-lite",
+        "temperature": 1
+      },
+      "expectedSections": ["상담일자", "상담방식", "상담내용", "조치내용"],
+      "contract": "counselingLog",
+      "parser": "js/counseling.js bracket split in displayCounselingLogResult(); target PromptKit.parsers.counselingLog",
+      "renderer": "displayCounselingLogResult() section cards",
+      "copyPath": "copyCounselingLogResult()",
+      "fixtures": ["counseling-log.basic.json"],
+      "sourceReferences": ["js/counseling.js:11", "js/counseling.js:53", "js/counseling.js:91"],
+      "aliases": []
+    },
+    {
+      "id": "grievance-report",
+      "name": "고충처리 기록서 생성",
+      "inputs": ["employee", "position", "background", "situation", "content", "relatedParty", "confirmedFacts", "actionHistory", "actionScope", "notificationMethod"],
+      "promptBuilder": "js/grievance.js:buildGrievancePrompt",
+      "modelOptions": {
+        "requestType": "text",
+        "model": "gemini-3.1-flash-lite",
+        "temperature": 1
+      },
+      "expectedSections": ["직원 고충처리 기록서", "고충내용", "접수", "분석", "처리결과", "조치", "통보", "사후관리", "비고"],
+      "contract": "grievanceReport",
+      "parser": "js/grievance.js markdown replacement in displayGrievanceResult(); target PromptKit.parsers.grievanceReport",
+      "renderer": "displayGrievanceResult() converted HTML",
+      "copyPath": "copyGrievanceResult()",
+      "fixtures": ["grievance-report.basic.json"],
+      "sourceReferences": ["js/grievance.js:11", "js/grievance.js:67", "js/grievance.js:105"],
+      "aliases": []
+    },
+    {
+      "id": "program-feedback",
+      "name": "프로그램 의견수렴 및 의견반영 생성",
+      "inputs": ["beneficiary", "programName", "programDate", "collectedOpinion", "reflectedOpinion"],
+      "promptBuilder": "js/program-feedback.js:buildProgramFeedbackPrompt",
+      "modelOptions": {
+        "requestType": "text",
+        "model": "gemini-3.1-flash-lite",
+        "temperature": 1
+      },
+      "expectedSections": ["수급자(보호자) 의견수렴", "수급자(보호자) 의견반영"],
+      "contract": "programFeedback",
+      "parser": "plain text heading validation; target PromptKit.parsers.programFeedback",
+      "renderer": "displayProgramFeedbackResult() textContent",
+      "copyPath": "copyProgramFeedbackResult()",
+      "fixtures": ["program-feedback.basic.json"],
+      "sourceReferences": ["js/program-feedback.js:2", "js/program-feedback.js:51", "js/program-feedback.js:85"],
+      "aliases": []
+    },
+    {
+      "id": "program-plan",
+      "name": "프로그램 계획안 생성",
+      "inputs": ["programName", "programType", "programContent"],
+      "promptBuilder": "js/program-editor.js:buildProgramPlanPrompt",
+      "modelOptions": {
+        "requestType": "text",
+        "model": "selectedModel",
+        "temperature": 1
+      },
+      "expectedSections": ["준비물", "프로그램 목표", "진행과정", "기대효과"],
+      "contract": "programPlan",
+      "parser": "plain text heading validation; target PromptKit.parsers.programPlan",
+      "renderer": "displayProgramPlanResult() currently uses innerHTML",
+      "copyPath": "copyProgramPlanResult()",
+      "fixtures": ["program-plan.basic.json"],
+      "sourceReferences": ["js/program-editor.js:2", "js/program-editor.js:33", "js/program-editor.js:45"],
+      "aliases": []
+    },
+    {
+      "id": "newsletter-image-titles",
+      "name": "소식지 이미지별 제목 생성",
+      "inputs": ["newsletterImages[0..2]", "descriptions[0..2]"],
+      "promptBuilder": "js/main.js:generateNewsletter title prompt",
+      "modelOptions": {
+        "requestType": "single-image",
+        "model": "selectedModel",
+        "temperature": 1
+      },
+      "expectedSections": ["imageTitle1", "imageTitle2", "imageTitle3"],
+      "contract": "newsletterImageTitles",
+      "parser": "trimmed title text; target PromptKit.parsers.newsletterImageTitles",
+      "renderer": "titles feed the newsletter content prompt",
+      "copyPath": "copyNewsletterResult() after content generation",
+      "fixtures": ["newsletter-image-titles.basic.json"],
+      "sourceReferences": ["js/main.js:154", "js/main.js:215"],
+      "aliases": []
+    },
+    {
+      "id": "newsletter-content",
+      "name": "소식지 본문 생성",
+      "inputs": ["newsletterImages[0..2]", "newsletterTitles[0..2]", "descriptions[0..2]"],
+      "promptBuilder": "js/main.js:generateNewsletter contentPrompt",
+      "modelOptions": {
+        "requestType": "multi-image",
+        "model": "selectedModel",
+        "temperature": 1
+      },
+      "expectedSections": ["activity1", "activity2", "activity3"],
+      "contract": "newsletterContent",
+      "parser": "plain text separator validation; target PromptKit.parsers.newsletterContent",
+      "renderer": "nl-result-content textContent",
+      "copyPath": "copyNewsletterResult()",
+      "fixtures": ["newsletter-content.basic.json"],
+      "sourceReferences": ["js/main.js:230", "js/main.js:309", "js/main.js:312"],
+      "aliases": []
+    }
+  ]
+}

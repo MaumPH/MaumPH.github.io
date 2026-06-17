@@ -1,0 +1,7 @@
+Command: rg -n "npm ci|npm test|upload-pages-artifact" .github/workflows/deploy.yml
+Result: PASS
+
+Relevant lines:
+- 38: run: npm ci
+- 41: run: npm test
+- 44: uses: actions/upload-pages-artifact@v3

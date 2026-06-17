@@ -1,0 +1,6 @@
+Command: node tests/program-data.test.js
+Result: expected failure before removing eager pattern script.
+
+AssertionError: index.html still contained <script src="js/program_patterns.js"></script>
+
+This confirmed the RED state for lazy program-pattern loading.

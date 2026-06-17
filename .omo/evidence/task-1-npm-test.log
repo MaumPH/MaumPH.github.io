@@ -1,0 +1,7 @@
+Command: npm test
+Result: PASS
+
+Output summary:
+- npm run check:syntax passed
+- npm run test:unit passed
+- npm run test:browser passed
