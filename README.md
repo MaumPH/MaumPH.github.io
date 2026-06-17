@@ -62,7 +62,7 @@
 ## 기술 스택
 
 - **Frontend**: HTML5, Tailwind CSS, Vanilla JavaScript (모듈화)
-- **AI**: Google Gemini API (gemini-2.0-flash-exp)
+- **AI**: Google Gemini API (gemini-3.1-flash-lite)
 - **인증**: Firebase Authentication (SESSION persistence)
 - **데이터베이스**: Cloud Firestore
 - **파일 처리**: PDF.js, SheetJS (XLSX)

@@ -13,7 +13,7 @@ let pdfText = '';
 let apiKeys = JSON.parse(localStorage.getItem('gemini_api_keys') || '[]');
 let activeApiKeyIndex = parseInt(localStorage.getItem('active_api_key_index') || '0');
 let apiKey = apiKeys[activeApiKeyIndex] || '';
-let selectedModel = 'gemini-3-flash-preview';
+let selectedModel = 'gemini-3.1-flash-lite';
 let usageCount = parseInt(localStorage.getItem('usage_count') || '0');
 
 // Newsletter 상태
